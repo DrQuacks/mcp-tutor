@@ -1,0 +1,17 @@
+{
+    "inputs": [
+    {
+        "type": "promptString",
+        "id": "api-key",
+        "description": "API Key",
+        "password": true
+    }],
+    "servers": {
+      "ai-code-tutor": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["tsx", "/Users/Kellar/Develop/Projects/mcp-tutor/src/server.ts"],
+        "cwd": "/Users/Kellar/Develop/Projects/mcp-tutor"
+      }
+    }
+  }

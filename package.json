@@ -1,24 +1,20 @@
 {
-  "name": "mcp-tutor",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "mcp-echo-server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
   "scripts": {
+    "dev": "node --loader ts-node/esm src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.22.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^22.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.5.0"
   }
 }
