@@ -513,6 +513,10 @@ async function main() {
         
         for (const test of exerciseData.browserTests) {
           try {
+            // Reload page before each test for isolation
+            await page.reload({ waitUntil: 'networkidle' });
+            await page.waitForTimeout(300);
+
             // Handle different test formats
             if (test.actions) {
               // Multiple actions test
