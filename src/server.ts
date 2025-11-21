@@ -411,7 +411,193 @@ async function main() {
         lines.push(`- ${hint}`);
       }
       lines.push("");
-      lines.push(`When you're ready, use the \`tutor_react_check_solution\` tool with exerciseId: "${exerciseId}" to test your solution.`);
+      
+      // Recommend appropriate test tool based on environment
+      const checkTool = exerciseData.environment === "node" 
+        ? "tutor_node_check_solution" 
+        : "tutor_react_check_solution";
+      lines.push(`When you're ready, use the \`${checkTool}\` tool with exerciseId: "${exerciseId}" to test your solution.`);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: lines.join("\n"),
+          },
+        ],
+      };
+    }
+  );
+
+  // Tool: Node.js check solution - tests student's Node.js code
+  server.registerTool(
+    "tutor_node_check_solution",
+    {
+      description:
+        "Tests the student's Node.js solution against the exercise test cases.",
+      inputSchema: z.object({
+        exerciseId: z
+          .string()
+          .describe(
+            "The ID of the exercise to test, e.g. 'node-sum-array'."
+          ),
+      }),
+    },
+    async ({ exerciseId }) => {
+      const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
+
+      let exerciseData: any;
+      try {
+        const content = await fs.readFile(exercisePath, "utf8");
+        exerciseData = JSON.parse(content);
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Exercise '${exerciseId}' not found or invalid.`,
+            },
+          ],
+        };
+      }
+
+      // Verify solution file exists
+      const solutionPath = path.join(NODE_ENV_ROOT, exerciseData.filePath);
+
+      let solutionCode: string;
+      try {
+        solutionCode = await fs.readFile(solutionPath, "utf8");
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Solution file not found at ${exerciseData.filePath}. Did you create the file in environments/node/?`,
+            },
+          ],
+        };
+      }
+
+      // Run tests using VM sandbox
+      const testResults: Array<{ name: string; passed: boolean; error?: string }> = [];
+
+      for (const test of exerciseData.tests) {
+        try {
+          const sandbox: any = {
+            module: { exports: {} },
+            exports: {},
+            console,
+          };
+
+          vm.createContext(sandbox);
+          vm.runInContext(solutionCode, sandbox, { timeout: 1000 });
+
+          // Get the exported function
+          const func = sandbox.module.exports;
+          
+          if (typeof func !== "function") {
+            throw new Error("No function exported from the file");
+          }
+
+          // Run the test
+          const result = func(test.input);
+          
+          if (result !== test.expected) {
+            throw new Error(`Expected ${test.expected}, but got ${result}`);
+          }
+
+          testResults.push({ name: test.name, passed: true });
+        } catch (err: any) {
+          testResults.push({
+            name: test.name,
+            passed: false,
+            error: err.message,
+          });
+        }
+      }
+
+      // Format results
+      const allPassed = testResults.every(t => t.passed);
+      const lines: string[] = [];
+
+      if (allPassed) {
+        lines.push(`✅ Excellent! All ${testResults.length} tests passed for ${exerciseData.title}!`);
+        lines.push("");
+        lines.push("Tests run:");
+        for (const test of testResults) {
+          lines.push(`  ✅ ${test.name}`);
+        }
+      } else {
+        lines.push(`❌ Some tests failed for ${exerciseData.title}`);
+        lines.push("");
+        lines.push("Test results:");
+        for (const test of testResults) {
+          if (test.passed) {
+            lines.push(`  ✅ ${test.name}`);
+          } else {
+            lines.push(`  ❌ ${test.name}`);
+            if (test.error) {
+              lines.push(`     ${test.error}`);
+            }
+          }
+        }
+        lines.push("");
+        lines.push(`💡 Need help? Use \`tutor_node_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: lines.join("\n"),
+          },
+        ],
+      };
+    }
+  );
+
+  // Tool: Node.js show solution
+  server.registerTool(
+    "tutor_node_show_solution",
+    {
+      description:
+        "Shows the complete solution code for a Node.js exercise. Only use this when the student explicitly asks for the solution.",
+      inputSchema: z.object({
+        exerciseId: z
+          .string()
+          .describe(
+            "The ID of the exercise to show solution for, e.g. 'node-sum-array'."
+          ),
+      }),
+    },
+    async ({ exerciseId }) => {
+      const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
+
+      let exerciseData: any;
+      try {
+        const content = await fs.readFile(exercisePath, "utf8");
+        exerciseData = JSON.parse(content);
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Exercise '${exerciseId}' not found or invalid.`,
+            },
+          ],
+        };
+      }
+
+      const lines: string[] = [];
+      lines.push(`# Solution for ${exerciseData.title}`);
+      lines.push("");
+      lines.push("Here's a working solution:");
+      lines.push("");
+      lines.push("```javascript");
+      lines.push(exerciseData.solutionCode);
+      lines.push("```");
+      lines.push("");
+      lines.push("You can copy this into your file or study it to understand the approach.");
 
       return {
         content: [

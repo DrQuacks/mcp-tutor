@@ -1,0 +1,40 @@
+{
+  "title": "Sum Array",
+  "description": "Write a function that calculates the sum of all numbers in an array.",
+  "environment": "node",
+  "filePath": "src/exercises/sumArray.js",
+  "requirements": [
+    "Create a function named `sumArray` that takes an array of numbers as a parameter",
+    "Return the sum of all numbers in the array",
+    "Return 0 if the array is empty"
+  ],
+  "hints": [
+    "Use a loop to iterate through the array",
+    "Keep a running total as you iterate",
+    "Make sure to handle the empty array case"
+  ],
+  "starterCode": "// Write your sumArray function here\nfunction sumArray(numbers) {\n  // Your code here\n}\n\nmodule.exports = sumArray;\n",
+  "solutionCode": "function sumArray(numbers) {\n  let sum = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    sum += numbers[i];\n  }\n  return sum;\n}\n\nmodule.exports = sumArray;\n",
+  "tests": [
+    {
+      "name": "Returns 10 for [1, 2, 3, 4]",
+      "input": [1, 2, 3, 4],
+      "expected": 10
+    },
+    {
+      "name": "Handles negative numbers: [10, -5, 5]",
+      "input": [10, -5, 5],
+      "expected": 10
+    },
+    {
+      "name": "Returns 0 for empty array",
+      "input": [],
+      "expected": 0
+    },
+    {
+      "name": "Works with single element [42]",
+      "input": [42],
+      "expected": 42
+    }
+  ]
+}
