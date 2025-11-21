@@ -7,7 +7,8 @@ import path from "node:path";
 
 const ENV_ROOT = path.join(process.cwd(), "environments");
 const NODE_ENV_ROOT = path.join(ENV_ROOT, "node");
-const REACT_ENV_ROOT = path.join(ENV_ROOT, "react");
+const REACT_ENV_ROOT = path.join(ENV_ROOT, "react", "template");
+const EXERCISES_ROOT = path.join(process.cwd(), "exercises");
 
 async function main() {
   const server = new McpServer({
@@ -286,62 +287,146 @@ async function main() {
     }
   );
 
-    // Tool: run a file from an environment (node/react) together with test code
+
+
+  // Tool: React exercise prompt - shows requirements and creates starter file
   server.registerTool(
-    "tutor_run_env_js_with_tests",
+    "tutor_react_exercise_prompt",
     {
       description:
-        "Runs JavaScript solution code from a file in either the node or react environment together with test code in a sandbox.",
+        "Gives the user a React exercise by showing requirements and creating a starter file. Does NOT reveal the solution.",
       inputSchema: z.object({
-        environment: z
-          .enum(["node", "react"])
-          .describe(
-            "Which environment to use: 'node' for environments/node, or 'react' for environments/react."
-          ),
-        solutionPath: z
+        exerciseId: z
           .string()
           .describe(
-            "Path to the solution file relative to the environment root, e.g. 'src/arraysExercise.js' or 'src/exercises/useCounter.ts'."
-          ),
-        testCode: z
-          .string()
-          .describe(
-            "JavaScript test code that assumes the solution has been loaded, and throws errors if tests fail."
+            "The ID of the exercise to load, e.g. 'react-counter'."
           ),
       }),
     },
-    async ({ environment, solutionPath, testCode }) => {
-      const envRoot =
-        environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
+    async ({ exerciseId }) => {
+      const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
 
-      const resolvedSolutionPath = path.join(envRoot, solutionPath);
-
-      let solutionCode: string;
+      let exerciseData: any;
       try {
-        solutionCode = await fs.readFile(resolvedSolutionPath, "utf8");
+        const content = await fs.readFile(exercisePath, "utf8");
+        exerciseData = JSON.parse(content);
       } catch (err: any) {
-        const msg =
-          err && err.code === "ENOENT"
-            ? `Solution file not found: ${resolvedSolutionPath}`
-            : `Failed to read solution file ${resolvedSolutionPath}: ${
-                err?.message ?? String(err)
-              }`;
-
         return {
           content: [
             {
               type: "text",
-              text: `❌ ${msg}`,
+              text: `❌ Exercise '${exerciseId}' not found or invalid.`,
             },
           ],
         };
       }
 
-      const logs: string[] = [];
+      // Create the starter file
+      const envRoot = exerciseData.environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
+      const filePath = path.join(envRoot, exerciseData.filePath);
 
+      try {
+        await fs.mkdir(path.dirname(filePath), { recursive: true });
+        await fs.writeFile(filePath, exerciseData.starterCode, "utf8");
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Failed to create starter file: ${err?.message ?? String(err)}`,
+            },
+          ],
+        };
+      }
+
+      // Build the response (NO solution code)
+      const lines: string[] = [];
+      lines.push(`# ${exerciseData.title}`);
+      lines.push("");
+      lines.push(exerciseData.description);
+      lines.push("");
+      lines.push("## Requirements:");
+      for (const req of exerciseData.requirements) {
+        lines.push(`- ${req}`);
+      }
+      lines.push("");
+      lines.push(`📁 Starter file created at: \`${exerciseData.filePath}\``);
+      lines.push("");
+      lines.push("💡 **Hints:**");
+      for (const hint of exerciseData.hints) {
+        lines.push(`- ${hint}`);
+      }
+      lines.push("");
+      lines.push(`When you're ready, use the \`tutor_react_check_solution\` tool with exerciseId: "${exerciseId}" to test your solution.`);
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: lines.join("\n"),
+          },
+        ],
+      };
+    }
+  );
+
+  // Tool: React check solution - tests student's code
+  server.registerTool(
+    "tutor_react_check_solution",
+    {
+      description:
+        "Tests the student's React solution against the exercise test cases.",
+      inputSchema: z.object({
+        exerciseId: z
+          .string()
+          .describe(
+            "The ID of the exercise to test, e.g. 'react-counter'."
+          ),
+      }),
+    },
+    async ({ exerciseId }) => {
+      const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
+
+      let exerciseData: any;
+      try {
+        const content = await fs.readFile(exercisePath, "utf8");
+        exerciseData = JSON.parse(content);
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Exercise '${exerciseId}' not found or invalid.`,
+            },
+          ],
+        };
+      }
+
+      // Read student's solution
+      const envRoot = exerciseData.environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
+      const solutionPath = path.join(envRoot, exerciseData.filePath);
+
+      let solutionCode: string;
+      try {
+        solutionCode = await fs.readFile(solutionPath, "utf8");
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Solution file not found at ${exerciseData.filePath}. Did you create the file?`,
+            },
+          ],
+        };
+      }
+
+      // Run tests
+      const logs: string[] = [];
       const sandbox: any = {
         module: { exports: {} },
         exports: {},
+        React: undefined, // Will be set by student code if needed
+        useState: undefined,
         console: {
           log: (...args: unknown[]) => {
             logs.push(args.map((a) => String(a)).join(" "));
@@ -353,33 +438,102 @@ async function main() {
 
       let error: unknown = null;
       try {
-        // Run the student's solution code first
+        // Run student's solution
         vm.runInContext(solutionCode, sandbox, { timeout: 1000 });
-        // Then run the tests that reference that solution
-        vm.runInContext(testCode, sandbox, { timeout: 1000 });
+        
+        // Get the default export if it exists
+        const Counter = sandbox.module?.exports?.default || sandbox.Counter;
+        if (Counter) {
+          sandbox.Counter = Counter;
+        }
+
+        // Run tests
+        vm.runInContext(exerciseData.testCode, sandbox, { timeout: 1000 });
       } catch (err) {
         error = err;
       }
 
       const passed = !error;
-
       const lines: string[] = [];
-      lines.push(
-        passed
-          ? `✅ All tests passed for ${environment} environment file ${solutionPath}.`
-          : `❌ Tests failed for ${environment} environment file ${solutionPath}.`
-      );
+
+      if (passed) {
+        lines.push(`✅ Excellent! All tests passed for ${exerciseData.title}!`);
+      } else {
+        lines.push(`❌ Tests failed for ${exerciseData.title}`);
+      }
 
       if (logs.length > 0) {
-        lines.push("", "Console output:");
+        lines.push("");
+        lines.push("Console output:");
         for (const line of logs) {
-          lines.push("  " + line);
+          lines.push(`  ${line}`);
         }
       }
 
       if (error) {
-        lines.push("", "Error:", String(error));
+        lines.push("");
+        lines.push("Error:");
+        lines.push(String(error));
       }
+
+      if (!passed) {
+        lines.push("");
+        lines.push(`💡 Need help? Use \`tutor_react_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
+      }
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: lines.join("\n"),
+          },
+        ],
+      };
+    }
+  );
+
+  // Tool: React show solution - reveals complete solution when explicitly requested
+  server.registerTool(
+    "tutor_react_show_solution",
+    {
+      description:
+        "Shows the complete solution code for a React exercise. Only use this when the student explicitly asks for the solution.",
+      inputSchema: z.object({
+        exerciseId: z
+          .string()
+          .describe(
+            "The ID of the exercise to show solution for, e.g. 'react-counter'."
+          ),
+      }),
+    },
+    async ({ exerciseId }) => {
+      const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
+
+      let exerciseData: any;
+      try {
+        const content = await fs.readFile(exercisePath, "utf8");
+        exerciseData = JSON.parse(content);
+      } catch (err: any) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `❌ Exercise '${exerciseId}' not found or invalid.`,
+            },
+          ],
+        };
+      }
+
+      const lines: string[] = [];
+      lines.push(`# Solution for ${exerciseData.title}`);
+      lines.push("");
+      lines.push("Here's a working solution:");
+      lines.push("");
+      lines.push("```jsx");
+      lines.push(exerciseData.solutionCode);
+      lines.push("```");
+      lines.push("");
+      lines.push("You can copy this into your file or study it to understand the approach.");
 
       return {
         content: [
