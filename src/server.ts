@@ -7,6 +7,20 @@ import path from "node:path";
 import { chromium, Browser } from "playwright";
 import type { ViteDevServer } from "vite";
 
+// Extend Window type for test progress API
+declare global {
+  interface Window {
+    __TEST_PROGRESS__?: {
+      tests: Array<{ name: string; status: string }>;
+      currentIndex: number;
+      setTests: (names: string[]) => void;
+      setCurrentTest: (index: number) => void;
+      setTestResult: (index: number, passed: boolean) => void;
+      render: () => void;
+    };
+  }
+}
+
 const ENV_ROOT = path.join(process.cwd(), "environments");
 const NODE_ENV_ROOT = path.join(ENV_ROOT, "node");
 const REACT_ENV_ROOT = path.join(ENV_ROOT, "react", "template");
@@ -430,7 +444,7 @@ async function main() {
           ),
       }),
     },
-    async ({ exerciseId, headless = true }) => {
+    async ({ exerciseId, headless = false }) => {
       const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
 
       let exerciseData: any;
@@ -477,8 +491,136 @@ async function main() {
           slowMo: headless ? 0 : 100, // Slow down actions in headed mode for visibility
         });
         
-        const context = await browser.newContext();
-        const page = await context.newPage();
+        // Create two separate contexts so they open as separate windows
+        const progressContext = await browser.newContext({
+          viewport: { width: 400, height: 600 }
+        });
+        const testContext = await browser.newContext({
+          viewport: { width: 1200, height: 800 }
+        });
+        
+        // Create progress window - a separate window for test progress UI
+        const progressPage = await progressContext.newPage();
+        
+        const testNames = exerciseData.browserTests.map((t: any) => t.name);
+        
+        // Initialize progress window with HTML
+        await progressPage.setContent(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Test Progress</title>
+            <style>
+              body {
+                margin: 0;
+                padding: 20px;
+                font-family: system-ui, -apple-system, sans-serif;
+                background: #f5f5f5;
+              }
+              h1 {
+                margin: 0 0 20px 0;
+                font-size: 20px;
+                color: #333;
+              }
+              .test-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+              }
+              .test-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px;
+                border-radius: 8px;
+                background: white;
+                border: 2px solid transparent;
+                transition: all 0.2s;
+              }
+              .test-item.running {
+                background: #fff3cd;
+                border-color: #ffc107;
+                font-weight: 600;
+              }
+              .test-icon {
+                font-size: 24px;
+                min-width: 30px;
+                text-align: center;
+              }
+              .test-name {
+                flex: 1;
+                font-size: 14px;
+                color: #666;
+              }
+              .test-name.passed {
+                color: #22c55e;
+                text-decoration: line-through;
+              }
+              .test-name.failed {
+                color: #ef4444;
+                text-decoration: line-through;
+              }
+              .test-status {
+                font-size: 12px;
+                color: #f59e0b;
+                font-weight: 600;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Test Progress</h1>
+            <div class="test-list" id="test-list"></div>
+            <script>
+              window.updateProgress = function(currentIndex, results) {
+                const testList = document.getElementById('test-list');
+                const tests = ${JSON.stringify(testNames)};
+                
+                testList.innerHTML = tests.map((name, i) => {
+                  const isRunning = i === currentIndex;
+                  const isPending = i > currentIndex;
+                  const result = results[i];
+                  const isPassed = result?.passed === true;
+                  const isFailed = result?.passed === false;
+                  
+                  let icon = '⏸️';
+                  let statusClass = '';
+                  if (isPassed) {
+                    icon = '✅';
+                    statusClass = 'passed';
+                  } else if (isFailed) {
+                    icon = '❌';
+                    statusClass = 'failed';
+                  }
+                  
+                  return \`
+                    <div class="test-item \${isRunning ? 'running' : ''}">
+                      <div class="test-icon">\${icon}</div>
+                      <div class="test-name \${statusClass}">\${name}</div>
+                      \${isRunning ? '<div class="test-status">▶ Running</div>' : ''}
+                    </div>
+                  \`;
+                }).join('');
+              };
+              
+              // Initialize with all pending
+              window.updateProgress(-1, []);
+            </script>
+          </body>
+          </html>
+        `);
+        
+        const updateProgress = async (currentIndex: number, results: Array<{passed: boolean}>) => {
+          await progressPage.evaluate(
+            ({ index, testResults }) => {
+              (window as any).updateProgress(index, testResults);
+            },
+            { index: currentIndex, testResults: results }
+          );
+        };
+        
+        // Create test execution page in separate window
+        const page = await testContext.newPage();
 
         // Navigate to test harness with exercise component
         // Extract component name: 'react-counter' -> 'Counter'
@@ -511,8 +653,13 @@ async function main() {
         // Run browser tests
         const testResults: Array<{ name: string; passed: boolean; error?: string }> = [];
         
-        for (const test of exerciseData.browserTests) {
+        for (let i = 0; i < exerciseData.browserTests.length; i++) {
+          const test = exerciseData.browserTests[i];
+          
           try {
+            // Update progress window before starting test
+            await updateProgress(i, testResults);
+            
             // Reload page before each test for isolation
             await page.reload({ waitUntil: 'networkidle' });
             await page.waitForTimeout(300);
@@ -557,13 +704,34 @@ async function main() {
             }
 
             testResults.push({ name: test.name, passed: true });
+            
+            // Update progress window with success
+            await updateProgress(i, testResults);
+            
+            // Pause to see the result
+            await page.waitForTimeout(headless ? 0 : 800);
+            
           } catch (err: any) {
             testResults.push({ 
               name: test.name, 
               passed: false, 
               error: err.message 
             });
+            
+            // Update progress window with failure
+            await updateProgress(i, testResults);
+            
+            // Pause to see the error
+            await page.waitForTimeout(headless ? 0 : 800);
           }
+        }
+
+        // Final update to show all tests complete
+        await updateProgress(testResults.length - 1, testResults);
+        
+        // Keep browser open briefly to see final results
+        if (!headless) {
+          await page.waitForTimeout(2000);
         }
 
         await browser.close();
