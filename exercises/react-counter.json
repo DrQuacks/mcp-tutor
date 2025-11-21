@@ -13,7 +13,50 @@
   ],
   "starterCode": "import { useState } from 'react';\n\nfunction Counter() {\n  // TODO: Add state management here\n  \n  return (\n    <div>\n      {/* TODO: Display count and add buttons */}\n    </div>\n  );\n}\n\nexport default Counter;",
   "solutionCode": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n      <button onClick={() => setCount(0)}>Reset</button>\n    </div>\n  );\n}\n\nexport default Counter;",
-  "testCode": "// Test that Counter component exists and is a function\nif (typeof Counter !== 'function') {\n  throw new Error('Counter should be exported as a function component');\n}\n\n// Mock React for testing\nlet currentState = 0;\nconst mockSetState = (newValue) => {\n  currentState = typeof newValue === 'function' ? newValue(currentState) : newValue;\n};\n\nconst React = {\n  useState: (initialValue) => {\n    currentState = initialValue;\n    return [currentState, mockSetState];\n  }\n};\n\n// Get the component structure\nconst result = Counter();\n\nif (!result || typeof result !== 'object') {\n  throw new Error('Counter should return a React element');\n}\n\n// Check for count display\nconst hasCountDisplay = JSON.stringify(result).includes('Count');\nif (!hasCountDisplay) {\n  throw new Error('Counter should display the count value');\n}\n\n// Check for buttons\nconst resultStr = JSON.stringify(result);\nif (!resultStr.toLowerCase().includes('increment')) {\n  throw new Error('Counter should have an Increment button');\n}\nif (!resultStr.toLowerCase().includes('reset')) {\n  throw new Error('Counter should have a Reset button');\n}\n\nconsole.log('✅ Counter component structure looks good!');",
+  "browserTests": [
+    {
+      "name": "Component renders with initial count of 0",
+      "selector": "span, p",
+      "action": "getText",
+      "expected": "0"
+    },
+    {
+      "name": "Increment button increases count to 1",
+      "action": "click",
+      "selector": "button:has-text('Increment')",
+      "then": {
+        "selector": "span, p",
+        "action": "getText",
+        "contains": "1"
+      }
+    },
+    {
+      "name": "Increment button works multiple times",
+      "actions": [
+        { "action": "click", "selector": "button:has-text('Increment')" },
+        { "action": "click", "selector": "button:has-text('Increment')" },
+        { "action": "click", "selector": "button:has-text('Increment')" }
+      ],
+      "then": {
+        "selector": "span, p",
+        "action": "getText",
+        "contains": "3"
+      }
+    },
+    {
+      "name": "Reset button sets count back to 0",
+      "actions": [
+        { "action": "click", "selector": "button:has-text('Increment')" },
+        { "action": "click", "selector": "button:has-text('Increment')" },
+        { "action": "click", "selector": "button:has-text('Reset')" }
+      ],
+      "then": {
+        "selector": "span, p",
+        "action": "getText",
+        "contains": "0"
+      }
+    }
+  ],
   "hints": [
     "Import useState from 'react' at the top of the file",
     "Call useState(0) to create state: const [count, setCount] = useState(0)",
