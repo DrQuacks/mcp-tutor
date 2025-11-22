@@ -1,0 +1,46 @@
+{
+  "title": "Filter Even Numbers",
+  "description": "Write a function that takes an array of numbers and returns a new array containing only the even numbers from the original array. Even numbers are integers that are divisible by 2 (like 2, 4, 6, 8, etc.). Your function should preserve the order of the even numbers as they appeared in the input array.\n\nFor example:\n- Input: [1, 2, 3, 4, 5] → Output: [2, 4]\n- Input: [1, 3, 5] → Output: [] (no even numbers)\n- Input: [2, 4, 6] → Output: [2, 4, 6] (all even)\n\nThe function should not modify the original array - it should create and return a new array.",
+  "environment": "node",
+  "filePath": "src/exercises/filterEvens.ts",
+  "requirements": [
+    "Create a function named `filterEvens` that takes an array of numbers as a parameter",
+    "Return a new array containing only the even numbers",
+    "Preserve the order of the even numbers from the original array",
+    "Return an empty array if there are no even numbers"
+  ],
+  "hints": [
+    "You can use the array filter() method",
+    "A number is even if number % 2 === 0",
+    "Don't modify the original array"
+  ],
+  "starterCode": "export function filterEvens(numbers: number[]): number[] {\n  // Your code here\n  return [];\n}\n",
+  "solutionCode": "export function filterEvens(numbers: number[]): number[] {\n  return numbers.filter(num => num % 2 === 0);\n}\n",
+  "tests": [
+    {
+      "name": "Returns [2, 4] for [1, 2, 3, 4, 5]",
+      "input": [1, 2, 3, 4, 5],
+      "expected": [2, 4]
+    },
+    {
+      "name": "Returns all numbers for [2, 4, 6, 8]",
+      "input": [2, 4, 6, 8],
+      "expected": [2, 4, 6, 8]
+    },
+    {
+      "name": "Returns empty array for [1, 3, 5]",
+      "input": [1, 3, 5],
+      "expected": []
+    },
+    {
+      "name": "Handles negative numbers: [-4, -3, -2, -1, 0]",
+      "input": [-4, -3, -2, -1, 0],
+      "expected": [-4, -2, 0]
+    },
+    {
+      "name": "Returns empty array for []",
+      "input": [],
+      "expected": []
+    }
+  ]
+}

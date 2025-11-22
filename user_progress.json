@@ -1,3 +1,48 @@
 {
-  "exercises": []
+  "exercises": [
+    {
+      "exerciseId": "node-filter-evens",
+      "title": "Filter Even Numbers",
+      "environment": "node",
+      "passed": false,
+      "date": "2025-11-22T23:18:26.684Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "node-filter-evens",
+      "title": "Filter Even Numbers",
+      "environment": "node",
+      "passed": false,
+      "date": "2025-11-22T23:19:59.279Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "node-filter-evens",
+      "title": "Filter Even Numbers",
+      "environment": "node",
+      "passed": false,
+      "date": "2025-11-22T23:20:46.782Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "node-filter-evens",
+      "title": "Filter Even Numbers",
+      "environment": "node",
+      "passed": true,
+      "date": "2025-11-22T23:21:40.588Z",
+      "testsPassed": 5,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    }
+  ]
 }

@@ -433,13 +433,31 @@ async function main() {
         };
       }
 
-      // Create the starter file
+      // Create the starter file with embedded requirements
       const envRoot = exerciseData.environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
       const filePath = path.join(envRoot, exerciseData.filePath);
 
+      // Build starter code with JSDoc-style header
+      let starterCodeWithHeader = `/**\n * ${exerciseData.title}\n * \n`;
+      
+      // Add brief description (first line or two)
+      const descLines = exerciseData.description.split('\n');
+      const briefDesc = descLines[0];
+      starterCodeWithHeader += ` * ${briefDesc}\n * \n`;
+      
+      // Add requirements
+      starterCodeWithHeader += ` * Requirements:\n`;
+      for (const req of exerciseData.requirements) {
+        starterCodeWithHeader += ` * - ${req}\n`;
+      }
+      starterCodeWithHeader += ` */\n\n`;
+      
+      // Append the actual starter code
+      starterCodeWithHeader += exerciseData.starterCode;
+
       try {
         await fs.mkdir(path.dirname(filePath), { recursive: true });
-        await fs.writeFile(filePath, exerciseData.starterCode, "utf8");
+        await fs.writeFile(filePath, starterCodeWithHeader, "utf8");
       } catch (err: any) {
         return {
           content: [
@@ -576,7 +594,9 @@ async function main() {
           vm.runInContext(codeToRun, sandbox, { timeout: 1000 });
 
           // Get the exported function (handle both CommonJS and ES6 exports)
-          let func = sandbox.module.exports;
+          // First try sandbox.exports (for ES6 transpiled to CommonJS)
+          // Then try module.exports (for direct CommonJS)
+          let func = sandbox.exports || sandbox.module.exports;
           
           // Handle ES6 export syntax
           if (typeof func === 'object' && func !== null) {
@@ -600,8 +620,18 @@ async function main() {
           // Run the test
           const result = func(test.input);
           
-          if (result !== test.expected) {
-            throw new Error(`Expected ${test.expected}, but got ${result}`);
+          // Deep comparison for arrays and objects
+          let passed = false;
+          if (Array.isArray(test.expected) && Array.isArray(result)) {
+            passed = JSON.stringify(result) === JSON.stringify(test.expected);
+          } else if (typeof test.expected === 'object' && test.expected !== null && typeof result === 'object' && result !== null) {
+            passed = JSON.stringify(result) === JSON.stringify(test.expected);
+          } else {
+            passed = result === test.expected;
+          }
+          
+          if (!passed) {
+            throw new Error(`Expected ${JSON.stringify(test.expected)}, but got ${JSON.stringify(result)}`);
           }
 
           testResults.push({ name: test.name, passed: true });

@@ -1,6 +1,6 @@
 {
   "title": "Sum Array",
-  "description": "Write a function that calculates the sum of all numbers in an array.",
+  "description": "Write a function that takes an array of numbers and returns the sum (total) of all the numbers added together. If the array is empty, the function should return 0.\n\nFor example:\n- Input: [1, 2, 3, 4] → Output: 10 (because 1 + 2 + 3 + 4 = 10)\n- Input: [10, -5, 5] → Output: 10 (because 10 + (-5) + 5 = 10)\n- Input: [] → Output: 0 (empty array sums to 0)\n\nYour function should handle both positive and negative numbers.",
   "environment": "node",
   "filePath": "src/exercises/sumArray.ts",
   "requirements": [
@@ -13,7 +13,7 @@
     "Keep a running total as you iterate",
     "Make sure to handle the empty array case"
   ],
-  "starterCode": "// Write your sumArray function here\nexport function sumArray(numbers: number[]): number {\n  // Your code here\n  return 0;\n}\n",
+  "starterCode": "export function sumArray(numbers: number[]): number {\n  // Your code here\n  return 0;\n}\n",
   "solutionCode": "export function sumArray(numbers: number[]): number {\n  let sum = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    sum += numbers[i];\n  }\n  return sum;\n}\n",
   "tests": [
     {

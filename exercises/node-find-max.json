@@ -1,6 +1,6 @@
 {
   "title": "Find Maximum Value",
-  "description": "Write a function that finds the largest number in an array.",
+  "description": "Write a function that takes an array of numbers and returns the largest (maximum) number in the array. If the array is empty, the function should return null.\n\nFor example:\n- Input: [1, 5, 3, 9, 2] → Output: 9 (9 is the largest number)\n- Input: [-10, -5, -20] → Output: -5 (the least negative is the largest)\n- Input: [42] → Output: 42 (single element)\n- Input: [] → Output: null (empty array has no maximum)\n\nYour function should work with positive numbers, negative numbers, and single-element arrays.",
   "environment": "node",
   "filePath": "src/exercises/findMax.ts",
   "requirements": [
@@ -13,7 +13,7 @@
     "Remember to handle the empty array case first",
     "Keep track of the current maximum as you iterate"
   ],
-  "starterCode": "// Write your findMax function here\nexport function findMax(numbers: number[]): number | null {\n  // Your code here\n  return null;\n}\n",
+  "starterCode": "export function findMax(numbers: number[]): number | null {\n  // Your code here\n  return null;\n}\n",
   "solutionCode": "export function findMax(numbers: number[]): number | null {\n  if (numbers.length === 0) {\n    return null;\n  }\n  \n  let max = numbers[0];\n  for (let i = 1; i < numbers.length; i++) {\n    if (numbers[i] > max) {\n      max = numbers[i];\n    }\n  }\n  return max;\n}\n",
   "tests": [
     {
