@@ -25,6 +25,58 @@ const ENV_ROOT = path.join(process.cwd(), "environments");
 const NODE_ENV_ROOT = path.join(ENV_ROOT, "node");
 const REACT_ENV_ROOT = path.join(ENV_ROOT, "react", "template");
 const EXERCISES_ROOT = path.join(process.cwd(), "exercises");
+const PROGRESS_FILE = path.join(process.cwd(), "user_progress.json");
+
+// Progress tracking types
+interface ExerciseAttempt {
+  exerciseId: string;
+  title: string;
+  environment: string;
+  passed: boolean;
+  date: string; // ISO date string
+  testsPassed: number;
+  testsTotal: number;
+}
+
+interface UserProgress {
+  exercises: ExerciseAttempt[];
+}
+
+// Progress tracking functions
+async function loadProgress(): Promise<UserProgress> {
+  try {
+    const content = await fs.readFile(PROGRESS_FILE, "utf8");
+    return JSON.parse(content);
+  } catch (err) {
+    // File doesn't exist yet, return empty progress
+    return { exercises: [] };
+  }
+}
+
+async function saveProgress(progress: UserProgress): Promise<void> {
+  await fs.writeFile(PROGRESS_FILE, JSON.stringify(progress, null, 2), "utf8");
+}
+
+async function recordAttempt(
+  exerciseId: string,
+  title: string,
+  environment: string,
+  passed: boolean,
+  testsPassed: number,
+  testsTotal: number
+): Promise<void> {
+  const progress = await loadProgress();
+  progress.exercises.push({
+    exerciseId,
+    title,
+    environment,
+    passed,
+    date: new Date().toISOString(),
+    testsPassed,
+    testsTotal,
+  });
+  await saveProgress(progress);
+}
 
 // Singleton Vite server management
 let viteServer: ViteDevServer | null = null;
@@ -545,6 +597,16 @@ async function main() {
         lines.push(`💡 Need help? Use \`tutor_node_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
       }
 
+      // Record attempt for progress tracking
+      await recordAttempt(
+        exerciseId,
+        exerciseData.title,
+        exerciseData.environment,
+        allPassed,
+        testResults.filter(t => t.passed).length,
+        testResults.length
+      );
+
       return {
         content: [
           {
@@ -951,6 +1013,16 @@ async function main() {
           lines.push(`💡 Need help? Use \`tutor_react_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
         }
 
+        // Record attempt for progress tracking
+        await recordAttempt(
+          exerciseId,
+          exerciseData.title,
+          exerciseData.environment,
+          allPassed,
+          testResults.filter(t => t.passed).length,
+          testResults.length
+        );
+
         return {
           content: [
             {
@@ -1027,6 +1099,68 @@ async function main() {
             text: lines.join("\n"),
           },
         ],
+      };
+    }
+  );
+
+  // Tool: View progress - shows exercise history and statistics
+  server.registerTool(
+    "tutor_view_progress",
+    {
+      description: "Shows your exercise progress history and statistics.",
+      inputSchema: z.object({}),
+    },
+    async () => {
+      const progress = await loadProgress();
+      
+      if (progress.exercises.length === 0) {
+        return {
+          content: [{
+            type: "text",
+            text: "No exercises attempted yet. Try an exercise to start tracking your progress!"
+          }]
+        };
+      }
+      
+      const lines: string[] = [];
+      lines.push("# Your Progress");
+      lines.push("");
+      
+      // Group by exercise
+      const byExercise = new Map<string, ExerciseAttempt[]>();
+      for (const attempt of progress.exercises) {
+        if (!byExercise.has(attempt.exerciseId)) {
+          byExercise.set(attempt.exerciseId, []);
+        }
+        byExercise.get(attempt.exerciseId)!.push(attempt);
+      }
+      
+      // Summary stats
+      const totalAttempts = progress.exercises.length;
+      const passed = progress.exercises.filter(a => a.passed).length;
+      const uniqueExercises = byExercise.size;
+      
+      lines.push(`📊 **Summary:**`);
+      lines.push(`- Total attempts: ${totalAttempts}`);
+      lines.push(`- Passed: ${passed} (${Math.round(passed/totalAttempts*100)}%)`);
+      lines.push(`- Unique exercises: ${uniqueExercises}`);
+      lines.push("");
+      
+      // Recent attempts
+      lines.push("## Recent Attempts:");
+      const recent = progress.exercises.slice(-10).reverse();
+      for (const attempt of recent) {
+        const date = new Date(attempt.date).toLocaleDateString();
+        const emoji = attempt.passed ? "✅" : "❌";
+        lines.push(`${emoji} ${attempt.title} (${attempt.environment}) - ${date}`);
+        lines.push(`   ${attempt.testsPassed}/${attempt.testsTotal} tests passed`);
+      }
+      
+      return {
+        content: [{
+          type: "text",
+          text: lines.join("\n")
+        }]
       };
     }
   );
