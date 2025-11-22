@@ -36,6 +36,8 @@ interface ExerciseAttempt {
   date: string; // ISO date string
   testsPassed: number;
   testsTotal: number;
+  hintsUsed: number;
+  solutionViewed: boolean;
 }
 
 interface UserProgress {
@@ -63,7 +65,9 @@ async function recordAttempt(
   environment: string,
   passed: boolean,
   testsPassed: number,
-  testsTotal: number
+  testsTotal: number,
+  hintsUsed: number = 0,
+  solutionViewed: boolean = false
 ): Promise<void> {
   const progress = await loadProgress();
   progress.exercises.push({
@@ -74,6 +78,8 @@ async function recordAttempt(
     date: new Date().toISOString(),
     testsPassed,
     testsTotal,
+    hintsUsed,
+    solutionViewed,
   });
   await saveProgress(progress);
 }
@@ -530,6 +536,31 @@ async function main() {
         };
       }
 
+      // Compile TypeScript if needed
+      let codeToRun = solutionCode;
+      if (solutionPath.endsWith('.ts')) {
+        try {
+          // Simple TypeScript to JavaScript transpilation (strips types)
+          const ts = await import('typescript');
+          const result = ts.transpileModule(solutionCode, {
+            compilerOptions: {
+              module: ts.ModuleKind.CommonJS,
+              target: ts.ScriptTarget.ES2020,
+            }
+          });
+          codeToRun = result.outputText;
+        } catch (err: any) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `❌ Failed to compile TypeScript: ${err.message}`,
+              },
+            ],
+          };
+        }
+      }
+
       // Run tests using VM sandbox
       const testResults: Array<{ name: string; passed: boolean; error?: string }> = [];
 
@@ -542,10 +573,25 @@ async function main() {
           };
 
           vm.createContext(sandbox);
-          vm.runInContext(solutionCode, sandbox, { timeout: 1000 });
+          vm.runInContext(codeToRun, sandbox, { timeout: 1000 });
 
-          // Get the exported function
-          const func = sandbox.module.exports;
+          // Get the exported function (handle both CommonJS and ES6 exports)
+          let func = sandbox.module.exports;
+          
+          // Handle ES6 export syntax
+          if (typeof func === 'object' && func !== null) {
+            // Look for the function in exports
+            const functionName = exerciseData.filePath.split('/').pop()?.replace(/\.(ts|js)$/, '');
+            if (functionName && typeof func[functionName] === 'function') {
+              func = func[functionName];
+            } else {
+              // Try to find any exported function
+              const exportedFunc = Object.values(func).find(v => typeof v === 'function');
+              if (exportedFunc) {
+                func = exportedFunc;
+              }
+            }
+          }
           
           if (typeof func !== "function") {
             throw new Error("No function exported from the file");
@@ -589,12 +635,13 @@ async function main() {
           } else {
             lines.push(`  ❌ ${test.name}`);
             if (test.error) {
-              lines.push(`     ${test.error}`);
+              lines.push(`     Error: ${test.error}`);
             }
           }
         }
         lines.push("");
-        lines.push(`💡 Need help? Use \`tutor_node_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
+        lines.push(`Would you like a hint about what might be wrong? Let me know and I can provide more specific guidance.`);
+        lines.push(`Or use \`tutor_node_show_solution\` with exerciseId: "${exerciseId}" to see the full solution.`);
       }
 
       // Record attempt for progress tracking
@@ -660,6 +707,8 @@ async function main() {
       lines.push("```");
       lines.push("");
       lines.push("You can copy this into your file or study it to understand the approach.");
+      lines.push("");
+      lines.push("💡 Note: Viewing the solution will be recorded in your progress.");
 
       return {
         content: [
@@ -1005,12 +1054,13 @@ async function main() {
             } else {
               lines.push(`  ❌ ${test.name}`);
               if (test.error) {
-                lines.push(`     ${test.error}`);
+                lines.push(`     Error: ${test.error}`);
               }
             }
           }
           lines.push("");
-          lines.push(`💡 Need help? Use \`tutor_react_show_solution\` with exerciseId: "${exerciseId}" to see a working solution.`);
+          lines.push(`Would you like a hint about what might be wrong? Let me know and I can provide more specific guidance.`);
+          lines.push(`Or use \`tutor_react_show_solution\` with exerciseId: "${exerciseId}" to see the full solution.`);
         }
 
         // Record attempt for progress tracking
@@ -1154,6 +1204,18 @@ async function main() {
         const emoji = attempt.passed ? "✅" : "❌";
         lines.push(`${emoji} ${attempt.title} (${attempt.environment}) - ${date}`);
         lines.push(`   ${attempt.testsPassed}/${attempt.testsTotal} tests passed`);
+        
+        // Show help usage if any
+        const helpInfo: string[] = [];
+        if (attempt.hintsUsed > 0) {
+          helpInfo.push(`${attempt.hintsUsed} hint${attempt.hintsUsed > 1 ? 's' : ''}`);
+        }
+        if (attempt.solutionViewed) {
+          helpInfo.push('solution viewed');
+        }
+        if (helpInfo.length > 0) {
+          lines.push(`   (${helpInfo.join(', ')})`);
+        }
       }
       
       return {

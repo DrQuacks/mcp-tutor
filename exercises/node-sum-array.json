@@ -2,7 +2,7 @@
   "title": "Sum Array",
   "description": "Write a function that calculates the sum of all numbers in an array.",
   "environment": "node",
-  "filePath": "src/exercises/sumArray.js",
+  "filePath": "src/exercises/sumArray.ts",
   "requirements": [
     "Create a function named `sumArray` that takes an array of numbers as a parameter",
     "Return the sum of all numbers in the array",
@@ -13,8 +13,8 @@
     "Keep a running total as you iterate",
     "Make sure to handle the empty array case"
   ],
-  "starterCode": "// Write your sumArray function here\nfunction sumArray(numbers) {\n  // Your code here\n}\n\nmodule.exports = sumArray;\n",
-  "solutionCode": "function sumArray(numbers) {\n  let sum = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    sum += numbers[i];\n  }\n  return sum;\n}\n\nmodule.exports = sumArray;\n",
+  "starterCode": "// Write your sumArray function here\nexport function sumArray(numbers: number[]): number {\n  // Your code here\n  return 0;\n}\n",
+  "solutionCode": "export function sumArray(numbers: number[]): number {\n  let sum = 0;\n  for (let i = 0; i < numbers.length; i++) {\n    sum += numbers[i];\n  }\n  return sum;\n}\n",
   "tests": [
     {
       "name": "Returns 10 for [1, 2, 3, 4]",
