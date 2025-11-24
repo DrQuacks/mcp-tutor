@@ -2,7 +2,7 @@
   "id": "react-counter",
   "title": "React Counter Component",
   "environment": "react",
-  "filePath": "src/exercises/Counter.jsx",
+  "filePath": "src/exercises/Counter.tsx",
   "description": "Create a Counter component with increment and reset functionality. This exercise will help you practice React state management using hooks.",
   "requirements": [
     "Use React.useState hook to manage a count state (starting at 0)",

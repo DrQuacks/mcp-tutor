@@ -95,8 +95,13 @@ async function loadAndRenderExercise() {
   }
 
   try {
-    // Dynamically import the exercise component
-    const module = await import(`./exercises/${exerciseName}.jsx`);
+    // Dynamically import the exercise component (try .tsx first, then .jsx)
+    let module;
+    try {
+      module = await import(`./exercises/${exerciseName}.tsx`);
+    } catch {
+      module = await import(`./exercises/${exerciseName}.jsx`);
+    }
     const Component = module.default;
 
     if (!Component) {

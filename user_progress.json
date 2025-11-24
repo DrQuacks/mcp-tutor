@@ -43,6 +43,28 @@
       "testsTotal": 5,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-counter",
+      "title": "React Counter Component",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-11-24T03:48:45.421Z",
+      "testsPassed": 1,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-counter",
+      "title": "React Counter Component",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-11-24T03:49:56.274Z",
+      "testsPassed": 4,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

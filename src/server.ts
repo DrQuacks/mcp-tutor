@@ -406,7 +406,7 @@ async function main() {
     "tutor_react_exercise_prompt",
     {
       description:
-        "Gives the user a React exercise by showing requirements and creating a starter file. Does NOT reveal the solution.",
+        "Gives the user a React exercise by showing requirements and creating a starter file (TypeScript .tsx by default). Does NOT reveal the solution.",
       inputSchema: z.object({
         exerciseId: z
           .string()
