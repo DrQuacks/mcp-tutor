@@ -65,6 +65,50 @@
       "testsTotal": 4,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-toggle-visibility",
+      "title": "Toggle Visibility",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-11-24T17:34:51.614Z",
+      "testsPassed": 1,
+      "testsTotal": 3,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-toggle-visibility",
+      "title": "Toggle Visibility",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-11-24T17:36:22.278Z",
+      "testsPassed": 2,
+      "testsTotal": 3,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-toggle-visibility",
+      "title": "Toggle Visibility",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-11-24T17:37:10.199Z",
+      "testsPassed": 3,
+      "testsTotal": 3,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-toggle-visibility",
+      "title": "Toggle Visibility",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-11-24T17:44:35.971Z",
+      "testsPassed": 3,
+      "testsTotal": 3,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

@@ -458,6 +458,27 @@ async function main() {
       try {
         await fs.mkdir(path.dirname(filePath), { recursive: true });
         await fs.writeFile(filePath, starterCodeWithHeader, "utf8");
+        
+        // For React exercises, update App.tsx to import this component
+        if (exerciseData.environment === "react") {
+          const appPath = path.join(REACT_ENV_ROOT, "src", "App.tsx");
+          const componentName = path.basename(exerciseData.filePath, path.extname(exerciseData.filePath));
+          const appContent = `import './App.css'
+import ${componentName} from './exercises/${componentName}'
+
+function App() {
+  return (
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>React Exercise: ${exerciseData.title}</h1>
+      <${componentName} />
+    </div>
+  )
+}
+
+export default App
+`;
+          await fs.writeFile(appPath, appContent, "utf8");
+        }
       } catch (err: any) {
         return {
           content: [
@@ -1009,15 +1030,25 @@ async function main() {
             // Check assertion
             if (test.then) {
               const element = page.locator(test.then.selector).first();
-              const text = await element.textContent();
               
-              if (test.then.contains) {
-                if (!text?.includes(test.then.contains)) {
-                  throw new Error(`Expected text to contain "${test.then.contains}", but got "${text}"`);
+              // Check if we're testing for element existence/non-existence
+              if (test.then.exists !== undefined) {
+                const count = await page.locator(test.then.selector).count();
+                const exists = count > 0;
+                if (exists !== test.then.exists) {
+                  throw new Error(`Expected element to ${test.then.exists ? 'exist' : 'not exist'}, but it ${exists ? 'exists' : 'does not exist'}`);
                 }
-              } else if (test.then.expected) {
-                if (text?.trim() !== test.then.expected) {
-                  throw new Error(`Expected "${test.then.expected}", but got "${text}"`);
+              } else {
+                const text = await element.textContent();
+                
+                if (test.then.contains) {
+                  if (!text?.includes(test.then.contains)) {
+                    throw new Error(`Expected text to contain "${test.then.contains}", but got "${text}"`);
+                  }
+                } else if (test.then.expected) {
+                  if (text?.trim() !== test.then.expected) {
+                    throw new Error(`Expected "${test.then.expected}", but got "${text}"`);
+                  }
                 }
               }
             } else if (test.expected) {
@@ -1027,6 +1058,13 @@ async function main() {
               
               if (!text?.includes(test.expected)) {
                 throw new Error(`Expected text to contain "${test.expected}", but got "${text}"`);
+              }
+            } else if (test.exists !== undefined) {
+              // Check if element exists or not (for conditionally rendered elements)
+              const count = await page.locator(test.selector).count();
+              const exists = count > 0;
+              if (exists !== test.exists) {
+                throw new Error(`Expected element to ${test.exists ? 'exist' : 'not exist'}, but it ${exists ? 'exists' : 'does not exist'}`);
               }
             }
 

@@ -1,0 +1,53 @@
+{
+  "id": "react-toggle-visibility",
+  "title": "Toggle Visibility",
+  "environment": "react",
+  "filePath": "src/exercises/ToggleVisibility.tsx",
+  "description": "Create a component that toggles the visibility of content when a button is clicked. This exercise teaches conditional rendering in React - one of the most fundamental concepts for building interactive UIs.\n\nFor example:\n- Initially, no message is visible\n- After clicking 'Toggle': 'Hello, I am visible!' appears\n- After clicking 'Toggle' again: the message disappears\n\nYou'll use boolean state (true/false) instead of numbers, and learn the && operator for conditional rendering.",
+  "requirements": [
+    "Use React.useState hook to manage a boolean 'isVisible' state (starting as false)",
+    "Render a button with text 'Toggle' that changes the state when clicked",
+    "When isVisible is true, display a paragraph with the text 'Hello, I am visible!'",
+    "When isVisible is false, the paragraph should not be rendered at all",
+    "Export the ToggleVisibility component as the default export"
+  ],
+  "hints": [
+    "Use boolean state: const [isVisible, setIsVisible] = useState(false)",
+    "Toggle the value: setIsVisible(!isVisible) or setIsVisible(prev => !prev)",
+    "Use conditional rendering with &&: {isVisible && <p>Hello, I am visible!</p>}",
+    "The && operator means: if left side is true, render right side"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction ToggleVisibility() {\n  // TODO: Add boolean state for visibility\n  \n  return (\n    <div>\n      {/* TODO: Add toggle button and conditional content */}\n    </div>\n  );\n}\n\nexport default ToggleVisibility;",
+  "solutionCode": "import { useState } from 'react';\n\nfunction ToggleVisibility() {\n  const [isVisible, setIsVisible] = useState(false);\n  \n  return (\n    <div>\n      <button onClick={() => setIsVisible(!isVisible)}>Toggle</button>\n      {isVisible && <p>Hello, I am visible!</p>}\n    </div>\n  );\n}\n\nexport default ToggleVisibility;",
+  "browserTests": [
+    {
+      "name": "Button is present",
+      "selector": "button:has-text('Toggle')",
+      "action": "getText",
+      "expected": "Toggle"
+    },
+    {
+      "name": "Clicking toggle shows content",
+      "action": "click",
+      "selector": "button:has-text('Toggle')",
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "Hello, I am visible!"
+      }
+    },
+    {
+      "name": "Toggle works multiple times",
+      "actions": [
+        { "action": "click", "selector": "button:has-text('Toggle')" },
+        { "action": "click", "selector": "button:has-text('Toggle')" },
+        { "action": "click", "selector": "button:has-text('Toggle')" }
+      ],
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "Hello, I am visible!"
+      }
+    }
+  ]
+}
