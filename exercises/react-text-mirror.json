@@ -1,0 +1,59 @@
+{
+  "id": "react-text-mirror",
+  "title": "Text Input Mirror",
+  "environment": "react",
+  "filePath": "src/exercises/TextMirror.tsx",
+  "description": "Create a component with a text input that displays (mirrors) whatever the user types in real-time. This introduces controlled components - one of React's most important patterns for form handling.\n\nFor example:\n- User types 'H' → Display shows 'H'\n- User types 'Hello' → Display shows 'Hello'\n- Input is cleared → Display is empty\n\nYou'll learn how to sync input values with React state, making the component the 'single source of truth' for the input's value.",
+  "requirements": [
+    "Use React.useState to manage a 'text' state (starting as empty string '')",
+    "Render an input element with type='text'",
+    "The input's value should be controlled by the state (value={text})",
+    "Add an onChange handler to update state when user types",
+    "Display the current text value below the input in a paragraph",
+    "Export the TextMirror component as the default export"
+  ],
+  "hints": [
+    "Use string state: const [text, setText] = useState('')",
+    "Make input controlled: <input value={text} onChange={...} />",
+    "Update state in onChange: onChange={(e) => setText(e.target.value)}",
+    "Display the value: <p>{text}</p>",
+    "e.target.value contains what the user typed"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction TextMirror() {\n  // TODO: Add state for text\n  \n  return (\n    <div>\n      {/* TODO: Add controlled input and display */}\n    </div>\n  );\n}\n\nexport default TextMirror;",
+  "solutionCode": "import { useState } from 'react';\n\nfunction TextMirror() {\n  const [text, setText] = useState('');\n  \n  return (\n    <div>\n      <input \n        type=\"text\" \n        value={text} \n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"Type something...\"\n      />\n      <p>{text}</p>\n    </div>\n  );\n}\n\nexport default TextMirror;",
+  "browserTests": [
+    {
+      "name": "Input field is present",
+      "selector": "input[type='text']",
+      "exists": true
+    },
+    {
+      "name": "Initially displays empty text",
+      "selector": "p",
+      "action": "getText",
+      "expected": ""
+    },
+    {
+      "name": "Typing in input updates display",
+      "selector": "input[type='text']",
+      "action": "type",
+      "value": "Hello",
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "Hello"
+      }
+    },
+    {
+      "name": "Input stays synchronized with display",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": " React" }
+      ],
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "React"
+      }
+    }
+  ]
+}

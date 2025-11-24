@@ -109,6 +109,50 @@
       "testsTotal": 3,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-toggle-visibility",
+      "title": "Toggle Visibility",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-11-24T17:45:34.066Z",
+      "testsPassed": 3,
+      "testsTotal": 3,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-text-mirror",
+      "title": "Text Input Mirror",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-11-24T18:37:03.700Z",
+      "testsPassed": 3,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-text-mirror",
+      "title": "Text Input Mirror",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-11-24T18:38:19.664Z",
+      "testsPassed": 3,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-text-mirror",
+      "title": "Text Input Mirror",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-11-24T18:39:46.126Z",
+      "testsPassed": 4,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

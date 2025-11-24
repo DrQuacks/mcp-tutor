@@ -1019,11 +1019,18 @@ export default App
                 if (action.action === 'click') {
                   await page.locator(action.selector).click();
                   await page.waitForTimeout(100);
+                } else if (action.action === 'type') {
+                  await page.locator(action.selector).type(action.value);
+                  await page.waitForTimeout(100);
                 }
               }
             } else if (test.action === 'click') {
               // Single click action
               await page.locator(test.selector).click();
+              await page.waitForTimeout(100);
+            } else if (test.action === 'type') {
+              // Single type action
+              await page.locator(test.selector).type(test.value);
               await page.waitForTimeout(100);
             }
 

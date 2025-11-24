@@ -21,10 +21,9 @@
   "solutionCode": "import { useState } from 'react';\n\nfunction ToggleVisibility() {\n  const [isVisible, setIsVisible] = useState(false);\n  \n  return (\n    <div>\n      <button onClick={() => setIsVisible(!isVisible)}>Toggle</button>\n      {isVisible && <p>Hello, I am visible!</p>}\n    </div>\n  );\n}\n\nexport default ToggleVisibility;",
   "browserTests": [
     {
-      "name": "Button is present",
-      "selector": "button:has-text('Toggle')",
-      "action": "getText",
-      "expected": "Toggle"
+      "name": "Initially content is hidden",
+      "selector": "p",
+      "exists": false
     },
     {
       "name": "Clicking toggle shows content",
@@ -37,16 +36,14 @@
       }
     },
     {
-      "name": "Toggle works multiple times",
+      "name": "Clicking toggle again hides content",
       "actions": [
-        { "action": "click", "selector": "button:has-text('Toggle')" },
         { "action": "click", "selector": "button:has-text('Toggle')" },
         { "action": "click", "selector": "button:has-text('Toggle')" }
       ],
       "then": {
         "selector": "p",
-        "action": "getText",
-        "contains": "Hello, I am visible!"
+        "exists": false
       }
     }
   ]
