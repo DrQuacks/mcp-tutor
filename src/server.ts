@@ -777,7 +777,7 @@ export default App
     "tutor_react_check_solution",
     {
       description:
-        "Tests the student's React solution against the exercise test cases using a real browser.",
+        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -1009,6 +1009,8 @@ export default App
             await updateProgress(i, testResults);
             
             // Reload page before each test for isolation
+            // CRITICAL: Each test runs with a fresh component - no state persists between tests
+            // When writing browserTests in exercise JSON, each test must be self-contained
             await page.reload({ waitUntil: 'networkidle' });
             await page.waitForTimeout(300);
 

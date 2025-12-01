@@ -1,0 +1,58 @@
+{
+  "id": "react-character-counter",
+  "title": "Character Counter",
+  "environment": "react",
+  "filePath": "src/exercises/CharacterCounter.tsx",
+  "description": "Create a text input that displays the character count as the user types. This combines controlled inputs with derived state - computing values based on existing state rather than storing everything separately.\n\nFor example:\n- User types 'Hi' → Shows 'Character count: 2'\n- User types 'Hello' → Shows 'Character count: 5'\n- User clears input → Shows 'Character count: 0'\n\nYou'll learn that not everything needs its own state - some values can be calculated from existing state.",
+  "requirements": [
+    "Use React.useState to manage the text input (starting as empty string)",
+    "Render a text input that is controlled by the state",
+    "Calculate the character count from the text length",
+    "Display the count in the format: 'Character count: X'",
+    "The count should update in real-time as the user types",
+    "Export the CharacterCounter component as the default export"
+  ],
+  "hints": [
+    "You only need ONE state variable for the text - don't create separate state for the count",
+    "Get the length with: text.length",
+    "Display it like: <p>Character count: {text.length}</p>",
+    "This is 'derived state' - computing values from existing state"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction CharacterCounter() {\n  // TODO: Add state for text input\n  \n  return (\n    <div>\n      {/* TODO: Add controlled input and character count display */}\n    </div>\n  );\n}\n\nexport default CharacterCounter;",
+  "solutionCode": "import { useState } from 'react';\n\nfunction CharacterCounter() {\n  const [text, setText] = useState('');\n  \n  return (\n    <div>\n      <input \n        type=\"text\" \n        value={text} \n        onChange={(e) => setText(e.target.value)}\n        placeholder=\"Type something...\"\n      />\n      <p>Character count: {text.length}</p>\n    </div>\n  );\n}\n\nexport default CharacterCounter;",
+  "browserTests": [
+    {
+      "name": "Input field is present",
+      "selector": "input[type='text']",
+      "exists": true
+    },
+    {
+      "name": "Initially shows count of 0",
+      "selector": "p",
+      "action": "getText",
+      "contains": "0"
+    },
+    {
+      "name": "Count updates when typing",
+      "selector": "input[type='text']",
+      "action": "type",
+      "value": "Hello",
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "5"
+      }
+    },
+    {
+      "name": "Count updates with more text",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Hello World" }
+      ],
+      "then": {
+        "selector": "p",
+        "action": "getText",
+        "contains": "11"
+      }
+    }
+  ]
+}
