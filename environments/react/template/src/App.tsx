@@ -1,11 +1,11 @@
 import './App.css'
-import CharacterCounter from './exercises/CharacterCounter'
+import ColorPicker from './exercises/ColorPicker'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Character Counter</h1>
-      <CharacterCounter />
+      <h1>React Exercise: Color Picker</h1>
+      <ColorPicker />
     </div>
   )
 }

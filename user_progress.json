@@ -197,6 +197,28 @@
       "testsTotal": 4,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-color-picker",
+      "title": "Color Picker",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-02T01:06:34.155Z",
+      "testsPassed": 2,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-color-picker",
+      "title": "Color Picker",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-02T01:07:49.418Z",
+      "testsPassed": 5,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

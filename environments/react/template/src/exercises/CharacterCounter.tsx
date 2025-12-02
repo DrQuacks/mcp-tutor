@@ -22,7 +22,7 @@ function CharacterCounter() {
   return (
     <div>
       {/* TODO: Add controlled input and character count display */}
-      <input type='text' value={text} onChange={(e)=>{setText(e.target.value)}}/>
+      <input type='text' value={text} onChange={(e)=>{setText(e.currentTarget.value)}}/>
       <p>Character count: {count}</p>
     </div>
   );

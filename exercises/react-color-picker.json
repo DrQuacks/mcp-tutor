@@ -1,0 +1,52 @@
+{
+  "id": "react-color-picker",
+  "title": "Color Picker",
+  "environment": "react",
+  "filePath": "src/exercises/ColorPicker.tsx",
+  "description": "Create a simple RGB color picker using three range sliders. This exercise combines multiple controlled inputs, derived state (calculating the color string), and dynamic styling.\n\nFor example:\n- User moves Red slider to 255 → Background shows red\n- User sets R:100, G:150, B:200 → Background shows that blue-ish color\n- Display shows current RGB values as text\n\nYou'll learn how to manage multiple related state values and use them to compute CSS values.",
+  "requirements": [
+    "Use React.useState to manage three separate numbers: red, green, and blue (each starting at 128)",
+    "Render three range inputs (type='range') with min=0, max=255",
+    "Each slider should be controlled by its respective state variable",
+    "Display the current RGB values as text in the format: 'RGB(R, G, B)'",
+    "Show a preview div with a background color that updates based on the RGB values",
+    "The preview div should have a minimum height of 100px so it's visible",
+    "Export the ColorPicker component as the default export"
+  ],
+  "hints": [
+    "You need THREE separate useState calls - one for each color channel",
+    "Range inputs: <input type='range' min='0' max='255' value={red} onChange={...} />",
+    "The onChange handler gets the value from: e.target.value (but it's a string, so convert with Number())",
+    "Build the CSS color string: `rgb(${red}, ${green}, ${blue})`",
+    "Apply it to a div with: style={{ backgroundColor: `rgb(${red}, ${green}, ${blue})` }}"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction ColorPicker() {\n  // TODO: Add state for red, green, and blue values\n  \n  return (\n    <div>\n      {/* TODO: Add three range inputs for R, G, B */}\n      {/* TODO: Display current RGB values as text */}\n      {/* TODO: Add preview div with dynamic background color */}\n    </div>\n  );\n}\n\nexport default ColorPicker;",
+  "solutionCode": "import { useState } from 'react';\n\nfunction ColorPicker() {\n  const [red, setRed] = useState(128);\n  const [green, setGreen] = useState(128);\n  const [blue, setBlue] = useState(128);\n  \n  const colorString = `rgb(${red}, ${green}, ${blue})`;\n  \n  return (\n    <div style={{ padding: '20px' }}>\n      <div>\n        <label>\n          Red: {red}\n          <input \n            type=\"range\" \n            min=\"0\" \n            max=\"255\" \n            value={red} \n            onChange={(e) => setRed(Number(e.target.value))}\n          />\n        </label>\n      </div>\n      <div>\n        <label>\n          Green: {green}\n          <input \n            type=\"range\" \n            min=\"0\" \n            max=\"255\" \n            value={green} \n            onChange={(e) => setGreen(Number(e.target.value))}\n          />\n        </label>\n      </div>\n      <div>\n        <label>\n          Blue: {blue}\n          <input \n            type=\"range\" \n            min=\"0\" \n            max=\"255\" \n            value={blue} \n            onChange={(e) => setBlue(Number(e.target.value))}\n          />\n        </label>\n      </div>\n      <p>RGB({red}, {green}, {blue})</p>\n      <div \n        style={{ \n          backgroundColor: colorString,\n          minHeight: '100px',\n          border: '2px solid #333',\n          borderRadius: '8px',\n          marginTop: '10px'\n        }}\n      />\n    </div>\n  );\n}\n\nexport default ColorPicker;",
+  "browserTests": [
+    {
+      "name": "RGB text display is present with initial values",
+      "selector": "p",
+      "expected": "RGB(128"
+    },
+    {
+      "name": "First range input exists",
+      "selector": "input[type='range']:nth-of-type(1)",
+      "exists": true
+    },
+    {
+      "name": "Second range input exists",
+      "selector": "input[type='range']:nth-of-type(2)",
+      "exists": true
+    },
+    {
+      "name": "Third range input exists",
+      "selector": "input[type='range']:nth-of-type(3)",
+      "exists": true
+    },
+    {
+      "name": "Preview div with background exists",
+      "selector": "div[style*='background']",
+      "exists": true
+    }
+  ]
+}

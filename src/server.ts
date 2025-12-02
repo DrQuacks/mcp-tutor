@@ -531,7 +531,7 @@ export default App
     "tutor_node_check_solution",
     {
       description:
-        "Tests the student's Node.js solution against the exercise test cases.",
+        "Tests the student's Node.js solution against the exercise test cases. ⚠️ CRITICAL: NEVER edit the student's exercise solution files. Only report test results. If tests fail, provide hints or show the solution, but DO NOT modify student code.",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -777,7 +777,7 @@ export default App
     "tutor_react_check_solution",
     {
       description:
-        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.",
+        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n⚠️ CRITICAL: NEVER edit the student's exercise solution files. Only report test results. If tests fail, provide hints or show the solution, but DO NOT modify student code.",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -1230,11 +1230,11 @@ export default App
     }
   );
 
-  // Tool: View progress - shows exercise history and statistics
+  // Tool: Get hint - provides progressive hints
   server.registerTool(
     "tutor_get_hint",
     {
-      description: "Provides progressive, targeted hints for the current exercise without revealing the solution. Reads the student's code to give specific guidance. Use this when the student asks for help or is stuck.",
+      description: "Provides progressive, targeted hints for the current exercise without revealing the solution. Reads the student's code to give specific guidance. Use this when the student asks for help or is stuck. ⚠️ CRITICAL: This tool only provides hints - it does NOT and MUST NOT edit the student's exercise files.",
       inputSchema: z.object({
         exerciseId: z.string().describe("The ID of the exercise the student is working on"),
         hintLevel: z.enum(["gentle", "specific", "detailed"]).optional().describe("gentle: nudge in right direction, specific: point out exact issue, detailed: explain concept. Default: gentle"),
