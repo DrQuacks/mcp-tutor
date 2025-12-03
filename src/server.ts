@@ -7,6 +7,44 @@ import path from "node:path";
 import { chromium, Browser } from "playwright";
 import type { ViteDevServer } from "vite";
 
+/**
+ * EXERCISE CREATION GUIDELINES
+ * 
+ * When creating exercise JSON files in the exercises/ folder, follow these critical rules:
+ * 
+ * 1. TEST ISOLATION:
+ *    - The page RELOADS before EACH test for complete isolation
+ *    - Tests do NOT share state - each test starts with a fresh component
+ *    - If a test needs multiple items/interactions, include ALL actions in that ONE test
+ *    - WRONG: Test 1 adds "A", Test 2 expects "A" and "B" 
+ *    - RIGHT: Test 1 adds "A", Test 2 adds both "A" and "B" then checks for both
+ * 
+ * 2. TEST COVERAGE:
+ *    - Test ALL interactive features, not just presence of elements
+ *    - For stateful interactions, test BOTH directions (on/off, add/remove, etc.)
+ *    - Example: If clicking toggles something, test clicking once AND clicking twice
+ *    - Cover edge cases: empty states, multiple items, state changes
+ * 
+ * 3. SUPPORTED TEST ACTIONS:
+ *    - Only use: 'click' and 'type' actions
+ *    - Do NOT use: count, fill, getStyle, or other unsupported actions
+ *    - Assertions: exists (boolean), expected (exact match), contains (partial match)
+ * 
+ * 4. TEST STRUCTURE EXAMPLES:
+ *    Single element check:
+ *      { "name": "Button exists", "selector": "button", "exists": true }
+ *    
+ *    Simple interaction:
+ *      { "name": "Shows text", "selector": "input", "action": "type", "value": "Hello",
+ *        "then": { "selector": "p", "contains": "Hello" } }
+ *    
+ *    Multiple actions (all in ONE test for isolation):
+ *      { "name": "Toggle works", "actions": [
+ *          { "selector": "button", "action": "click" },
+ *          { "selector": "button", "action": "click" }
+ *        ], "then": { "selector": "p", "expected": "Off" } }
+ */
+
 // Extend Window type for test progress API
 declare global {
   interface Window {
@@ -406,7 +444,7 @@ async function main() {
     "tutor_react_exercise_prompt",
     {
       description:
-        "Gives the user a React exercise by showing requirements and creating a starter file (TypeScript .tsx by default). Does NOT reveal the solution. By default, creates files in normal difficulty (no TODO comments). Use mode='easy' to include helpful TODO comments in the code.",
+        "Loads a React exercise and creates starter file for the student (TypeScript .tsx by default). Does NOT reveal the solution. By default, creates files in normal difficulty (no TODO comments). Use mode='easy' to include helpful TODO comments in the code.\n\n⚠️ PREREQUISITE: You must first create the exercise JSON file in exercises/ folder before calling this tool.\n\n📋 CRITICAL RULES for creating browserTests in the JSON file:\n\n1. TEST ISOLATION - Most common mistake!\n   • Page reloads before EVERY test (tests are completely isolated)\n   • Each test starts with fresh/empty component state\n   • Never assume state from previous tests exists\n   • Example mistake: Test 1 adds 'ItemA', Test 2 adds 'ItemB' expecting both to exist\n   • Correct approach: Test 2 must add BOTH 'ItemA' AND 'ItemB' if it needs both\n\n2. COMPREHENSIVE COVERAGE - Don't skip important behaviors!\n   • Test ALL interactive features, not just element presence\n   • For toggleable features, test BOTH states (on AND off)\n   • Example: If clicking adds strikethrough, test: click once (strikethrough on), click twice (strikethrough off)\n   • Test with multiple items if feature involves lists/collections\n\n3. SUPPORTED TEST ACTIONS - Use only these:\n   • Actions: 'click' and 'type' ONLY (no fill, count, getStyle, etc.)\n   • Assertions: 'exists' (boolean), 'expected' (exact text match), 'contains' (partial text match)\n   • Multi-action format: 'actions' array with multiple steps in ONE test",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -437,6 +475,38 @@ async function main() {
             },
           ],
         };
+      }
+
+      // Validate browserTests for common mistakes
+      const warnings: string[] = [];
+      if (exerciseData.browserTests && Array.isArray(exerciseData.browserTests)) {
+        for (let i = 0; i < exerciseData.browserTests.length; i++) {
+          const test = exerciseData.browserTests[i];
+          
+          // Check for unsupported actions
+          const checkAction = (action: any) => {
+            if (action.action && !['click', 'type'].includes(action.action)) {
+              warnings.push(`⚠️ Test "${test.name}": Uses unsupported action "${action.action}". Only 'click' and 'type' are supported.`);
+            }
+          };
+          
+          if (test.action) checkAction(test);
+          if (test.actions) test.actions.forEach(checkAction);
+          
+          // Warn about potential isolation issues - tests that only add one item when previous test added items
+          if (i > 0 && test.actions && test.then) {
+            const hasTypeAction = test.actions.some((a: any) => a.action === 'type');
+            const checksNthChild = test.then.selector && /nth-of-type\((\d+)\)/.test(test.then.selector);
+            if (hasTypeAction && checksNthChild) {
+              const match = test.then.selector.match(/nth-of-type\((\d+)\)/);
+              const nthIndex = match ? parseInt(match[1]) : 0;
+              const typeActionsCount = test.actions.filter((a: any) => a.action === 'type').length;
+              if (nthIndex > typeActionsCount) {
+                warnings.push(`⚠️ Test "${test.name}": Checks for nth-of-type(${nthIndex}) but only types ${typeActionsCount} item(s). Remember: page reloads between tests (no state from previous tests).`);
+              }
+            }
+          }
+        }
       }
 
       // Create the starter file with embedded requirements
@@ -511,6 +581,21 @@ export default App
 
       // Build the response (NO solution code)
       const lines: string[] = [];
+      
+      // Show warnings first if any
+      if (warnings.length > 0) {
+        lines.push("## ⚠️ Test Validation Warnings");
+        lines.push("");
+        lines.push("The following potential issues were detected in the exercise tests:");
+        lines.push("");
+        for (const warning of warnings) {
+          lines.push(warning);
+        }
+        lines.push("");
+        lines.push("---");
+        lines.push("");
+      }
+      
       lines.push(`# ${exerciseData.title}`);
       lines.push("");
       lines.push(exerciseData.description);

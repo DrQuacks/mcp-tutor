@@ -219,6 +219,39 @@
       "testsTotal": 5,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-todo-list",
+      "title": "Simple Todo List",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-03T20:06:26.043Z",
+      "testsPassed": 3,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-todo-list",
+      "title": "Simple Todo List",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-03T20:07:17.251Z",
+      "testsPassed": 4,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-todo-list",
+      "title": "Simple Todo List",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-03T20:28:39.166Z",
+      "testsPassed": 6,
+      "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

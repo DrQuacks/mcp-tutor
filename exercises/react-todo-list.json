@@ -50,12 +50,39 @@
     {
       "name": "Can add multiple todo items",
       "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Buy groceries" },
+        { "selector": "button", "action": "click" },
         { "selector": "input[type='text']", "action": "type", "value": "Walk dog" },
         { "selector": "button", "action": "click" }
       ],
       "then": {
         "selector": "li:nth-of-type(2)",
         "contains": "Walk dog"
+      }
+    },
+    {
+      "name": "Clicking todo adds strikethrough",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Test item" },
+        { "selector": "button", "action": "click" },
+        { "selector": "li", "action": "click" }
+      ],
+      "then": {
+        "selector": "li",
+        "contains": "Test item"
+      }
+    },
+    {
+      "name": "Clicking todo twice removes strikethrough",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Test item" },
+        { "selector": "button", "action": "click" },
+        { "selector": "li", "action": "click" },
+        { "selector": "li", "action": "click" }
+      ],
+      "then": {
+        "selector": "li",
+        "contains": "Test item"
       }
     }
   ]
