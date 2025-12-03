@@ -1,11 +1,11 @@
 import './App.css'
-import ColorPicker from './exercises/ColorPicker'
+import TodoList from './exercises/TodoList'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Color Picker</h1>
-      <ColorPicker />
+      <h1>React Exercise: Simple Todo List</h1>
+      <TodoList />
     </div>
   )
 }

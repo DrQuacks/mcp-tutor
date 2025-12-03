@@ -1,0 +1,62 @@
+{
+  "id": "react-todo-list",
+  "title": "Simple Todo List",
+  "environment": "react",
+  "filePath": "src/exercises/TodoList.tsx",
+  "description": "Create a simple todo list where users can add items and mark them as complete. This exercise teaches you how to work with arrays in state, handle form submissions, and map over data to render lists.\n\nFor example:\n- User types 'Buy groceries' and clicks Add → Item appears in list\n- User clicks on an item → Item gets crossed out (marked complete)\n- List displays multiple items that persist until page refresh\n\nYou'll learn essential React patterns for managing collections of data and rendering dynamic lists.",
+  "requirements": [
+    "Use React.useState to manage an array of todo items (starting empty)",
+    "Use React.useState to manage the current input text (starting as empty string)",
+    "Each todo item should have: id (number), text (string), and completed (boolean)",
+    "Render a text input for entering new todos",
+    "Render an 'Add' button that adds the current input to the list",
+    "Display all todos in a list, showing their text",
+    "When a todo is clicked, toggle its completed status",
+    "Completed todos should have a 'line-through' text decoration",
+    "Export the TodoList component as the default export"
+  ],
+  "hints": [
+    "Use an array in state: const [todos, setTodos] = useState<Array<{id: number, text: string, completed: boolean}>>([])",
+    "Generate unique IDs with Date.now() when adding items",
+    "Add items: setTodos([...todos, { id: Date.now(), text: inputText, completed: false }])",
+    "Map over todos to render: todos.map(todo => <li key={todo.id} ...>)",
+    "Toggle completed: setTodos(todos.map(t => t.id === todo.id ? {...t, completed: !t.completed} : t))",
+    "Apply conditional styling: style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction TodoList() {\n  // TODO: Add state for todos array and input text\n  \n  return (\n    <div>\n      <h2>My Todos</h2>\n      {/* TODO: Add input and button for adding todos */}\n      {/* TODO: Render list of todos */}\n    </div>\n  );\n}\n\nexport default TodoList;",
+  "solutionCode": "import { useState } from 'react';\n\ninterface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\nfunction TodoList() {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [inputText, setInputText] = useState('');\n  \n  const addTodo = () => {\n    if (inputText.trim()) {\n      setTodos([...todos, {\n        id: Date.now(),\n        text: inputText,\n        completed: false\n      }]);\n      setInputText('');\n    }\n  };\n  \n  const toggleTodo = (id: number) => {\n    setTodos(todos.map(todo => \n      todo.id === id ? { ...todo, completed: !todo.completed } : todo\n    ));\n  };\n  \n  return (\n    <div style={{ padding: '20px' }}>\n      <h2>My Todos</h2>\n      <div>\n        <input \n          type=\"text\" \n          value={inputText}\n          onChange={(e) => setInputText(e.target.value)}\n          placeholder=\"Enter a todo...\"\n        />\n        <button onClick={addTodo}>Add</button>\n      </div>\n      <ul style={{ listStyle: 'none', padding: 0 }}>\n        {todos.map(todo => (\n          <li \n            key={todo.id}\n            onClick={() => toggleTodo(todo.id)}\n            style={{ \n              cursor: 'pointer',\n              padding: '8px',\n              textDecoration: todo.completed ? 'line-through' : 'none'\n            }}\n          >\n            {todo.text}\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}\n\nexport default TodoList;",
+  "browserTests": [
+    {
+      "name": "Input field is present",
+      "selector": "input[type='text']",
+      "exists": true
+    },
+    {
+      "name": "Add button is present",
+      "selector": "button",
+      "expected": "Add"
+    },
+    {
+      "name": "Can add a todo item",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Buy groceries" },
+        { "selector": "button", "action": "click" }
+      ],
+      "then": {
+        "selector": "li",
+        "contains": "Buy groceries"
+      }
+    },
+    {
+      "name": "Can add multiple todo items",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "Walk dog" },
+        { "selector": "button", "action": "click" }
+      ],
+      "then": {
+        "selector": "li:nth-of-type(2)",
+        "contains": "Walk dog"
+      }
+    }
+  ]
+}

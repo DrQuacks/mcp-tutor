@@ -406,16 +406,22 @@ async function main() {
     "tutor_react_exercise_prompt",
     {
       description:
-        "Gives the user a React exercise by showing requirements and creating a starter file (TypeScript .tsx by default). Does NOT reveal the solution.",
+        "Gives the user a React exercise by showing requirements and creating a starter file (TypeScript .tsx by default). Does NOT reveal the solution. By default, creates files in normal difficulty (no TODO comments). Use mode='easy' to include helpful TODO comments in the code.",
       inputSchema: z.object({
         exerciseId: z
           .string()
           .describe(
             "The ID of the exercise to load, e.g. 'react-counter'."
           ),
+        mode: z
+          .enum(["normal", "easy"])
+          .optional()
+          .describe(
+            "Difficulty mode. 'normal' (default): minimal starter code without TODO comments. 'easy': includes helpful TODO comments as hints in the code."
+          ),
       }),
     },
-    async ({ exerciseId }) => {
+    async ({ exerciseId, mode = "normal" }) => {
       const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
 
       let exerciseData: any;
@@ -453,7 +459,20 @@ async function main() {
       starterCodeWithHeader += ` */\n\n`;
       
       // Append the actual starter code
-      starterCodeWithHeader += exerciseData.starterCode;
+      let starterCode = exerciseData.starterCode;
+      
+      // If normal mode, strip out TODO comments
+      if (mode === "normal") {
+        starterCode = starterCode
+          .split('\n')
+          .filter((line: string) => {
+            // Remove any line that contains a TODO comment (in any format)
+            return !line.includes('TODO:');
+          })
+          .join('\n');
+      }
+      
+      starterCodeWithHeader += starterCode;
 
       try {
         await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -502,6 +521,10 @@ export default App
       }
       lines.push("");
       lines.push(`📁 Starter file created at: \`${exerciseData.filePath}\``);
+      if (mode === "easy") {
+        lines.push("");
+        lines.push("✨ **Easy mode**: Starter code includes helpful TODO comments to guide you.");
+      }
       lines.push("");
       lines.push("💡 **Hints:**");
       for (const hint of exerciseData.hints) {
