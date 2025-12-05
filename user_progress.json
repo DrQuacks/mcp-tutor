@@ -252,6 +252,39 @@
       "testsTotal": 6,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-05T01:49:02.318Z",
+      "testsPassed": 5,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-05T01:55:19.271Z",
+      "testsPassed": 5,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-05T01:56:28.419Z",
+      "testsPassed": 7,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

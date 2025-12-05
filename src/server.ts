@@ -885,7 +885,7 @@ export default App
     "tutor_react_check_solution",
     {
       description:
-        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n⚠️ CRITICAL: NEVER edit the student's exercise solution files. Only report test results. If tests fail, provide hints or show the solution, but DO NOT modify student code.",
+        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n⚠️ CRITICAL RULES:\n1. NEVER edit the student's exercise solution files. Only report test results.\n2. When tests fail, explain WHAT behavior failed (e.g., 'the error message appears when it shouldn't') but DO NOT provide explicit code fixes.\n3. Point to the REQUIREMENT that wasn't met, not the specific line to change.\n4. Only provide explicit code if the student asks for a hint or solution using the hint/solution tools.\n5. Be pedagogical - guide the student to discover the fix themselves.",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -1077,6 +1077,9 @@ export default App
         
         // Create test execution page in separate window
         const page = await testContext.newPage();
+        
+        // Set shorter timeout for faster test failures (5 seconds instead of 30)
+        page.setDefaultTimeout(5000);
 
         // Navigate to test harness with exercise component
         // Extract component name: 'react-counter' -> 'Counter'
