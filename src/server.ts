@@ -17,6 +17,8 @@ import { tutorViewProgress } from "./tools/tutorViewProgress.js";
 import { tutorStartTutorial } from "./tools/tutorStartTutorial.js";
 import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
 import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
+import { tutorExplainConcept } from "./tools/tutorExplainConcept.js";
+import { tutorConnectPattern } from "./tools/tutorConnectPattern.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -333,7 +335,7 @@ async function main() {
   server.registerTool(
     "tutor_check_tutorial_step",
     {
-      description: "Validates the current step of an active tutorial. Checks if the user's code meets the requirements for the current step. If successful, automatically presents the next step. If unsuccessful, provides feedback on what's missing.",
+      description: "Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance. Returns pass/fail with list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.",
       inputSchema: z.object({
         tutorialId: z.string().describe("The ID of the tutorial being worked on"),
       }),
@@ -342,9 +344,32 @@ async function main() {
   );
 
   server.registerTool(
+    "tutor_explain_concept",
+    {
+      description: "Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial. Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial"),
+      }),
+    },
+    async (params) => tutorExplainConcept(params)
+  );
+
+  server.registerTool(
+    "tutor_connect_pattern",
+    {
+      description: "Helps the student connect the generic pattern to their specific task WITHOUT giving the answer. Shows what the tutorial is looking for and guides thinking about how to adapt the pattern. Use this when the student understands the concept but needs help applying it to their specific code. Does NOT provide copy-paste solutions.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial"),
+        studentQuestion: z.string().optional().describe("Optional: specific question the student asked"),
+      }),
+    },
+    async (params) => tutorConnectPattern(params)
+  );
+
+  server.registerTool(
     "tutor_tutorial_hint",
     {
-      description: "Provides hints for the current tutorial step. Use this when the user is stuck on a tutorial step and needs additional guidance.",
+      description: "Provides progressive hints for the current tutorial step. Use this when the student is stuck after trying. Gives increasingly specific guidance without revealing the full solution.",
       inputSchema: z.object({
         tutorialId: z.string().describe("The ID of the tutorial"),
       }),
