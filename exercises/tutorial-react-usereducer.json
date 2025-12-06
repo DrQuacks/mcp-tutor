@@ -1,105 +1,108 @@
 {
   "title": "React useReducer Hook",
-  "description": "Learn how to use the useReducer hook for managing complex state in React components. This tutorial will guide you through the fundamentals of useReducer, from basic setup to implementing a real-world example.",
+  "description": "Learn how to use the useReducer hook for managing complex state in React. This tutorial will teach you the fundamentals step-by-step, from understanding the concept to building a working counter application.",
   "environment": "react",
   "filePath": "src/exercises/CounterWithReducer.tsx",
   "starterCode": "function CounterWithReducer() {\n  return (\n    <div>\n      <h2>Counter with useReducer</h2>\n    </div>\n  )\n}\n\nexport default CounterWithReducer\n",
   "steps": [
     {
       "stepNumber": 1,
-      "title": "Import useReducer",
-      "explanation": "The `useReducer` hook is a built-in React hook that helps manage complex state logic. Unlike `useState` which is great for simple state, `useReducer` is better when:\n\n- Your state has multiple sub-values\n- The next state depends on the previous state\n- You want to centralize state update logic\n\nIt follows the Redux pattern: you have a state, actions (describing what happened), and a reducer function (which decides how the state changes based on actions).\n\nLet's start by importing it from React.",
-      "task": "Import `useReducer` from 'react' at the top of your file.\n\nYou should have: `import { useReducer } from 'react'`",
+      "title": "Understanding useReducer",
+      "explanation": "The `useReducer` hook is a React hook for managing complex state logic. While `useState` works great for simple values like numbers or strings, `useReducer` shines when:\n\n- Your state has multiple related values (like a form with many fields)\n- The next state depends on the previous state in complex ways\n- You want to centralize all your state update logic in one place\n\nThe useReducer pattern comes from Redux and follows a predictable flow: you have a **state** (your data), **actions** (descriptions of what happened), and a **reducer function** (which decides how state changes based on actions).\n\nThink of it like a state machine: actions are events that happen, and the reducer is the rulebook for how state should change in response to those events.\n\nLet's start by simply importing the hook.",
+      "codeExample": "// Generic useReducer syntax\nimport { useReducer } from 'react'\n\n// Later you'll call it like this:\nconst [state, dispatch] = useReducer(reducerFunction, initialState)",
+      "task": "Import `useReducer` from 'react' at the top of your file.",
       "validation": {
         "type": "code-contains",
         "checks": [
-          "import { useReducer } from",
+          "import",
+          "useReducer",
           "react"
         ]
       },
       "hints": [
-        "The import statement goes at the very top of your file, above the component function",
+        "The import statement goes at the very top of your file",
         "Use named imports with curly braces: import { useReducer } from 'react'"
       ]
     },
     {
       "stepNumber": 2,
-      "title": "Define the Reducer Function",
-      "explanation": "A reducer is a pure function that takes two arguments:\n1. `state` - the current state\n2. `action` - an object describing what happened (usually has a `type` property)\n\nThe reducer returns the new state based on the action type. Think of it like a switch statement that says \"when this action happens, update state this way.\"\n\nFor our counter, we'll handle two actions:\n- `increment`: adds 1 to the count\n- `decrement`: subtracts 1 from the count\n\nLet's define this reducer function outside (above) your component.",
-      "task": "Create a reducer function called `counterReducer` that:\n- Takes `state` (a number) and `action` (with a `type` property) as parameters\n- Returns `state + 1` when action.type is 'increment'\n- Returns `state - 1` when action.type is 'decrement'\n- Returns the current state for any other action type\n\nPlace this function ABOVE your CounterWithReducer component.",
+      "title": "Understanding Reducer Functions",
+      "explanation": "A reducer is a pure function that determines how state should change. It takes two parameters:\n\n1. **state** - the current state value\n2. **action** - an object describing what happened (by convention, has a `type` property)\n\nThe reducer looks at the action type and returns the NEW state. It's like a switch statement that says \"when THIS happens, state should become THAT.\"\n\nImportant: The reducer must be a **pure function** - it should not modify the existing state, but return a new state object. Also, reducers should not have side effects (no API calls, no random numbers, etc.).\n\nFor our counter, we'll handle three action types:\n- `'increment'` - add 1 to the count\n- `'decrement'` - subtract 1 from the count  \n- default case - return current state unchanged (for unknown actions)\n\nLet's create this reducer function.",
+      "codeExample": "// Generic reducer example\nfunction myReducer(state, action) {\n  // Check what type of action occurred\n  if (action.type === 'ACTION_ONE') {\n    // Return new state\n    return state + 1\n  } else if (action.type === 'ACTION_TWO') {\n    return state - 1\n  }\n  // Default: return current state if we don't recognize the action\n  return state\n}",
+      "task": "Create a function called `counterReducer` ABOVE your component that:\n1. Takes two parameters: `state` and `action`\n2. Uses if/else statements (or a switch) to check `action.type`\n3. Returns `state + 1` when action.type is `'increment'`\n4. Returns `state - 1` when action.type is `'decrement'`\n5. Returns `state` (unchanged) for any other action type",
       "validation": {
         "type": "code-contains",
         "checks": [
           "function counterReducer",
           "action.type",
-          "'increment'",
-          "'decrement'"
+          "increment",
+          "decrement"
         ]
       },
       "hints": [
-        "Use a switch statement or if/else to check action.type",
-        "The reducer should be defined outside the component, before the 'function CounterWithReducer()' line",
-        "Example structure: function counterReducer(state, action) { if (action.type === 'increment') return state + 1; ... }"
+        "Define this function OUTSIDE and ABOVE your CounterWithReducer component",
+        "Example: function counterReducer(state, action) { ... }",
+        "Use if (action.type === 'increment') or a switch statement",
+        "Don't forget the default case that returns the current state"
       ]
     },
     {
       "stepNumber": 3,
-      "title": "Call useReducer in Your Component",
-      "explanation": "`useReducer` returns an array with two elements (like `useState`):\n1. The current state value\n2. A dispatch function to send actions to the reducer\n\nYou call it like this:\n```tsx\nconst [state, dispatch] = useReducer(reducerFunction, initialValue)\n```\n\nThe `dispatch` function is how you trigger state changes. When you call `dispatch({ type: 'increment' })`, React calls your reducer with the current state and that action object.",
-      "task": "Inside your component function:\n1. Call useReducer with your counterReducer function and initial value of 0\n2. Destructure it to get `count` and `dispatch`\n\nIt should look like: `const [count, dispatch] = useReducer(counterReducer, 0)`",
+      "title": "Calling useReducer",
+      "explanation": "Now that we have a reducer function, we can call `useReducer` inside our component. The `useReducer` hook works similarly to `useState` - it returns an array with two elements that we destructure:\n\n1. The current **state** value\n2. A **dispatch** function (used to send actions to the reducer)\n\nThe syntax is:\n```tsx\nconst [state, dispatch] = useReducer(reducerFunction, initialValue)\n```\n\nYou pass your reducer function as the first argument, and the initial state value as the second argument. For our counter, we'll start at 0.\n\nThe names you use when destructuring are up to you - we'll use `count` (more descriptive than `state`) and `dispatch`.",
+      "codeExample": "// Generic useReducer call\nfunction MyComponent() {\n  const [myState, dispatch] = useReducer(myReducer, 0)\n  // myState holds the current value\n  // dispatch is a function we'll use to trigger updates\n  \n  return <div>{myState}</div>\n}",
+      "task": "Inside your CounterWithReducer component (at the top, before the return statement):\n1. Call `useReducer` with your `counterReducer` function and initial value `0`\n2. Destructure the result into `count` and `dispatch`\n\nIt should look like: `const [count, dispatch] = useReducer(counterReducer, 0)`",
       "validation": {
         "type": "code-contains",
         "checks": [
-          "useReducer(counterReducer, 0)",
-          "const [count, dispatch]"
+          "const [count, dispatch]",
+          "useReducer(counterReducer",
+          "0)"
         ]
       },
       "hints": [
-        "This line goes inside your component function, at the top",
-        "Make sure you're passing counterReducer (the function you defined) as the first argument",
-        "The second argument (0) is the initial state value"
+        "This line goes INSIDE your component function, before the return",
+        "Make sure you're passing counterReducer (the function you defined earlier)",
+        "The initial value is 0 (the number zero)"
       ]
     },
     {
       "stepNumber": 4,
-      "title": "Display the Count",
-      "explanation": "Now that we have our state set up, let's display it! The `count` variable from useReducer contains our current state value.\n\nWe'll show it on the page so we can see it change when we add buttons later.",
-      "task": "Add a paragraph that displays the current count value.\n\nYour JSX should include something like: `<p>Count: {count}</p>`",
+      "title": "Displaying State",
+      "explanation": "Now we have our state set up! The `count` variable holds our current state value. Since we initialized it to 0 and haven't dispatched any actions yet, it starts at 0.\n\nLet's display this value so we can see it change when we add buttons in the next step. We'll use JSX curly braces `{}` to embed the JavaScript variable in our UI.",
+      "codeExample": "// Displaying state in JSX\nfunction MyComponent() {\n  const [count, dispatch] = useReducer(myReducer, 0)\n  \n  return (\n    <div>\n      <p>Current value: {count}</p>\n    </div>\n  )\n}",
+      "task": "Inside your component's return statement, add a paragraph that displays the count.\n\nAdd: `<p>Count: {count}</p>` somewhere in your JSX (below the h2 is fine).",
       "validation": {
         "type": "browser-test",
         "checks": [
           {
             "name": "Count display exists",
-            "selector": "text=Count:",
+            "selector": "text=Count: 0",
             "exists": true
           }
         ]
       },
       "hints": [
-        "Add the paragraph inside the div, below the h2",
-        "Use curly braces to embed the JavaScript variable: {count}"
+        "Add the paragraph inside the div, below the h2 heading",
+        "Use {count} to embed the JavaScript variable in JSX"
       ]
     },
     {
       "stepNumber": 5,
-      "title": "Add Increment and Decrement Buttons",
-      "explanation": "Time to make our counter interactive! We'll add two buttons that dispatch actions to our reducer.\n\nWhen you click a button, it calls `dispatch()` with an action object. The action object must have a `type` property that matches one of the cases in your reducer.\n\nFor example: `dispatch({ type: 'increment' })` will trigger the increment case in your reducer.",
-      "task": "Add two buttons:\n1. An 'Increment' button that calls `dispatch({ type: 'increment' })` when clicked\n2. A 'Decrement' button that calls `dispatch({ type: 'decrement' })` when clicked\n\nThe buttons should have the text 'Increment' and 'Decrement' respectively.",
+      "title": "Understanding dispatch and Actions",
+      "explanation": "The `dispatch` function is how we trigger state changes. When you call `dispatch`, you pass it an **action object**. By convention, this object has a `type` property (a string) that describes what happened.\n\nFor example:\n- `dispatch({ type: 'increment' })` - sends an increment action\n- `dispatch({ type: 'decrement' })` - sends a decrement action\n\nWhen you call dispatch, React will:\n1. Call your reducer function with the current state and your action object\n2. Use the returned value as the new state\n3. Re-render your component with the new state\n\nActions can also include additional data (like `{ type: 'add', value: 5 }`), but for our simple counter, just the type is enough.\n\nLet's add buttons that dispatch these actions!",
+      "codeExample": "// Using dispatch with buttons\nfunction MyComponent() {\n  const [count, dispatch] = useReducer(myReducer, 0)\n  \n  return (\n    <div>\n      <p>Count: {count}</p>\n      <button onClick={() => dispatch({ type: 'increment' })}>+</button>\n      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>\n    </div>\n  )\n}",
+      "task": "Add two buttons to your component:\n1. An 'Increment' button that dispatches `{ type: 'increment' }` when clicked\n2. A 'Decrement' button that dispatches `{ type: 'decrement' }` when clicked\n\nMake sure the button text is exactly 'Increment' and 'Decrement'.",
       "validation": {
         "type": "browser-test",
         "checks": [
           {
-            "name": "Increment button exists",
-            "selector": "button:has-text('Increment')",
-            "exists": true
-          },
-          {
-            "name": "Decrement button exists",
+            "name": "Both buttons exist",
             "selector": "button:has-text('Decrement')",
             "exists": true
           },
           {
-            "name": "Increment button works",
+            "name": "Increment works",
             "actions": [
               { "selector": "button:has-text('Increment')", "action": "click" }
             ],
@@ -109,7 +112,7 @@
             }
           },
           {
-            "name": "Decrement button works",
+            "name": "Decrement works", 
             "actions": [
               { "selector": "button:has-text('Decrement')", "action": "click" }
             ],
@@ -117,20 +120,33 @@
               "selector": "text=Count: -1",
               "exists": true
             }
+          },
+          {
+            "name": "Multiple increments work",
+            "actions": [
+              { "selector": "button:has-text('Increment')", "action": "click" },
+              { "selector": "button:has-text('Increment')", "action": "click" },
+              { "selector": "button:has-text('Increment')", "action": "click" }
+            ],
+            "then": {
+              "selector": "text=Count: 3",
+              "exists": true
+            }
           }
         ]
       },
       "hints": [
-        "Use the onClick prop: <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>",
-        "Make sure the action type strings match exactly what's in your reducer ('increment' and 'decrement')",
-        "Both buttons should be inside your component's return statement"
+        "Use onClick prop: <button onClick={() => dispatch({ type: 'increment' })}>Increment</button>",
+        "Make sure the action.type strings match EXACTLY what you used in your reducer",
+        "The arrow function (() => ...) is important - it prevents dispatch from being called immediately"
       ]
     },
     {
       "stepNumber": 6,
-      "title": "Add a Reset Action",
-      "explanation": "Let's extend our reducer to handle a new action type. This demonstrates how easy it is to add new state transitions with useReducer - just add a new case to your reducer and create a button that dispatches it.\n\nWe'll add a 'reset' action that sets the count back to 0.",
-      "task": "1. Add a new case to your counterReducer for action type 'reset' that returns 0\n2. Add a 'Reset' button that dispatches `{ type: 'reset' }`\n\nThe button text should be 'Reset'.",
+      "title": "Adding More Actions (Practice)",
+      "explanation": "Great job! Now you understand the full useReducer pattern. Let's practice by adding a new action type.\n\nOne of the benefits of useReducer is how easy it is to add new state transitions. You just:\n1. Add a new case to your reducer\n2. Add a UI element that dispatches that action type\n\nLet's add a 'reset' action that sets the count back to 0. This is useful if the user wants to start over.",
+      "codeExample": "// Adding a new action is just two steps:\n\n// 1. Add case to reducer:\nfunction myReducer(state, action) {\n  if (action.type === 'reset') {\n    return 0  // Reset to initial value\n  }\n  // ...other cases\n}\n\n// 2. Add UI to dispatch it:\n<button onClick={() => dispatch({ type: 'reset' })}>Reset</button>",
+      "task": "Add reset functionality:\n1. In your `counterReducer`, add a new case for `action.type === 'reset'` that returns `0`\n2. Add a 'Reset' button to your UI that dispatches `{ type: 'reset' }`\n\nThe button text must be exactly 'Reset'.",
       "validation": {
         "type": "browser-test",
         "checks": [
@@ -140,7 +156,7 @@
             "exists": true
           },
           {
-            "name": "Reset button works",
+            "name": "Reset works after incrementing",
             "actions": [
               { "selector": "button:has-text('Increment')", "action": "click" },
               { "selector": "button:has-text('Increment')", "action": "click" },
@@ -151,13 +167,25 @@
               "selector": "text=Count: 0",
               "exists": true
             }
+          },
+          {
+            "name": "Reset works after decrementing",
+            "actions": [
+              { "selector": "button:has-text('Decrement')", "action": "click" },
+              { "selector": "button:has-text('Decrement')", "action": "click" },
+              { "selector": "button:has-text('Reset')", "action": "click" }
+            ],
+            "then": {
+              "selector": "text=Count: 0",
+              "exists": true
+            }
           }
         ]
       },
       "hints": [
-        "Add a new case in your reducer's switch/if statement for action.type === 'reset'",
-        "The reset case should return 0",
-        "Add a third button similar to the increment/decrement buttons"
+        "Add another if/else case in your counterReducer for 'reset'",
+        "The reset case should return 0 (not state + 0, just 0)",
+        "Add a third button just like the increment/decrement buttons"
       ]
     }
   ]

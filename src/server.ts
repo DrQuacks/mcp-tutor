@@ -19,7 +19,9 @@ import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
 import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
 
 /**
+ * ═══════════════════════════════════════════════════════════════════════
  * EXERCISE CREATION GUIDELINES
+ * ═══════════════════════════════════════════════════════════════════════
  * 
  * When creating exercise JSON files in the exercises/ folder, follow these critical rules:
  * 
@@ -54,6 +56,85 @@ import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
  *          { "selector": "button", "action": "click" },
  *          { "selector": "button", "action": "click" }
  *        ], "then": { "selector": "p", "expected": "Off" } }
+ * 
+ * ═══════════════════════════════════════════════════════════════════════
+ * TUTORIAL CREATION GUIDELINES
+ * ═══════════════════════════════════════════════════════════════════════
+ * 
+ * PHILOSOPHY: Tutorials teach concepts step-by-step with explanations and examples.
+ * Unlike exercises (which test knowledge), tutorials BUILD knowledge incrementally.
+ * 
+ * KEY PRINCIPLES:
+ * 
+ * 1. CONCEPT BEFORE CODE
+ *    - Always explain WHAT the concept is and WHY it exists before HOW to use it
+ *    - Compare to alternatives ("unlike useState, useReducer is better when...")
+ *    - Use plain language and analogies, not just technical jargon
+ * 
+ * 2. SHOW BEFORE ASK
+ *    - Provide a COMPLETE generic example before asking student to implement
+ *    - Example: Show a full reducer function before asking them to write one
+ *    - Use the "codeExample" field to show syntax patterns
+ * 
+ * 3. TINY INCREMENTAL STEPS
+ *    - Break concepts into the SMALLEST possible steps
+ *    - Early steps should be trivial (import, define empty function, etc.)
+ *    - Each step teaches ONE new thing and builds on previous steps
+ *    - Don't combine multiple concepts in one step
+ * 
+ * 4. STEP PROGRESSION PATTERN
+ *    Example for useReducer:
+ *    Step 1: Explain concept + show generic syntax → import useReducer
+ *    Step 2: Explain reducer function + show complete example → define empty reducer
+ *    Step 3: Explain action types + show examples → implement actions in reducer
+ *    Step 4: Explain useReducer call + show syntax → call useReducer in component
+ *    Step 5: Explain dispatch + show usage → display state and add buttons
+ *    Step 6: Practice: add new action type (building on learned concepts)
+ * 
+ * 5. EXPLANATION STRUCTURE (in each step's "explanation" field)
+ *    - Paragraph 1: What is this concept? (definition)
+ *    - Paragraph 2: Why does it exist? When should you use it?
+ *    - Paragraph 3: How does it work? (high-level, no code yet)
+ *    - Then: Show generic code example in "codeExample" field
+ *    - Finally: Specific task in "task" field
+ * 
+ * 6. CODE EXAMPLE GUIDELINES
+ *    - Use "codeExample" field to show GENERIC syntax patterns
+ *    - Example should be complete and runnable (conceptually)
+ *    - Add comments explaining each part
+ *    - Don't show the exact solution - show the pattern they'll implement
+ * 
+ * 7. TASK CLARITY
+ *    - Be explicit about WHERE to add code ("above your component", "inside the function")
+ *    - Show the EXACT pattern expected when needed
+ *    - Break complex tasks into numbered sub-tasks
+ *    - Example: "1. Call useReducer with your counterReducer function\n2. Destructure to get count and dispatch"
+ * 
+ * 8. VALIDATION
+ *    - Use "code-contains" for structural checks (checking for key patterns)
+ *    - Be flexible - check for core concepts, not exact syntax
+ *    - Example: Check for "import { useReducer }" not the exact quote style
+ *    - Use "browser-test" for React interactivity validation
+ * 
+ * TUTORIAL JSON STRUCTURE:
+ * {
+ *   "title": "Tutorial Name",
+ *   "description": "What the student will learn",
+ *   "environment": "react" | "node",
+ *   "filePath": "src/exercises/ComponentName.tsx",
+ *   "starterCode": "Minimal starting code (empty component)",
+ *   "steps": [
+ *     {
+ *       "stepNumber": 1,
+ *       "title": "Step title (e.g., 'Import useReducer')",
+ *       "explanation": "Thorough explanation of concept (3-4 paragraphs)",
+ *       "codeExample": "// Generic example\nconst [state, dispatch] = useReducer(reducer, initialState)",
+ *       "task": "Specific instructions for what to implement",
+ *       "validation": { "type": "code-contains", "checks": ["pattern1", "pattern2"] },
+ *       "hints": ["Progressive hints if student gets stuck"]
+ *     }
+ *   ]
+ * }
  */
 
 async function main() {
@@ -241,7 +322,7 @@ async function main() {
   server.registerTool(
     "tutor_start_tutorial",
     {
-      description: "Starts or resumes a step-by-step tutorial on a specific topic. Tutorials are different from exercises - they provide more guidance and teach concepts incrementally through multiple validated steps. Use this when the user wants to learn a new concept (e.g., 'teach me useReducer', 'tutorial on React hooks'). The tutorial will create a starter file and guide the user through each step with explanations.",
+      description: "Starts or resumes a step-by-step tutorial on a specific topic. Tutorials are different from exercises - they provide more guidance and teach concepts incrementally through multiple validated steps. Use this when the user wants to learn a new concept (e.g., 'teach me useReducer', 'tutorial on React hooks'). The tutorial will create a starter file and guide the user through each step with explanations.\n\n⚠️ PREREQUISITE: You must first create the tutorial JSON file in exercises/ folder as `tutorial-<id>.json` before calling this tool.\n\n📋 CRITICAL RULES for creating tutorial JSON files:\n\n1. PEDAGOGICAL STRUCTURE - Teach incrementally!\n   • Start with CONCEPTS before code - explain what/why before how\n   • Early steps should be tiny and build confidence (e.g., just import, just define empty function)\n   • Show COMPLETE EXAMPLES before asking student to implement\n   • Each step should teach ONE new concept and build on previous steps\n   • Example flow: Explain concept → Show generic example → Ask to implement specific case → Add complexity\n\n2. EXPLANATION QUALITY - Be thorough!\n   • Explain WHY the concept exists and when to use it\n   • Show the SYNTAX with a generic example (not the specific task)\n   • Explain what each parameter/argument does\n   • Compare to alternatives (e.g., 'unlike useState, useReducer is better when...')\n   • Use analogies and plain language, not just technical terms\n\n3. STEP PROGRESSION - Build gradually!\n   • Step 1: Explain concept + show generic example + import/setup only\n   • Step 2: Show complete generic implementation + ask to create basic structure\n   • Step 3+: Add one feature at a time with explanation\n   • Each step validates before moving forward\n   • Don't combine multiple new concepts in one step\n\n4. VALIDATION TYPES:\n   • code-contains: Array of strings to check for (use for structural checks)\n   • browser-test: Playwright tests (use for React interactivity validation)\n   • Keep validations simple - check for key patterns, not exact implementation\n\n5. TASK CLARITY:\n   • Be specific about WHERE to add code (above component, inside function, etc.)\n   • Show the exact pattern expected (with code examples in task description)\n   • Break complex tasks into numbered sub-tasks\n\nExample good tutorial structure for useReducer:\n- Step 1: Explain useReducer concept + show generic syntax + just import it\n- Step 2: Explain reducer function + show complete generic example + create empty reducer\n- Step 3: Explain action types + show example + implement increment/decrement in reducer\n- Step 4: Explain useReducer call + show example + call it in component\n- Step 5: Explain dispatch + show example + add buttons that dispatch\n- Step 6: Add new action type (building on learned concepts)",
       inputSchema: z.object({
         tutorialId: z.string().describe("The ID of the tutorial to start, e.g., 'react-usereducer'"),
       }),

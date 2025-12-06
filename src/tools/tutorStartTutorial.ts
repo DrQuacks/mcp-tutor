@@ -106,6 +106,16 @@ export default App
   lines.push("### 📖 Explanation");
   lines.push(currentStep.explanation);
   lines.push("");
+  
+  // Show code example if provided
+  if (currentStep.codeExample) {
+    lines.push("### 💻 Code Example");
+    lines.push("```tsx");
+    lines.push(currentStep.codeExample);
+    lines.push("```");
+    lines.push("");
+  }
+  
   lines.push("### ✏️ Your Task");
   lines.push(currentStep.task);
   lines.push("");

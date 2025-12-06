@@ -189,6 +189,16 @@ export async function tutorCheckTutorialStep({
       lines.push("### 📖 Explanation");
       lines.push(nextStepData.explanation);
       lines.push("");
+      
+      // Show code example if provided
+      if (nextStepData.codeExample) {
+        lines.push("### 💻 Code Example");
+        lines.push("```tsx");
+        lines.push(nextStepData.codeExample);
+        lines.push("```");
+        lines.push("");
+      }
+      
       lines.push("### ✏️ Your Task");
       lines.push(nextStepData.task);
       lines.push("");
