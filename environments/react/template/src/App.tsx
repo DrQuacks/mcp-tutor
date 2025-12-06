@@ -1,11 +1,11 @@
 import './App.css'
-import FormValidator from './exercises/FormValidator'
+import ImageGallery from './exercises/ImageGallery'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Form Validator</h1>
-      <FormValidator />
+      <h1>React Exercise: Image Gallery</h1>
+      <ImageGallery />
     </div>
   )
 }

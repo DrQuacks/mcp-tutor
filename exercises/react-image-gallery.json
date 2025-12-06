@@ -1,0 +1,93 @@
+{
+  "title": "Image Gallery",
+  "description": "Build a simple image gallery component that displays a list of images with titles. Users can add new images by providing a URL and title, and remove images by clicking a delete button.",
+  "environment": "react",
+  "filePath": "src/exercises/ImageGallery.tsx",
+  "difficulty": "beginner",
+  "requirements": [
+    "Display a form with two inputs: one for image URL and one for image title",
+    "Include an 'Add Image' button that adds the image to the gallery",
+    "Display all images in a grid or list format",
+    "Each image should show the image itself and its title below it",
+    "Each image should have a 'Delete' button that removes it from the gallery",
+    "Start with an empty gallery (no default images)"
+  ],
+  "hints": [
+    "Use useState to manage an array of image objects (each with url and title properties)",
+    "Use useState for the form input values (URL and title)",
+    "Use the array map() method to render each image",
+    "Use filter() to remove an image when the delete button is clicked",
+    "Remember to give each image element a unique key prop"
+  ],
+  "starterCode": "import { useState } from 'react'\n\nfunction ImageGallery() {\n  return (\n    <div>\n      <h2>Image Gallery</h2>\n      \n      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginTop: '2rem' }}>\n        {/* Your code here */}\n      </div>\n    </div>\n  )\n}\n\nexport default ImageGallery\n",
+  "solutionCode": "import { useState } from 'react'\n\ninterface Image {\n  id: number\n  url: string\n  title: string\n}\n\nfunction ImageGallery() {\n  const [images, setImages] = useState<Image[]>([])\n  const [url, setUrl] = useState('')\n  const [title, setTitle] = useState('')\n\n  const handleAddImage = () => {\n    if (url && title) {\n      const newImage: Image = {\n        id: Date.now(),\n        url,\n        title\n      }\n      setImages([...images, newImage])\n      setUrl('')\n      setTitle('')\n    }\n  }\n\n  const handleDeleteImage = (id: number) => {\n    setImages(images.filter(img => img.id !== id))\n  }\n\n  return (\n    <div>\n      <h2>Image Gallery</h2>\n      \n      <div style={{ marginBottom: '1rem' }}>\n        <input\n          type=\"text\"\n          placeholder=\"Image URL\"\n          value={url}\n          onChange={(e) => setUrl(e.target.value)}\n          style={{ marginRight: '0.5rem', padding: '0.5rem' }}\n        />\n        <input\n          type=\"text\"\n          placeholder=\"Image Title\"\n          value={title}\n          onChange={(e) => setTitle(e.target.value)}\n          style={{ marginRight: '0.5rem', padding: '0.5rem' }}\n        />\n        <button onClick={handleAddImage}>Add Image</button>\n      </div>\n      \n      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginTop: '2rem' }}>\n        {images.map(image => (\n          <div key={image.id} style={{ border: '1px solid #ccc', padding: '1rem' }}>\n            <img src={image.url} alt={image.title} style={{ width: '100%', height: '150px', objectFit: 'cover' }} />\n            <p>{image.title}</p>\n            <button onClick={() => handleDeleteImage(image.id)}>Delete</button>\n          </div>\n        ))}\n      </div>\n    </div>\n  )\n}\n\nexport default ImageGallery\n",
+  "browserTests": [
+    {
+      "name": "Form inputs exist",
+      "selector": "input[placeholder*='URL']",
+      "exists": true
+    },
+    {
+      "name": "Title input exists",
+      "selector": "input[placeholder*='Title']",
+      "exists": true
+    },
+    {
+      "name": "Add button exists",
+      "selector": "button",
+      "expected": "Add Image"
+    },
+    {
+      "name": "Can add an image",
+      "actions": [
+        { "selector": "input[placeholder*='URL']", "action": "type", "value": "https://picsum.photos/200" },
+        { "selector": "input[placeholder*='Title']", "action": "type", "value": "Test Image" },
+        { "selector": "button:has-text('Add Image')", "action": "click" }
+      ],
+      "then": {
+        "selector": "img",
+        "exists": true
+      }
+    },
+    {
+      "name": "Image title is displayed",
+      "actions": [
+        { "selector": "input[placeholder*='URL']", "action": "type", "value": "https://picsum.photos/200" },
+        { "selector": "input[placeholder*='Title']", "action": "type", "value": "My Photo" },
+        { "selector": "button:has-text('Add Image')", "action": "click" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "My Photo"
+      }
+    },
+    {
+      "name": "Can add multiple images",
+      "actions": [
+        { "selector": "input[placeholder*='URL']", "action": "type", "value": "https://picsum.photos/200" },
+        { "selector": "input[placeholder*='Title']", "action": "type", "value": "First" },
+        { "selector": "button:has-text('Add Image')", "action": "click" },
+        { "selector": "input[placeholder*='URL']", "action": "type", "value": "https://picsum.photos/201" },
+        { "selector": "input[placeholder*='Title']", "action": "type", "value": "Second" },
+        { "selector": "button:has-text('Add Image')", "action": "click" }
+      ],
+      "then": {
+        "selector": "img:nth-of-type(2)",
+        "exists": true
+      }
+    },
+    {
+      "name": "Delete button removes image",
+      "actions": [
+        { "selector": "input[placeholder*='URL']", "action": "type", "value": "https://picsum.photos/200" },
+        { "selector": "input[placeholder*='Title']", "action": "type", "value": "Test" },
+        { "selector": "button:has-text('Add Image')", "action": "click" },
+        { "selector": "button:has-text('Delete')", "action": "click" }
+      ],
+      "then": {
+        "selector": "img",
+        "exists": false
+      }
+    }
+  ]
+}
