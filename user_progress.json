@@ -1,4 +1,16 @@
 {
+  "tutorials": [
+    {
+      "tutorialId": "react-usereducer",
+      "title": "React useReducer Hook",
+      "currentStep": 2,
+      "completedSteps": [
+        1
+      ],
+      "startedAt": "2025-12-06T23:25:39.174Z",
+      "lastActivity": "2025-12-06T23:27:29.888Z"
+    }
+  ],
   "exercises": [
     {
       "exerciseId": "node-filter-evens",

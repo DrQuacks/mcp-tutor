@@ -1,11 +1,11 @@
 import './App.css'
-import ImageGallery from './exercises/ImageGallery'
+import CounterWithReducer from './exercises/CounterWithReducer'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Image Gallery</h1>
-      <ImageGallery />
+      <h1>Tutorial: React useReducer Hook</h1>
+      <CounterWithReducer />
     </div>
   )
 }

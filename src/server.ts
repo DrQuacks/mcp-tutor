@@ -14,6 +14,9 @@ import { tutorReactCheckSolution } from "./tools/tutorReactCheckSolution.js";
 import { tutorReactShowSolution } from "./tools/tutorReactShowSolution.js";
 import { tutorGetHint } from "./tools/tutorGetHint.js";
 import { tutorViewProgress } from "./tools/tutorViewProgress.js";
+import { tutorStartTutorial } from "./tools/tutorStartTutorial.js";
+import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
+import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
 
 /**
  * EXERCISE CREATION GUIDELINES
@@ -233,6 +236,39 @@ async function main() {
       inputSchema: z.object({}),
     },
     async () => tutorViewProgress()
+  );
+
+  server.registerTool(
+    "tutor_start_tutorial",
+    {
+      description: "Starts or resumes a step-by-step tutorial on a specific topic. Tutorials are different from exercises - they provide more guidance and teach concepts incrementally through multiple validated steps. Use this when the user wants to learn a new concept (e.g., 'teach me useReducer', 'tutorial on React hooks'). The tutorial will create a starter file and guide the user through each step with explanations.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial to start, e.g., 'react-usereducer'"),
+      }),
+    },
+    async (params) => tutorStartTutorial(params)
+  );
+
+  server.registerTool(
+    "tutor_check_tutorial_step",
+    {
+      description: "Validates the current step of an active tutorial. Checks if the user's code meets the requirements for the current step. If successful, automatically presents the next step. If unsuccessful, provides feedback on what's missing.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial being worked on"),
+      }),
+    },
+    async (params) => tutorCheckTutorialStep(params)
+  );
+
+  server.registerTool(
+    "tutor_tutorial_hint",
+    {
+      description: "Provides hints for the current tutorial step. Use this when the user is stuck on a tutorial step and needs additional guidance.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial"),
+      }),
+    },
+    async (params) => tutorTutorialHint(params)
   );
 
   const transport = new StdioServerTransport();

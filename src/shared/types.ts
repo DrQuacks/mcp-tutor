@@ -14,8 +14,30 @@ export interface ExerciseAttempt {
   solutionViewed: boolean;
 }
 
+export interface TutorialStep {
+  stepNumber: number;
+  title: string;
+  explanation: string;
+  task: string;
+  validation: {
+    type: "code-contains" | "code-runs" | "output-contains" | "browser-test";
+    checks: string[] | any[]; // For code-contains: array of required strings. For browser-test: test objects
+  };
+  hints?: string[];
+}
+
+export interface TutorialProgress {
+  tutorialId: string;
+  title: string;
+  currentStep: number;
+  completedSteps: number[];
+  startedAt: string;
+  lastActivity: string;
+}
+
 export interface UserProgress {
   exercises: ExerciseAttempt[];
+  tutorials: TutorialProgress[];
 }
 
 export interface ToolResponse {

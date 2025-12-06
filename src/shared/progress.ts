@@ -3,7 +3,7 @@
  */
 
 import fs from "node:fs/promises";
-import type { UserProgress, ExerciseAttempt } from "./types.js";
+import type { UserProgress, ExerciseAttempt, TutorialProgress } from "./types.js";
 import { PROGRESS_FILE } from "./constants.js";
 
 export async function loadProgress(): Promise<UserProgress> {
@@ -12,7 +12,7 @@ export async function loadProgress(): Promise<UserProgress> {
     return JSON.parse(content);
   } catch (err) {
     // File doesn't exist yet, return empty progress
-    return { exercises: [] };
+    return { exercises: [], tutorials: [] };
   }
 }
 
@@ -42,5 +42,37 @@ export async function recordAttempt(
     hintsUsed,
     solutionViewed,
   });
+  await saveProgress(progress);
+}
+
+export async function getTutorialProgress(tutorialId: string): Promise<TutorialProgress | null> {
+  const progress = await loadProgress();
+  return progress.tutorials.find(t => t.tutorialId === tutorialId) || null;
+}
+
+export async function updateTutorialProgress(
+  tutorialId: string,
+  title: string,
+  currentStep: number,
+  completedSteps: number[]
+): Promise<void> {
+  const progress = await loadProgress();
+  const existing = progress.tutorials.findIndex(t => t.tutorialId === tutorialId);
+  
+  const tutorialProgress: TutorialProgress = {
+    tutorialId,
+    title,
+    currentStep,
+    completedSteps,
+    startedAt: existing >= 0 ? progress.tutorials[existing].startedAt : new Date().toISOString(),
+    lastActivity: new Date().toISOString(),
+  };
+  
+  if (existing >= 0) {
+    progress.tutorials[existing] = tutorialProgress;
+  } else {
+    progress.tutorials.push(tutorialProgress);
+  }
+  
   await saveProgress(progress);
 }
