@@ -80,15 +80,9 @@ export async function tutorConnectPattern({
     lines.push("");
   }
   
-  lines.push("**The generic pattern from the tutorial:**");
-  if (currentStep.codeExample) {
-    lines.push("```tsx");
-    lines.push(currentStep.codeExample);
-    lines.push("```");
-  }
-  lines.push("");
+  // DO NOT show codeExample - it often gives away the solution
   
-  lines.push("**To adapt this to YOUR specific task:**");
+  lines.push("**To adapt the concept to YOUR specific task:**");
   lines.push("");
   
   // Provide context-aware guidance based on validation requirements

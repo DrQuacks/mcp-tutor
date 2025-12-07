@@ -7,6 +7,7 @@ import path from "node:path";
 import { EXERCISES_ROOT } from "../shared/constants.js";
 import { getTutorialProgress } from "../shared/progress.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
+import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorExplainConcept({
@@ -55,31 +56,19 @@ export async function tutorExplainConcept({
     };
   }
 
-  const lines: string[] = [];
-  lines.push(`## 📖 Concept Explanation: ${currentStep.title}`);
-  lines.push("");
-  lines.push("**What this step is teaching:**");
-  lines.push("");
-  lines.push(currentStep.explanation);
-  lines.push("");
-  
-  if (currentStep.codeExample) {
-    lines.push("**The generic pattern:**");
-    lines.push("```tsx");
-    lines.push(currentStep.codeExample);
-    lines.push("```");
-    lines.push("");
-  }
-  
-  lines.push("**Your specific task:**");
-  // Filter out copy-paste solutions from the task description
-  lines.push(filterCopyPasteSolutions(currentStep.task));
-
+  // Return request for AI to generate generic example
   return {
     content: [
       {
         type: "text",
-        text: lines.join("\n"),
+        text: JSON.stringify({
+          ...createGenericExampleRequest(
+            currentStep.title,
+            currentStep.explanation,
+            currentStep.task
+          ),
+          task: filterCopyPasteSolutions(currentStep.task),
+        }, null, 2),
       },
     ],
   };

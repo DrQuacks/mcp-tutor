@@ -9,6 +9,7 @@ import { EXERCISES_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
 import { getOrStartViteServer } from "../shared/vite.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
+import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorCheckTutorialStep({
@@ -182,27 +183,28 @@ export async function tutorCheckTutorialStep({
       await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
       
       const nextStepData: TutorialStep = tutorialData.steps[nextStep - 1];
-      lines.push("---");
-      lines.push("");
-      lines.push(`## Step ${nextStepData.stepNumber}: ${nextStepData.title}`);
-      lines.push("");
-      lines.push("### 📖 Explanation");
-      lines.push(nextStepData.explanation);
-      lines.push("");
       
-      // Show code example if provided
-      if (nextStepData.codeExample) {
-        lines.push("### 💻 Code Example");
-        lines.push("```tsx");
-        lines.push(nextStepData.codeExample);
-        lines.push("```");
-        lines.push("");
-      }
-      
-      lines.push("### ✏️ Your Task");
-      lines.push(filterCopyPasteSolutions(nextStepData.task));
-      lines.push("");
-      lines.push("💡 Use `tutor_check_tutorial_step` again when you're ready to validate this step.");
+      // Return request for AI to generate generic example and present next step
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              validationType: "step-complete-present-next",
+              previousStepNumber: currentStep.stepNumber,
+              previousStepTitle: currentStep.title,
+              ...createGenericExampleRequest(
+                nextStepData.title,
+                nextStepData.explanation,
+                nextStepData.task
+              ),
+              stepNumber: nextStepData.stepNumber,
+              task: filterCopyPasteSolutions(nextStepData.task),
+              instruction: "The previous step passed! Generate a generic code example for the new concept, then present Step " + nextStepData.stepNumber + " to the student with your generic example."
+            }, null, 2)
+          }
+        ]
+      };
     } else {
       lines.push("🎉 **Congratulations!** You've completed the entire tutorial!");
       lines.push("");

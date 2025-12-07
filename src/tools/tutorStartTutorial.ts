@@ -7,6 +7,7 @@ import path from "node:path";
 import { EXERCISES_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
+import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorStartTutorial({
@@ -89,21 +90,22 @@ export default App
     };
   }
 
-  // Return structured data for AI to present
-  // Filter copy-paste solutions from task description
+  // Return data for AI to generate generic example and present step
   return {
     content: [
       {
         type: "text",
         text: JSON.stringify({
+          ...createGenericExampleRequest(
+            currentStep.title,
+            currentStep.explanation,
+            currentStep.task
+          ),
           tutorialTitle: tutorialData.title,
           tutorialDescription: tutorialData.description,
           stepNumber: currentStep.stepNumber,
           totalSteps: tutorialData.steps.length,
           completedSteps: completedSteps,
-          stepTitle: currentStep.title,
-          explanation: currentStep.explanation,
-          codeExample: currentStep.codeExample,
           task: filterCopyPasteSolutions(currentStep.task),
           filePath: tutorialData.filePath,
         }, null, 2),
