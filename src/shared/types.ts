@@ -27,6 +27,17 @@ export interface TutorialStep {
   hints?: string[];
 }
 
+export interface TutorialStepResponse {
+  stepNumber: number;
+  totalSteps: number;
+  title: string;
+  explanation: string;
+  codeExample?: string;
+  task: string;
+  filePath: string;
+  completedSteps?: number[];
+}
+
 export interface TutorialProgress {
   tutorialId: string;
   title: string;

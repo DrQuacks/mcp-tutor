@@ -88,50 +88,23 @@ export default App
     };
   }
 
-  // Format the response
-  const lines: string[] = [];
-  lines.push(`# 📚 Tutorial: ${tutorialData.title}`);
-  lines.push("");
-  lines.push(tutorialData.description);
-  lines.push("");
-  lines.push(`**Progress:** Step ${currentStepNumber} of ${tutorialData.steps.length}`);
-  if (completedSteps.length > 0) {
-    lines.push(`**Completed steps:** ${completedSteps.join(", ")}`);
-  }
-  lines.push("");
-  lines.push("---");
-  lines.push("");
-  lines.push(`## Step ${currentStep.stepNumber}: ${currentStep.title}`);
-  lines.push("");
-  lines.push("### 📖 Explanation");
-  lines.push(currentStep.explanation);
-  lines.push("");
-  
-  // Show code example if provided
-  if (currentStep.codeExample) {
-    lines.push("### 💻 Code Example");
-    lines.push("```tsx");
-    lines.push(currentStep.codeExample);
-    lines.push("```");
-    lines.push("");
-  }
-  
-  lines.push("### ✏️ Your Task");
-  lines.push(currentStep.task);
-  lines.push("");
-  lines.push(`📁 Work in file: \`${tutorialData.filePath}\``);
-  lines.push("");
-  lines.push("💡 When you're ready, use the `tutor_check_tutorial_step` tool to validate your work.");
-  if (currentStep.hints && currentStep.hints.length > 0) {
-    lines.push("");
-    lines.push("💭 **Hints available:** Use `tutor_tutorial_hint` if you need help.");
-  }
-
+  // Return structured data for AI to present
   return {
     content: [
       {
         type: "text",
-        text: lines.join("\n"),
+        text: JSON.stringify({
+          tutorialTitle: tutorialData.title,
+          tutorialDescription: tutorialData.description,
+          stepNumber: currentStep.stepNumber,
+          totalSteps: tutorialData.steps.length,
+          completedSteps: completedSteps,
+          stepTitle: currentStep.title,
+          explanation: currentStep.explanation,
+          codeExample: currentStep.codeExample,
+          task: currentStep.task,
+          filePath: tutorialData.filePath,
+        }, null, 2),
       },
     ],
   };
