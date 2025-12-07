@@ -8,6 +8,7 @@ import { chromium } from "playwright";
 import { EXERCISES_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
 import { getOrStartViteServer } from "../shared/vite.js";
+import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorCheckTutorialStep({
@@ -82,29 +83,32 @@ export async function tutorCheckTutorialStep({
   let feedback = "";
 
   if (validation.type === "code-contains") {
-    const checks = validation.checks as string[];
-    const missing: string[] = [];
-    
-    for (const check of checks) {
-      if (!studentCode.includes(check)) {
-        missing.push(check);
-      }
-    }
-    
-    if (missing.length === 0) {
-      passed = true;
-      feedback = "✅ Perfect! Your code contains all required elements.";
-    } else {
-      feedback = `❌ Your code is missing the following:\n${missing.map(m => `  - \`${m}\``).join("\n")}`;
-    }
+    // Return student code and requirements for the AI assistant to analyze
+    // The AI will determine if code meets requirements semantically
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            validationType: "semantic-analysis-required",
+            stepNumber: currentStep.stepNumber,
+            stepTitle: currentStep.title,
+            task: currentStep.task,
+            checks: validation.checks,
+            studentCode: studentCode,
+            instruction: "Analyze if the student's code accomplishes the task requirements. Ignore exact formatting/spacing. Check if the functionality and concepts are correctly implemented. Then either advance to next step if passed, or explain what's missing."
+          }, null, 2)
+        }
+      ]
+    };
   } else if (validation.type === "browser-test" && tutorialData.environment === "react") {
     // Run browser tests similar to exercise validation
-    const viteUrl = await getOrStartViteServer();
+    const viteResult = await getOrStartViteServer();
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
     
     try {
-      await page.goto(viteUrl, { waitUntil: "networkidle", timeout: 10000 });
+      await page.goto(viteResult.url, { waitUntil: "networkidle", timeout: 10000 });
       
       const tests = validation.checks as any[];
       const results: { name: string; passed: boolean; error?: string }[] = [];
@@ -200,7 +204,7 @@ export async function tutorCheckTutorialStep({
       }
       
       lines.push("### ✏️ Your Task");
-      lines.push(nextStepData.task);
+      lines.push(filterCopyPasteSolutions(nextStepData.task));
       lines.push("");
       lines.push("💡 Use `tutor_check_tutorial_step` again when you're ready to validate this step.");
     } else {

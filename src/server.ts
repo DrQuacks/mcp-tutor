@@ -234,7 +234,7 @@ async function main() {
     "tutor_node_check_solution",
     {
       description:
-        "Tests the student's Node.js solution against the exercise test cases. ⚠️ CRITICAL: NEVER edit the student's exercise solution files. Only report test results. If tests fail, provide hints or show the solution, but DO NOT modify student code.",
+        "Tests the student's Node.js solution against the exercise test cases.\n\n🚫 ABSOLUTE PROHIBITION: NEVER edit the student's exercise files under ANY circumstances. NEVER show copy-paste solutions in your messages. Only report test results and guide their thinking. If student says 'continue' or 'next', only run tests - do NOT write code for them.",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -266,7 +266,7 @@ async function main() {
     "tutor_react_check_solution",
     {
       description:
-        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n⚠️ CRITICAL RULES:\n1. NEVER edit the student's exercise solution files. Only report test results.\n2. When tests fail, explain WHAT behavior failed (e.g., 'the error message appears when it shouldn't') but DO NOT provide explicit code fixes.\n3. Point to the REQUIREMENT that wasn't met, not the specific line to change.\n4. Only provide explicit code if the student asks for a hint or solution using the hint/solution tools.\n5. Be pedagogical - guide the student to discover the fix themselves.",
+        "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n🚫 ABSOLUTE PROHIBITION - NEVER EDIT STUDENT FILES:\n1. NEVER edit the student's exercise solution files under ANY circumstances\n2. NEVER show copy-paste code solutions in your messages to the student\n3. When tests fail, explain WHAT behavior failed (e.g., 'the error message appears when it shouldn't')\n4. Point to the REQUIREMENT that wasn't met, not the specific line to change\n5. Only provide explicit code if student explicitly asks for hint/solution using those tools\n6. Be pedagogical - guide the student to discover the fix themselves\n7. If student says 'continue' or 'next', only run tests - do NOT implement code",
       inputSchema: z.object({
         exerciseId: z
           .string()
@@ -335,7 +335,7 @@ async function main() {
   server.registerTool(
     "tutor_check_tutorial_step",
     {
-      description: "Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance. Returns pass/fail with list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.",
+      description: "Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance. Returns pass/fail with list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.\n\n🚫 ABSOLUTE PROHIBITION: You must NEVER edit student exercise/tutorial files under ANY circumstances. This includes:\n- NEVER use replace_string_in_file, multi_replace_string_in_file, or create_file on student files\n- NEVER show copy-paste solutions in your messages\n- NEVER implement code changes when student says 'continue' or 'next step'\n- The ONLY time to edit is if student explicitly says 'write the code for me' or 'give me the solution'\n\nYour role is to VALIDATE (this tool), EXPLAIN (tutor_explain_concept), GUIDE (tutor_connect_pattern), and HINT (tutor_tutorial_hint). Let the student write the code.",
       inputSchema: z.object({
         tutorialId: z.string().describe("The ID of the tutorial being worked on"),
       }),
@@ -346,7 +346,7 @@ async function main() {
   server.registerTool(
     "tutor_explain_concept",
     {
-      description: "Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial. Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.",
+      description: "Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial. Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.\n\n🚫 NEVER edit student files or provide copy-paste solutions. Only explain concepts and show generic examples.",
       inputSchema: z.object({
         tutorialId: z.string().describe("The ID of the tutorial"),
       }),

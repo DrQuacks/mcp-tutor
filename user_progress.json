@@ -3,10 +3,14 @@
     {
       "tutorialId": "react-usereducer",
       "title": "React useReducer Hook",
-      "currentStep": 1,
-      "completedSteps": [],
+      "currentStep": 4,
+      "completedSteps": [
+        1,
+        2,
+        3
+      ],
       "startedAt": "2025-12-07T01:17:34.686Z",
-      "lastActivity": "2025-12-07T01:17:34.686Z"
+      "lastActivity": "2025-12-07T04:20:37.178Z"
     }
   ],
   "exercises": [

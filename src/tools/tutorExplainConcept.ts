@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { EXERCISES_ROOT } from "../shared/constants.js";
 import { getTutorialProgress } from "../shared/progress.js";
+import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorExplainConcept({
@@ -71,7 +72,8 @@ export async function tutorExplainConcept({
   }
   
   lines.push("**Your specific task:**");
-  lines.push(currentStep.task);
+  // Filter out copy-paste solutions from the task description
+  lines.push(filterCopyPasteSolutions(currentStep.task));
 
   return {
     content: [

@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { EXERCISES_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
+import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorStartTutorial({
@@ -89,6 +90,7 @@ export default App
   }
 
   // Return structured data for AI to present
+  // Filter copy-paste solutions from task description
   return {
     content: [
       {
@@ -102,7 +104,7 @@ export default App
           stepTitle: currentStep.title,
           explanation: currentStep.explanation,
           codeExample: currentStep.codeExample,
-          task: currentStep.task,
+          task: filterCopyPasteSolutions(currentStep.task),
           filePath: tutorialData.filePath,
         }, null, 2),
       },
