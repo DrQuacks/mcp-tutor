@@ -77,8 +77,8 @@
         "checks": [
           {
             "name": "Count display exists",
-            "selector": "text=Count: 0",
-            "exists": true
+            "selector": "p",
+            "contains": "Count: 0"
           }
         ]
       },

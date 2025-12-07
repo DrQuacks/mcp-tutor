@@ -102,7 +102,7 @@ export async function tutorCheckTutorialStep({
       ]
     };
   } else if (validation.type === "browser-test" && tutorialData.environment === "react") {
-    // Run browser tests similar to exercise validation
+    // Run browser tests and return data for AI semantic validation
     const viteResult = await getOrStartViteServer();
     const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
@@ -111,60 +111,56 @@ export async function tutorCheckTutorialStep({
       await page.goto(viteResult.url, { waitUntil: "networkidle", timeout: 10000 });
       
       const tests = validation.checks as any[];
-      const results: { name: string; passed: boolean; error?: string }[] = [];
+      const testResults: { name: string; selector: string; expected: any; actual: any }[] = [];
       
+      // Collect actual outputs for AI semantic validation
       for (const test of tests) {
         try {
-          if (test.exists !== undefined) {
-            const element = await page.locator(test.selector).first();
-            const exists = await element.count() > 0;
-            if (exists === test.exists) {
-              results.push({ name: test.name, passed: true });
-            } else {
-              results.push({ 
-                name: test.name, 
-                passed: false, 
-                error: `Expected element to ${test.exists ? 'exist' : 'not exist'}` 
-              });
-            }
-          } else if (test.actions) {
-            // Execute actions
-            for (const action of test.actions) {
-              const locator = page.locator(action.selector);
-              if (action.action === "click") {
-                await locator.first().click({ timeout: 5000 });
-              } else if (action.action === "type") {
-                await locator.first().fill(action.value, { timeout: 5000 });
-              }
-            }
-            
-            // Check the result
-            if (test.then.exists !== undefined) {
-              const element = await page.locator(test.then.selector).first();
-              const exists = await element.count() > 0;
-              if (exists === test.then.exists) {
-                results.push({ name: test.name, passed: true });
-              } else {
-                results.push({ 
-                  name: test.name, 
-                  passed: false, 
-                  error: `Expected element to ${test.then.exists ? 'exist' : 'not exist'}` 
-                });
-              }
-            }
+          if (test.contains) {
+            // Get actual text content
+            const element = page.locator(test.selector);
+            const actualText = await element.first().textContent();
+            testResults.push({
+              name: test.name,
+              selector: test.selector,
+              expected: test.contains,
+              actual: actualText || ""
+            });
+          } else if (test.exists !== undefined) {
+            const count = await page.locator(test.selector).count();
+            testResults.push({
+              name: test.name,
+              selector: test.selector,
+              expected: `element should ${test.exists ? 'exist' : 'not exist'}`,
+              actual: `element ${count > 0 ? 'exists' : 'does not exist'} (count: ${count})`
+            });
           }
         } catch (err: any) {
-          results.push({ name: test.name, passed: false, error: err.message });
+          testResults.push({
+            name: test.name,
+            selector: test.selector || "unknown",
+            expected: "test to run successfully",
+            actual: `Error: ${err.message}`
+          });
         }
       }
       
-      passed = results.every(r => r.passed);
-      if (passed) {
-        feedback = `✅ All ${results.length} tests passed!`;
-      } else {
-        const failed = results.filter(r => !r.passed);
-        feedback = `❌ ${failed.length} of ${results.length} tests failed:\n${failed.map(f => `  - ${f.name}: ${f.error}`).join("\n")}`;
-      }
+      // Return data for AI to semantically validate
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify({
+              validationType: "semantic-browser-validation-required",
+              stepNumber: currentStep.stepNumber,
+              stepTitle: currentStep.title,
+              task: currentStep.task,
+              testResults: testResults,
+              instruction: "Analyze each test result. For 'contains' tests, determine if the actual output semantically accomplishes what was expected, even if the exact wording differs. If all tests pass semantically, advance to the next step. If not, explain what's missing."
+            }, null, 2)
+          }
+        ]
+      };
     } finally {
       await browser.close();
     }

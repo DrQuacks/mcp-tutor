@@ -16,6 +16,7 @@ function CounterWithReducer() {
   return (
     <div>
       <h2>Counter with useReducer</h2>
+      <p>Count is: {count}</p>
     </div>
   )
 }
