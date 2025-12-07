@@ -54,24 +54,21 @@ export async function tutorTutorialHint({
     };
   }
 
-  const lines: string[] = [];
-  lines.push(`## 💡 Hints for Step ${currentStep.stepNumber}: ${currentStep.title}`);
-  lines.push("");
-
-  if (currentStep.hints && currentStep.hints.length > 0) {
-    for (let i = 0; i < currentStep.hints.length; i++) {
-      lines.push(`**Hint ${i + 1}:** ${currentStep.hints[i]}`);
-      lines.push("");
-    }
-  } else {
-    lines.push("No hints available for this step. Review the explanation and task description carefully.");
-  }
-
+  // Return data for AI to craft personalized hints with validation
   return {
     content: [
       {
         type: "text",
-        text: lines.join("\n"),
+        text: JSON.stringify({
+          requestType: "provide-validated-hint",
+          stepNumber: currentStep.stepNumber,
+          stepTitle: currentStep.title,
+          task: currentStep.task,
+          explanation: currentStep.explanation,
+          predefinedHints: currentStep.hints || [],
+          instruction: "Provide a helpful hint based on the predefined hints (if any) and the task requirements. Make it guidance-focused, not a direct solution. ⚠️ CRITICAL: You MUST call tutor_validate_response with your hint text BEFORE sending it to the student.",
+          requireResponseValidation: true,
+        }, null, 2),
       },
     ],
   };

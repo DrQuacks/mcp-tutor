@@ -1,6 +1,7 @@
 import { useReducer } from 'react'
 
 function counterReducer(state,action) {
+  console.log('action is: ',action)
   switch (action.type) {
     case 'increment':
       return state + 1
@@ -16,7 +17,9 @@ function CounterWithReducer() {
   return (
     <div>
       <h2>Counter with useReducer</h2>
-      <p>Count is: {count}</p>
+      <p>Count: {count}</p>
+      <button onClick={()=>dispatch({type:'increment'})}>Increment</button>
+      <button onClick={()=>dispatch({type:'decrement'})}>Decrement</button>
     </div>
   )
 }

@@ -19,6 +19,7 @@ import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
 import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
 import { tutorExplainConcept } from "./tools/tutorExplainConcept.js";
 import { tutorConnectPattern } from "./tools/tutorConnectPattern.js";
+import { tutorValidateResponse } from "./tools/tutorValidateResponse.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -375,6 +376,19 @@ async function main() {
       }),
     },
     async (params) => tutorTutorialHint(params)
+  );
+
+  server.registerTool(
+    "tutor_validate_response",
+    {
+      description: "🔴 MANDATORY: Validates your response before sending hints/guidance to students. ALWAYS call this tool BEFORE responding with hints, explanations, or guidance when a student's code is incorrect or needs help. This validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.",
+      inputSchema: z.object({
+        responseText: z.string().describe("Your planned response text to validate before sending to the student"),
+        tutorialOrExerciseId: z.string().describe("The tutorial or exercise ID (e.g., 'react-usereducer', 'react-counter')"),
+        stepNumber: z.number().optional().describe("Current step number if in a multi-step tutorial"),
+      }),
+    },
+    async (params) => tutorValidateResponse(params)
   );
 
   const transport = new StdioServerTransport();

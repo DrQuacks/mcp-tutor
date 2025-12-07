@@ -97,7 +97,8 @@ export async function tutorCheckTutorialStep({
             task: currentStep.task,
             checks: validation.checks,
             studentCode: studentCode,
-            instruction: "Analyze if the student's code accomplishes the task requirements. Ignore exact formatting/spacing. Check if the functionality and concepts are correctly implemented. Then either advance to next step if passed, or explain what's missing."
+            instruction: "Analyze if the student's code accomplishes the task requirements. Ignore exact formatting/spacing. Check if the functionality and concepts are correctly implemented. Then either advance to next step if passed, or explain what's missing. ⚠️ CRITICAL: If the code does NOT pass, you MUST call tutor_validate_response with your planned hint/guidance BEFORE sending it to the student.",
+            requireResponseValidation: true,
           }, null, 2)
         }
       ]
@@ -157,7 +158,8 @@ export async function tutorCheckTutorialStep({
               stepTitle: currentStep.title,
               task: currentStep.task,
               testResults: testResults,
-              instruction: "Analyze each test result. For 'contains' tests, determine if the actual output semantically accomplishes what was expected, even if the exact wording differs. If all tests pass semantically, advance to the next step. If not, explain what's missing."
+              instruction: "Analyze each test result. For 'contains' tests, determine if the actual output semantically accomplishes what was expected, even if the exact wording differs. If all tests pass semantically, advance to the next step. If not, explain what's missing. ⚠️ CRITICAL: If tests do NOT pass, you MUST call tutor_validate_response with your planned hint/guidance BEFORE sending it to the student.",
+              requireResponseValidation: true,
             }, null, 2)
           }
         ]
