@@ -1,0 +1,56 @@
+{
+  "id": "react-document-title",
+  "title": "Document Title Updater",
+  "description": "Build a component that uses useEffect to update the browser's document title based on a counter value.",
+  "difficulty": "easy",
+  "environment": "react",
+  "filePath": "src/exercises/DocumentTitle.tsx",
+  "requirements": [
+    "Create a counter state initialized to 0",
+    "Display the counter value",
+    "Add a button with text 'Increment' that increases the counter",
+    "Use useEffect to update document.title to show 'Count: X' where X is the current count",
+    "The title should update whenever the count changes"
+  ],
+  "hints": [
+    "Import both useState and useEffect from React",
+    "document.title is how you set the browser tab title",
+    "useEffect takes a function and a dependency array",
+    "Include count in the dependency array so the effect runs when count changes"
+  ],
+  "starterCode": "function DocumentTitle() {\n  return (\n    <div>\n      <h2>Document Title Updater</h2>\n    </div>\n  )\n}\n\nexport default DocumentTitle\n",
+  "solutionCode": "import { useState, useEffect } from 'react'\n\nfunction DocumentTitle() {\n  const [count, setCount] = useState(0)\n\n  useEffect(() => {\n    document.title = `Count: ${count}`\n  }, [count])\n\n  return (\n    <div>\n      <h2>Document Title Updater</h2>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(count + 1)}>Increment</button>\n    </div>\n  )\n}\n\nexport default DocumentTitle\n",
+  "browserTests": [
+    {
+      "name": "Counter display exists",
+      "selector": "p",
+      "contains": "Count:"
+    },
+    {
+      "name": "Increment button exists",
+      "selector": "button:has-text('Increment')",
+      "exists": true
+    },
+    {
+      "name": "Counter increments on click",
+      "selector": "button:has-text('Increment')",
+      "action": "click",
+      "then": {
+        "selector": "p",
+        "contains": "Count: 1"
+      }
+    },
+    {
+      "name": "Counter increments multiple times",
+      "actions": [
+        { "selector": "button:has-text('Increment')", "action": "click" },
+        { "selector": "button:has-text('Increment')", "action": "click" },
+        { "selector": "button:has-text('Increment')", "action": "click" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "Count: 3"
+      }
+    }
+  ]
+}

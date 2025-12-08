@@ -175,17 +175,14 @@ export default App
     lines.push("✨ **Easy mode**: Starter code includes helpful TODO comments to guide you.");
   }
   lines.push("");
-  lines.push("💡 **Hints:**");
-  for (const hint of exerciseData.hints) {
-    lines.push(`- ${hint}`);
-  }
-  lines.push("");
   
   // Recommend appropriate test tool based on environment
   const checkTool = exerciseData.environment === "node" 
     ? "tutor_node_check_solution" 
     : "tutor_react_check_solution";
+  const hintTool = "tutor_get_hint";
   lines.push(`When you're ready, use the \`${checkTool}\` tool with exerciseId: "${exerciseId}" to test your solution.`);
+  lines.push(`If you need help, use the \`${hintTool}\` tool to get progressive hints.`);
 
   return {
     content: [

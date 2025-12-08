@@ -1,11 +1,11 @@
 import './App.css'
-import UseCallbackDemo from './exercises/UseCallbackDemo'
+import DocumentTitle from './exercises/DocumentTitle'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Tutorial: React useCallback Hook</h1>
-      <UseCallbackDemo />
+      <h1>React Exercise: Document Title Updater</h1>
+      <DocumentTitle />
     </div>
   )
 }
