@@ -7,6 +7,8 @@ function counterReducer(state,action) {
       return state + 1
     case 'decrement':
       return state - 1
+    case 'reset':
+      return 0
     default:
       return state
   }
@@ -20,6 +22,7 @@ function CounterWithReducer() {
       <p>Count: {count}</p>
       <button onClick={()=>dispatch({type:'increment'})}>Increment</button>
       <button onClick={()=>dispatch({type:'decrement'})}>Decrement</button>
+      <button onClick={()=>dispatch({type:'reset'})}>Reset</button>
     </div>
   )
 }

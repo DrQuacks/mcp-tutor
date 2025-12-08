@@ -1,11 +1,11 @@
 import './App.css'
-import CounterWithReducer from './exercises/CounterWithReducer'
+import UseCallbackDemo from './exercises/UseCallbackDemo'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Tutorial: React useReducer Hook</h1>
-      <CounterWithReducer />
+      <h1>Tutorial: React useCallback Hook</h1>
+      <UseCallbackDemo />
     </div>
   )
 }

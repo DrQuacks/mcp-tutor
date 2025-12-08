@@ -17,7 +17,17 @@ export async function tutorValidateResponse({
   stepNumber?: number;
 }): Promise<ToolResponse> {
   // Load the tutorial/exercise to get the task description
-  const exercisePath = path.join(process.cwd(), "exercises", `${tutorialOrExerciseId}.json`);
+  // Try with 'tutorial-' prefix first for tutorials, then without for exercises
+  let exercisePath = path.join(process.cwd(), "exercises", `tutorial-${tutorialOrExerciseId}.json`);
+  let fileExists = false;
+  
+  try {
+    await fs.access(exercisePath);
+    fileExists = true;
+  } catch {
+    // Try without tutorial- prefix
+    exercisePath = path.join(process.cwd(), "exercises", `${tutorialOrExerciseId}.json`);
+  }
   
   let exerciseTask = "";
   try {

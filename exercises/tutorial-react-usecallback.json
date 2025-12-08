@@ -1,0 +1,150 @@
+{
+  "title": "React useCallback Hook",
+  "description": "Learn how to use the useCallback hook to optimize performance by memoizing functions and preventing unnecessary re-renders in React applications.",
+  "environment": "react",
+  "filePath": "src/exercises/UseCallbackDemo.tsx",
+  "starterCode": "function UseCallbackDemo() {\n  return (\n    <div>\n      <h2>useCallback Demo</h2>\n    </div>\n  )\n}\n\nexport default UseCallbackDemo\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Import useState",
+      "explanation": "Before learning useCallback, let's understand the problem it solves. In React, when a component re-renders, ALL functions defined inside it are recreated with new references. This means every function is technically a 'new' function on each render, even if it does the exact same thing.\n\nThis becomes a problem when:\n- You pass callbacks to child components wrapped in React.memo()\n- Functions are used as dependencies in useEffect\n- You have expensive operations that shouldn't re-run unnecessarily\n\nWe'll build a demo that shows this problem and how useCallback fixes it. First, we need useState to create state that triggers re-renders.",
+      "task": "Import useState from 'react' at the top of your file.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import",
+          "useState",
+          "react"
+        ]
+      },
+      "hints": [
+        "Use named imports: import { useState } from 'react'",
+        "This should be at the very top of your file"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Create State and Handler",
+      "explanation": "Now let's set up a simple counter with state. We'll also create a handler function that we'll eventually pass to a child component.\n\nThe key point: every time the count changes and the component re-renders, the handler function will be recreated with a new reference, even though it does the same thing.",
+      "task": "Inside UseCallbackDemo:\n1. Create a state variable 'count' initialized to 0\n2. Create a function 'handleLog' that logs 'Button was clicked!' to the console\n3. Add a button that increments count with text 'Increment Counter'\n4. Display the count value below the button",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [count",
+          "useState(0)",
+          "handleLog",
+          "console.log",
+          "setCount"
+        ]
+      },
+      "hints": [
+        "const [count, setCount] = useState(0)",
+        "Create handleLog as a regular function or arrow function",
+        "Button onClick should increment: setCount(count + 1) or setCount(c => c + 1)",
+        "Display count in a paragraph or div"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Create a Child Component",
+      "explanation": "To demonstrate the re-render problem, we need a child component that:\n1. Accepts a callback function as a prop\n2. Logs to console when it renders (so we can see unnecessary re-renders)\n\nThis component will help us visualize the problem: even though we're just incrementing a counter, the child component re-renders because it receives a 'new' function on every parent render.",
+      "task": "Above your UseCallbackDemo component, create a component called LogButton that:\n1. Takes props: onClick (function) and label (string)\n2. Logs 'LogButton rendered' to console at the top of the component\n3. Returns a button that calls onClick when clicked and displays the label text\n\nThen in UseCallbackDemo, add a second button using LogButton:\n- Pass handleLog as the onClick prop\n- Pass 'Log Message' as the label prop",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "LogButton",
+          "onClick",
+          "label",
+          "LogButton rendered",
+          "<LogButton"
+        ]
+      },
+      "hints": [
+        "Define LogButton above UseCallbackDemo",
+        "Props: function LogButton({ onClick, label })",
+        "Put console.log('LogButton rendered') at the start of LogButton",
+        "Use: <LogButton onClick={handleLog} label=\"Log Message\" />"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Wrap Child with React.memo",
+      "explanation": "React.memo is a higher-order component that prevents re-renders if props haven't changed. It does a shallow comparison of props before and after.\n\nLet's wrap LogButton with memo. Open your browser console and click 'Increment Counter' - you'll see 'LogButton rendered' logs even though you're NOT clicking LogButton!\n\nWhy? Because handleLog gets a new reference on every render, so React.memo thinks the onClick prop changed, triggering a re-render. This is the exact problem useCallback solves.",
+      "task": "1. Import memo from 'react'\n2. Wrap LogButton with memo: const LogButton = memo(function LogButton({ onClick, label }) { ... })\n\nTest: Click 'Increment Counter' and watch the console - LogButton still re-renders unnecessarily!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import",
+          "memo",
+          "memo(function LogButton"
+        ]
+      },
+      "hints": [
+        "Add memo to imports: import { useState, memo } from 'react'",
+        "Wrap the entire function: const LogButton = memo(function LogButton(props) { ... })",
+        "Keep the console.log inside so you can see re-renders"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Fix with useCallback",
+      "explanation": "Now for the solution! useCallback memoizes a function, returning the same function reference across re-renders unless dependencies change.\n\nSyntax:\n```tsx\nconst memoizedFn = useCallback(() => {\n  // function code\n}, [dependencies])\n```\n\nWith an empty dependency array [], the function never changes. When you wrap handleLog with useCallback, React.memo will see it's the same function reference and LogButton won't re-render!",
+      "task": "1. Import useCallback from 'react'\n2. Wrap handleLog with useCallback and an empty dependency array:\n\nconst handleLog = useCallback(() => {\n  console.log('Button was clicked!')\n}, [])\n\nTest: Click 'Increment Counter' - LogButton no longer re-renders! (No 'LogButton rendered' logs)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import",
+          "useCallback",
+          "useCallback(",
+          "handleLog"
+        ]
+      },
+      "hints": [
+        "Add useCallback to imports: import { useState, memo, useCallback } from 'react'",
+        "Replace: const handleLog = () => {...}",
+        "With: const handleLog = useCallback(() => {...}, [])",
+        "Empty array [] means the function never changes"
+      ]
+    },
+    {
+      "stepNumber": 6,
+      "title": "Understanding Dependencies",
+      "explanation": "The dependency array in useCallback works like useEffect. If your callback uses external values, you must include them in the dependencies.\n\nExample: if handleLog needs the current count:\n```tsx\nconst handleLog = useCallback(() => {\n  console.log('Count is:', count)\n}, [count])\n```\n\nNow the function is recreated whenever count changes. This means LogButton WILL re-render when count changes (because onClick changes), but it WON'T re-render if other unrelated state changes.\n\nThis is the tradeoff: useCallback is only beneficial when dependencies change less frequently than the component renders.",
+      "task": "Modify handleLog to demonstrate dependencies:\n1. Change the console.log to: console.log('Current count:', count)\n2. Add count to the dependency array: [count]\n\nTest: Click 'Increment Counter' - now LogButton re-renders because count changed. But if you had other state (like theme), changing theme wouldn't cause LogButton to re-render.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useCallback",
+          "count",
+          "[count]"
+        ]
+      },
+      "hints": [
+        "Reference count inside the callback function body",
+        "Add count to the dependency array at the end",
+        "The function now recreates whenever count changes"
+      ]
+    },
+    {
+      "stepNumber": 7,
+      "title": "When to Use useCallback",
+      "explanation": "Use useCallback when:\n✅ Passing callbacks to optimized child components (with React.memo)\n✅ Functions are used as dependencies in useEffect/useMemo\n✅ Returning functions from custom hooks that might be used as dependencies\n✅ Preventing expensive computations from re-running\n\nDON'T use useCallback when:\n❌ The component isn't expensive to render\n❌ There's no child component optimization (no React.memo)\n❌ Dependencies change on every render anyway (defeats the purpose)\n❌ You're wrapping every single function (adds overhead)\n\nRemember: useCallback itself has a small cost. Only use it when you have a measurable performance issue or when passing callbacks to optimized components.",
+      "task": "You've completed the tutorial! To demonstrate the difference, add one more feature:\n\n1. Create a new state 'theme' initialized to 'light'\n2. Create a function 'handleThemeToggle' (NOT wrapped in useCallback) that toggles theme between 'light' and 'dark'\n3. Add a button that calls handleThemeToggle with text 'Toggle Theme'\n4. Display the current theme value\n\nNow test:\n- Click 'Toggle Theme': LogButton re-renders (handleThemeToggle causes re-render, and handleLog depends on count)\n- Click 'Increment Counter': LogButton re-renders (count dependency changed)\n- If handleLog had no dependencies [], it wouldn't re-render when toggling theme!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "theme",
+          "handleThemeToggle",
+          "Toggle Theme"
+        ]
+      },
+      "hints": [
+        "const [theme, setTheme] = useState('light')",
+        "handleThemeToggle: setTheme(theme === 'light' ? 'dark' : 'light')",
+        "Don't wrap handleThemeToggle in useCallback - this shows the difference",
+        "Display theme value so you can see it change"
+      ]
+    }
+  ]
+}

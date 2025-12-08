@@ -20,6 +20,8 @@ import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
 import { tutorExplainConcept } from "./tools/tutorExplainConcept.js";
 import { tutorConnectPattern } from "./tools/tutorConnectPattern.js";
 import { tutorValidateResponse } from "./tools/tutorValidateResponse.js";
+import { tutorValidateTutorialJSON } from "./tools/tutorValidateTutorialJSON.js";
+import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -381,7 +383,7 @@ async function main() {
   server.registerTool(
     "tutor_validate_response",
     {
-      description: "🔴 MANDATORY: Validates your response before sending hints/guidance to students. ALWAYS call this tool BEFORE responding with hints, explanations, or guidance when a student's code is incorrect or needs help. This validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.",
+      description: "🔴 MANDATORY: Validates your response before sending ANY tutorial/exercise-related guidance to students. You MUST call this tool BEFORE responding when:\n- Student asks a question about tutorial code\n- Student asks for clarification on requirements\n- You're explaining what the task means\n- You're discussing the current tutorial/exercise step\n- Responding to confusion or providing hints\n\nONLY exceptions:\n- User explicitly says 'give me the solution' or 'show me the answer'\n- Using the show solution tool\n\nThis validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.",
       inputSchema: z.object({
         responseText: z.string().describe("Your planned response text to validate before sending to the student"),
         tutorialOrExerciseId: z.string().describe("The tutorial or exercise ID (e.g., 'react-usereducer', 'react-counter')"),
@@ -389,6 +391,31 @@ async function main() {
       }),
     },
     async (params) => tutorValidateResponse(params)
+  );
+
+  server.registerTool(
+    "tutor_validate_tutorial_json",
+    {
+      description: "Validates a tutorial JSON file for copy-paste code violations in task descriptions. Can optionally auto-fix by removing violating code. Use this to clean tutorial files before using them with students.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The tutorial ID (without 'tutorial-' prefix, e.g., 'react-usecallback')"),
+        autoFix: z.boolean().optional().describe("If true, automatically removes copy-paste code and saves the cleaned tutorial. Default: false"),
+      }),
+    },
+    async (params) => tutorValidateTutorialJSON(params)
+  );
+
+  server.registerTool(
+    "tutor_respond_to_student",
+    {
+      description: "🔴 MANDATORY GATEWAY: Use this tool to respond to students during tutorials/exercises. This is the ONLY way to send responses when discussing tutorial code. Pass your draft response and it will automatically validate it before allowing you to send it. If you read tutorial JSON, student code, or receive task details from another tool, you MUST use this tool to respond. DO NOT respond directly - always use this gateway.",
+      inputSchema: z.object({
+        draftResponse: z.string().describe("Your complete draft response to the student"),
+        tutorialOrExerciseId: z.string().describe("The tutorial or exercise ID (e.g., 'react-usecallback', 'react-counter')"),
+        stepNumber: z.number().optional().describe("Current step number if in a multi-step tutorial"),
+      }),
+    },
+    async (params) => tutorRespondToStudent(params)
   );
 
   const transport = new StdioServerTransport();

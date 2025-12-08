@@ -3,15 +3,24 @@
     {
       "tutorialId": "react-usereducer",
       "title": "React useReducer Hook",
-      "currentStep": 5,
+      "currentStep": 6,
       "completedSteps": [
         1,
         2,
         3,
-        4
+        4,
+        5
       ],
       "startedAt": "2025-12-07T01:17:34.686Z",
-      "lastActivity": "2025-12-07T18:38:00.000Z"
+      "lastActivity": "2025-12-07T20:57:52.372Z"
+    },
+    {
+      "tutorialId": "react-usecallback",
+      "title": "React useCallback Hook",
+      "currentStep": 1,
+      "completedSteps": [],
+      "startedAt": "2025-12-08T00:07:44.278Z",
+      "lastActivity": "2025-12-08T00:07:44.305Z"
     }
   ],
   "exercises": [
