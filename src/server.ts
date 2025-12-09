@@ -16,6 +16,7 @@ import { tutorGetHint } from "./tools/tutorGetHint.js";
 import { tutorViewProgress } from "./tools/tutorViewProgress.js";
 import { tutorStartTutorial } from "./tools/tutorStartTutorial.js";
 import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
+import { tutorAdvanceStep } from "./tools/tutorAdvanceStep.js";
 import { tutorTutorialHint } from "./tools/tutorTutorialHint.js";
 import { tutorExplainConcept } from "./tools/tutorExplainConcept.js";
 import { tutorConnectPattern } from "./tools/tutorConnectPattern.js";
@@ -344,6 +345,17 @@ async function main() {
       }),
     },
     async (params) => tutorCheckTutorialStep(params)
+  );
+
+  server.registerTool(
+    "tutor_advance_step",
+    {
+      description: "⚠️ INTERNAL USE ONLY - Called by the AI after validating student code to advance to the next tutorial step. DO NOT call this directly - it's automatically invoked after tutor_check_tutorial_step when validation passes.",
+      inputSchema: z.object({
+        tutorialId: z.string().describe("The ID of the tutorial being worked on"),
+      }),
+    },
+    async (params) => tutorAdvanceStep(params)
   );
 
   server.registerTool(

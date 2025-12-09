@@ -1,11 +1,11 @@
 import './App.css'
-import DocumentTitle from './exercises/DocumentTitle'
+import FetchWithTryCatch from './exercises/FetchWithTryCatch'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Document Title Updater</h1>
-      <DocumentTitle />
+      <h1>React Tutorial: Fetch API with Try/Catch</h1>
+      <FetchWithTryCatch />
     </div>
   )
 }
