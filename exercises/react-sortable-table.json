@@ -1,0 +1,56 @@
+{
+  "id": "react-sortable-table",
+  "title": "Sortable Product Table with Pagination",
+  "description": "Build a sortable, paginated product table. Practice the interview pattern of implementing table sorting and pagination controls.",
+  "environment": "react",
+  "difficulty": "intermediate",
+  "requirements": [
+    "Display products in a table with columns: Name, Category, Price, Rating",
+    "Make all column headers clickable for sorting",
+    "Show sort direction with arrows (↑ ↓) on the active column",
+    "Clicking the same header toggles between ascending and descending",
+    "Implement pagination showing 6 items per page",
+    "Add Previous and Next buttons (disabled at boundaries)",
+    "Show current page number and total pages",
+    "Start with data sorted by Name in ascending order"
+  ],
+  "starterCode": "export default function SortableTable() {\n  // Your code here\n  \n  return (\n    <div>\n      <h2>Product Catalog</h2>\n    </div>\n  );\n}",
+  "solutionCode": "import { useState } from 'react';\n\nconst products = [\n  { id: 1, name: 'Wireless Mouse', category: 'Electronics', price: 29.99, rating: 4.5 },\n  { id: 2, name: 'Coffee Mug', category: 'Kitchen', price: 12.99, rating: 4.2 },\n  { id: 3, name: 'Notebook', category: 'Office', price: 8.99, rating: 4.0 },\n  { id: 4, name: 'Desk Lamp', category: 'Furniture', price: 45.99, rating: 4.7 },\n  { id: 5, name: 'Pen Set', category: 'Office', price: 15.99, rating: 4.3 },\n  { id: 6, name: 'Water Bottle', category: 'Sports', price: 19.99, rating: 4.6 },\n  { id: 7, name: 'Backpack', category: 'Travel', price: 59.99, rating: 4.8 },\n  { id: 8, name: 'Phone Stand', category: 'Electronics', price: 14.99, rating: 4.1 },\n  { id: 9, name: 'Plant Pot', category: 'Home', price: 22.99, rating: 4.4 },\n  { id: 10, name: 'Yoga Mat', category: 'Sports', price: 34.99, rating: 4.5 },\n  { id: 11, name: 'Headphones', category: 'Electronics', price: 89.99, rating: 4.9 },\n  { id: 12, name: 'Calendar', category: 'Office', price: 11.99, rating: 3.9 },\n  { id: 13, name: 'Storage Box', category: 'Home', price: 25.99, rating: 4.2 },\n  { id: 14, name: 'USB Hub', category: 'Electronics', price: 32.99, rating: 4.4 },\n  { id: 15, name: 'Throw Pillow', category: 'Home', price: 18.99, rating: 4.3 }\n];\n\nexport default function SortableTable() {\n  const [sortField, setSortField] = useState('name');\n  const [sortDirection, setSortDirection] = useState('asc');\n  const [currentPage, setCurrentPage] = useState(1);\n  const ITEMS_PER_PAGE = 6;\n\n  const handleSort = (field) => {\n    if (sortField === field) {\n      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');\n    } else {\n      setSortField(field);\n      setSortDirection('asc');\n    }\n  };\n\n  const sortedProducts = [...products].sort((a, b) => {\n    let comparison = 0;\n    if (sortField === 'name' || sortField === 'category') {\n      comparison = a[sortField].localeCompare(b[sortField]);\n    } else {\n      comparison = a[sortField] - b[sortField];\n    }\n    return sortDirection === 'asc' ? comparison : -comparison;\n  });\n\n  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;\n  const paginatedProducts = sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);\n  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);\n\n  return (\n    <div>\n      <h2>Product Catalog</h2>\n      \n      <table>\n        <thead>\n          <tr>\n            <th onClick={() => handleSort('name')}>\n              Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n            <th onClick={() => handleSort('category')}>\n              Category {sortField === 'category' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n            <th onClick={() => handleSort('price')}>\n              Price {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n            <th onClick={() => handleSort('rating')}>\n              Rating {sortField === 'rating' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n          </tr>\n        </thead>\n        <tbody>\n          {paginatedProducts.map(product => (\n            <tr key={product.id}>\n              <td>{product.name}</td>\n              <td>{product.category}</td>\n              <td>${product.price.toFixed(2)}</td>\n              <td>{product.rating}</td>\n            </tr>\n          ))}\n        </tbody>\n      </table>\n      \n      <div>\n        <button \n          onClick={() => setCurrentPage(currentPage - 1)}\n          disabled={currentPage === 1}\n        >\n          Previous\n        </button>\n        <span> Page {currentPage} of {totalPages} </span>\n        <button \n          onClick={() => setCurrentPage(currentPage + 1)}\n          disabled={currentPage === totalPages}\n        >\n          Next\n        </button>\n      </div>\n    </div>\n  );\n}",
+  "filePath": "src/exercises/SortableTable.tsx",
+  "browserTests": [
+    {
+      "name": "Table with headers exists",
+      "selector": "table thead th",
+      "count": 4
+    },
+    {
+      "name": "Initial sort arrow on Name column",
+      "selector": "th:has-text('Name')",
+      "contains": "↑"
+    },
+    {
+      "name": "Shows first page of results",
+      "selector": "tbody tr",
+      "count": 6
+    },
+    {
+      "name": "Previous button disabled on first page",
+      "selector": "button:has-text('Previous')[disabled]",
+      "exists": true
+    },
+    {
+      "name": "Page indicator shows correct info",
+      "selector": "span:has-text('Page')",
+      "contains": "of"
+    },
+    {
+      "name": "Next button navigates to page 2",
+      "selector": "button:has-text('Next')",
+      "action": "click",
+      "then": {
+        "selector": "span:has-text('Page 2')",
+        "exists": true
+      }
+    }
+  ]
+}

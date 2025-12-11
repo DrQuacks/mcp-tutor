@@ -1,0 +1,134 @@
+{
+  "id": "tutorial-react-form-validation",
+  "title": "Form Validation and Error Handling",
+  "description": "Learn how to build controlled forms with comprehensive validation and inline error messages - a critical interview skill.",
+  "environment": "react",
+  "filePath": "src/exercises/ValidatedForm.tsx",
+  "starterCode": "export default function ValidatedForm() {\n  return (\n    <div>\n      <h2>Create Task</h2>\n    </div>\n  );\n}",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Setting Up Form State",
+      "explanation": "Forms in React should use controlled components where React state is the source of truth for all input values. Each input field needs its own state variable.\n\nFor validation, you also need error state - typically an object mapping field names to error messages. This structure makes it easy to display errors next to specific fields.\n\nThe pattern:\n- Form values: one state variable per input, or an object containing all values\n- Errors: an object like { title: 'Title is required', priority: '' }\n- Touched: optional, tracks which fields user has interacted with\n\nIn interviews, using an object for errors shows you're thinking about scalability (easy to add more fields).",
+      "codeExample": "// Form state pattern\nconst [formData, setFormData] = useState({\n  name: '',\n  email: '',\n  age: ''\n});\n\nconst [errors, setErrors] = useState({\n  name: '',\n  email: '',\n  age: ''\n});",
+      "task": "1. Import useState\n2. Create a formData state object with fields:\n   - title (empty string)\n   - description (empty string)\n   - priority ('medium')\n3. Create an errors state object with same fields (all empty strings)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useState",
+          "formData",
+          "errors",
+          "title",
+          "description",
+          "priority"
+        ]
+      },
+      "hints": [
+        "Use object form: useState({ title: '', description: '', priority: 'medium' })",
+        "Errors object mirrors formData structure",
+        "Priority defaults to 'medium'",
+        "You'll need setFormData and setErrors functions"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Creating Input Change Handlers",
+      "explanation": "With multiple form fields in an object, you want a reusable change handler. The pattern uses computed property names to update the correct field dynamically.\n\nWhen an input changes:\n1. Update the form value\n2. Clear any existing error for that field\n3. Optionally validate immediately (real-time validation)\n\nThe computed property syntax [name]: value lets you use a variable as an object key. This is elegant and DRY - one handler for all inputs instead of separate handlers per field.\n\nIn interviews, this demonstrates understanding of:\n- JavaScript object spread syntax\n- Computed property names\n- Event handling patterns",
+      "codeExample": "// Reusable change handler\nconst handleChange = (e) => {\n  const { name, value } = e.target;\n  setFormValues({ ...formValues, [name]: value });\n  // Clear error when user starts typing\n  if (formErrors[name]) {\n    setFormErrors({ ...formErrors, [name]: '' });\n  }\n};",
+      "task": "Create a handleChange function that:\n1. Destructures name and value from e.target\n2. Updates formData using spread operator and computed property\n3. Clears the error for that field (set it to empty string)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "handleChange",
+          "e.target",
+          "name",
+          "value",
+          "setFormData",
+          "setErrors"
+        ]
+      },
+      "hints": [
+        "Destructure: const { name, value } = e.target",
+        "Update: setFormData({ ...formData, [name]: value })",
+        "Clear error: setErrors({ ...errors, [name]: '' })",
+        "The [name] syntax is computed property names"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Implementing Validation Logic",
+      "explanation": "Validation should be a pure function that takes form data and returns an errors object. This makes it testable and reusable (you can validate on change, on blur, or on submit).\n\nCommon validation patterns interviewers look for:\n- Required fields: check if value is empty/whitespace\n- Min/max length: value.length checks\n- Pattern matching: regex for email, phone, etc.\n- Custom rules: business logic validation\n\nReturn an errors object. Empty strings mean no error. This consistent structure makes displaying errors straightforward.\n\nTip: Use trim() to ignore whitespace-only input.",
+      "codeExample": "// Validation function\nconst validate = (values) => {\n  const newErrors = {};\n  \n  if (!values.name.trim()) {\n    newErrors.name = 'Name is required';\n  } else if (values.name.length < 2) {\n    newErrors.name = 'Name must be at least 2 characters';\n  }\n  \n  if (!values.email.includes('@')) {\n    newErrors.email = 'Invalid email';\n  }\n  \n  return newErrors;\n};",
+      "task": "Create a validate function that:\n1. Takes formData as parameter\n2. Returns an errors object\n3. Validates:\n   - title: required (not empty after trim), min 3 characters\n   - description: required, min 10 characters\n   - priority: must be one of 'low', 'medium', 'high'\n4. Set appropriate error messages for each validation",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "validate",
+          "trim",
+          "length",
+          "required",
+          "return"
+        ]
+      },
+      "hints": [
+        "Check empty: !formData.title.trim()",
+        "Check length: formData.title.trim().length < 3",
+        "Check priority: !['low', 'medium', 'high'].includes(formData.priority)",
+        "Return empty object if no errors, otherwise return errors object"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Handling Form Submission",
+      "explanation": "Form submission involves:\n1. Prevent default browser behavior (e.preventDefault())\n2. Validate all fields\n3. If errors exist, update error state and don't submit\n4. If valid, process the data (call API, show success, reset form)\n\nIn interviews, show you handle both success and failure paths. Also demonstrate form reset - clearing values and errors after successful submission.\n\nCommon pattern: check if errors object has any keys. If Object.keys(errors).length === 0, form is valid.",
+      "codeExample": "// Submit handler\nconst handleSubmit = (e) => {\n  e.preventDefault();\n  \n  const validationErrors = validateForm(formData);\n  \n  if (Object.keys(validationErrors).length > 0) {\n    setErrors(validationErrors);\n    return;\n  }\n  \n  // Submit the data\n  console.log('Submitting:', formData);\n  \n  // Reset form\n  setFormData({ name: '', email: '', age: '' });\n  setErrors({});\n};",
+      "task": "Create a handleSubmit function that:\n1. Prevents default form submission\n2. Calls validate(formData) and stores result\n3. If errors exist (check Object.keys length), update errors state and return\n4. If valid, log formData to console\n5. Reset formData to initial values and clear errors",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "handleSubmit",
+          "preventDefault",
+          "validate",
+          "Object.keys",
+          "setErrors",
+          "console.log"
+        ]
+      },
+      "hints": [
+        "Start with: e.preventDefault()",
+        "Get errors: const validationErrors = validate(formData)",
+        "Check if empty: Object.keys(validationErrors).length === 0",
+        "Reset: setFormData({ title: '', description: '', priority: 'medium' })"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Building the Form UI with Error Display",
+      "explanation": "Now we wire everything together. Each input needs:\n- type attribute\n- name attribute (matches formData key)\n- value prop (controlled input)\n- onChange handler\n- Associated error message display\n\nShow errors conditionally: only display if error exists for that field. Use semantic HTML (labels, proper input types) and make errors visible (color, icon, aria-invalid).\n\nIn interviews, accessible forms demonstrate professionalism:\n- Labels associated with inputs (htmlFor/id)\n- Error messages linked to inputs (aria-describedby)\n- Required fields marked (required attribute or visual indicator)",
+      "codeExample": "// Form with errors\n<form onSubmit={handleSubmit}>\n  <div>\n    <label htmlFor=\"name\">Name</label>\n    <input\n      id=\"name\"\n      name=\"name\"\n      value={formData.name}\n      onChange={handleChange}\n    />\n    {errors.name && <span className=\"error\">{errors.name}</span>}\n  </div>\n  \n  <button type=\"submit\">Submit</button>\n</form>",
+      "task": "Create a form with:\n1. onSubmit handler\n2. Input for title (text input)\n3. Textarea for description\n4. Select dropdown for priority (options: low, medium, high)\n5. Each field should:\n   - Have proper name attribute\n   - Be controlled (value + onChange)\n   - Show error below if errors[field] exists\n6. Submit button at bottom",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "form",
+          "onSubmit={handleSubmit}",
+          "input",
+          "textarea",
+          "select",
+          "value={formData",
+          "onChange={handleChange}",
+          "errors."
+        ]
+      },
+      "hints": [
+        "Form: <form onSubmit={handleSubmit}>",
+        "Text input: name=\"title\" value={formData.title} onChange={handleChange}",
+        "Textarea: name=\"description\" value={formData.description} onChange={handleChange}",
+        "Select: name=\"priority\" value={formData.priority} onChange={handleChange}",
+        "Error display: {errors.title && <span>{errors.title}</span>}",
+        "Don't forget labels for accessibility!"
+      ]
+    }
+  ],
+  "solutionCode": "import { useState } from 'react';\n\nexport default function ValidatedForm() {\n  const [formData, setFormData] = useState({\n    title: '',\n    description: '',\n    priority: 'medium'\n  });\n\n  const [errors, setErrors] = useState({\n    title: '',\n    description: '',\n    priority: ''\n  });\n\n  const handleChange = (e) => {\n    const { name, value } = e.target;\n    setFormData({ ...formData, [name]: value });\n    if (errors[name]) {\n      setErrors({ ...errors, [name]: '' });\n    }\n  };\n\n  const validate = (data) => {\n    const newErrors = {};\n\n    if (!data.title.trim()) {\n      newErrors.title = 'Title is required';\n    } else if (data.title.trim().length < 3) {\n      newErrors.title = 'Title must be at least 3 characters';\n    }\n\n    if (!data.description.trim()) {\n      newErrors.description = 'Description is required';\n    } else if (data.description.trim().length < 10) {\n      newErrors.description = 'Description must be at least 10 characters';\n    }\n\n    if (!['low', 'medium', 'high'].includes(data.priority)) {\n      newErrors.priority = 'Invalid priority';\n    }\n\n    return newErrors;\n  };\n\n  const handleSubmit = (e) => {\n    e.preventDefault();\n\n    const validationErrors = validate(formData);\n\n    if (Object.keys(validationErrors).length > 0) {\n      setErrors(validationErrors);\n      return;\n    }\n\n    console.log('Task created:', formData);\n    alert(`Task created: ${formData.title}`);\n\n    // Reset form\n    setFormData({ title: '', description: '', priority: 'medium' });\n    setErrors({ title: '', description: '', priority: '' });\n  };\n\n  return (\n    <div>\n      <h2>Create Task</h2>\n      <form onSubmit={handleSubmit}>\n        <div>\n          <label htmlFor=\"title\">Title *</label>\n          <input\n            id=\"title\"\n            name=\"title\"\n            type=\"text\"\n            value={formData.title}\n            onChange={handleChange}\n          />\n          {errors.title && <div style={{ color: 'red' }}>{errors.title}</div>}\n        </div>\n\n        <div>\n          <label htmlFor=\"description\">Description *</label>\n          <textarea\n            id=\"description\"\n            name=\"description\"\n            value={formData.description}\n            onChange={handleChange}\n            rows={4}\n          />\n          {errors.description && <div style={{ color: 'red' }}>{errors.description}</div>}\n        </div>\n\n        <div>\n          <label htmlFor=\"priority\">Priority</label>\n          <select\n            id=\"priority\"\n            name=\"priority\"\n            value={formData.priority}\n            onChange={handleChange}\n          >\n            <option value=\"low\">Low</option>\n            <option value=\"medium\">Medium</option>\n            <option value=\"high\">High</option>\n          </select>\n          {errors.priority && <div style={{ color: 'red' }}>{errors.priority}</div>}\n        </div>\n\n        <button type=\"submit\">Create Task</button>\n      </form>\n    </div>\n  );\n}"
+}

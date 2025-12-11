@@ -1,0 +1,132 @@
+{
+  "id": "tutorial-react-sort-pagination",
+  "title": "Sorting and Pagination Patterns",
+  "description": "Learn how to implement sortable columns and pagination for large lists - essential patterns for interview questions about data tables.",
+  "environment": "react",
+  "filePath": "src/exercises/SortablePaginated.tsx",
+  "starterCode": "export default function SortablePaginated() {\n  return (\n    <div>\n      <h2>Product Table</h2>\n    </div>\n  );\n}",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Setting Up Data and Sort State",
+      "explanation": "Sorting requires tracking two pieces of information: which column to sort by, and the sort direction (ascending or descending). This state drives how you order your data before displaying it.\n\nIn interviews, showing you understand this state management demonstrates clean thinking. The pattern is:\n- sortField: which property to sort on (name, price, etc.)\n- sortDirection: 'asc' or 'desc'\n\nFor pagination, you track the current page number. Combined with a items-per-page constant, you can slice your sorted data to show just one page at a time.\n\nThis separation (sort state, page state, display logic) keeps your component organized and maintainable.",
+      "codeExample": "// Sorting and pagination state\nconst [sortBy, setSortBy] = useState('name');\nconst [sortOrder, setSortOrder] = useState('asc');\nconst [currentPage, setCurrentPage] = useState(1);\nconst itemsPerPage = 5;",
+      "task": "1. Import useState\n2. Create a constant `products` array (outside component) with 10 products:\n   - Each product has: { id, name, price, stock }\n   - Example: { id: 1, name: 'Laptop', price: 999, stock: 5 }\n3. Inside component, create state for:\n   - sortField (initialized to 'name')\n   - sortDirection (initialized to 'asc')\n   - currentPage (initialized to 1)\n4. Create a constant ITEMS_PER_PAGE = 5",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useState",
+          "products",
+          "sortField",
+          "sortDirection",
+          "currentPage",
+          "ITEMS_PER_PAGE"
+        ]
+      },
+      "hints": [
+        "Create products array with at least 10 items",
+        "Each product needs id, name, price, and stock properties",
+        "Use three separate useState calls",
+        "ITEMS_PER_PAGE is a constant, not state"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Implementing Sort Logic",
+      "explanation": "Sorting in JavaScript uses the sort() method with a comparator function. The comparator returns negative, zero, or positive to determine order.\n\nFor interviews, show you can handle different data types:\n- Strings: use localeCompare() for proper alphabetical sorting\n- Numbers: simple subtraction (a - b)\n- Handle both ascending and descending\n\nImportant: sort() mutates the array, so create a copy first with [...array] or array.slice(). This prevents unexpected bugs and shows you understand immutability.",
+      "codeExample": "// Generic sort implementation\nconst sortedData = [...data].sort((a, b) => {\n  if (sortField === 'name') {\n    return sortOrder === 'asc' \n      ? a.name.localeCompare(b.name)\n      : b.name.localeCompare(a.name);\n  }\n  return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;\n});",
+      "task": "Create a `sortedProducts` variable that:\n1. Makes a copy of the products array\n2. Sorts based on sortField (name, price, or stock)\n3. For name: use localeCompare()\n4. For price/stock: use subtraction\n5. Reverse the comparison if sortDirection is 'desc'",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "sortedProducts",
+          "sort",
+          "localeCompare",
+          "sortField",
+          "sortDirection"
+        ]
+      },
+      "hints": [
+        "Copy array first: [...products]",
+        "Use if/else or switch to handle different fields",
+        "For strings: a[field].localeCompare(b[field])",
+        "For numbers: a[field] - b[field]",
+        "Flip comparison for descending: multiply by -1 or swap a/b"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Implementing Pagination Slice",
+      "explanation": "Pagination is just slicing an array to show a subset of items. The math is straightforward but gets asked in interviews:\n\n- startIndex = (currentPage - 1) * itemsPerPage\n- endIndex = startIndex + itemsPerPage\n- slice(startIndex, endIndex)\n\nThis pattern works for any page size. Show you can derive these calculations from first principles rather than memorizing magic numbers.\n\nAlso calculate totalPages = Math.ceil(totalItems / itemsPerPage). The ceil() ensures partial pages count as a full page.",
+      "codeExample": "// Pagination calculation\nconst startIdx = (page - 1) * perPage;\nconst endIdx = startIdx + perPage;\nconst paginatedData = sortedData.slice(startIdx, endIdx);\nconst totalPages = Math.ceil(sortedData.length / perPage);",
+      "task": "Create variables for pagination:\n1. `paginatedProducts` - slice of sortedProducts for current page\n2. `totalPages` - total number of pages (Math.ceil)\n\nUse currentPage and ITEMS_PER_PAGE to calculate the slice indices.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "paginatedProducts",
+          "slice",
+          "totalPages",
+          "Math.ceil",
+          "ITEMS_PER_PAGE"
+        ]
+      },
+      "hints": [
+        "Start index: (currentPage - 1) * ITEMS_PER_PAGE",
+        "End index: startIndex + ITEMS_PER_PAGE",
+        "Use .slice(startIndex, endIndex)",
+        "Total pages: Math.ceil(sortedProducts.length / ITEMS_PER_PAGE)"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Creating Sortable Column Headers",
+      "explanation": "Sortable headers are clickable and show the current sort state. In interviews, this demonstrates:\n- Event handlers that update multiple pieces of state\n- Visual feedback (showing sort direction with arrows)\n- Toggle logic (clicking same column reverses direction)\n\nThe pattern: if clicking the already-sorted column, toggle direction. If clicking a new column, set that as sortField with 'asc' direction.\n\nAccessibility matters: use button elements or add proper ARIA labels so screen readers know these are interactive.",
+      "codeExample": "// Sortable header\nconst handleSort = (field) => {\n  if (sortBy === field) {\n    setOrder(order === 'asc' ? 'desc' : 'asc');\n  } else {\n    setSortBy(field);\n    setOrder('asc');\n  }\n};\n\n<th onClick={() => handleSort('name')}>\n  Name {sortBy === 'name' && (order === 'asc' ? '↑' : '↓')}\n</th>",
+      "task": "Create a table with sortable headers:\n1. Create a handleSort function that takes a field name\n2. If field matches sortField, toggle sortDirection\n3. If field is different, set it as sortField and set direction to 'asc'\n4. Render a <table> with clickable <th> headers for: Name, Price, Stock\n5. Show an arrow (↑ or ↓) next to the active sort column",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "handleSort",
+          "setSortField",
+          "setSortDirection",
+          "table",
+          "th",
+          "onClick"
+        ]
+      },
+      "hints": [
+        "handleSort checks: if (sortField === field) { toggle direction }",
+        "Toggle: setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')",
+        "Each <th> needs onClick={() => handleSort('fieldName')}",
+        "Show arrow conditionally: {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Rendering Table and Pagination Controls",
+      "explanation": "Now we display the paginated data and add navigation controls. The table body maps over paginatedProducts (not all products) to show only current page items.\n\nPagination controls need:\n- Previous button (disabled on page 1)\n- Next button (disabled on last page)  \n- Page indicator showing current and total pages\n\nIn interviews, handling edge cases (first/last page) shows attention to detail. Disabled states prevent errors and improve UX.",
+      "codeExample": "// Table and pagination\n<tbody>\n  {paginatedItems.map(item => (\n    <tr key={item.id}>\n      <td>{item.name}</td>\n      <td>${item.price}</td>\n    </tr>\n  ))}\n</tbody>\n\n<button \n  onClick={() => setPage(page - 1)} \n  disabled={page === 1}\n>\n  Previous\n</button>\n<span>Page {page} of {totalPages}</span>\n<button \n  onClick={() => setPage(page + 1)}\n  disabled={page === totalPages}\n>\n  Next\n</button>",
+      "task": "Complete your component:\n1. Add <tbody> that maps over paginatedProducts\n2. Each row shows: name, price, stock (use product.id as key)\n3. Below table, add pagination controls:\n   - Previous button (disabled when currentPage === 1)\n   - Page indicator: \"Page X of Y\"\n   - Next button (disabled when currentPage === totalPages)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "tbody",
+          "paginatedProducts",
+          "map",
+          "button",
+          "disabled",
+          "Previous",
+          "Next"
+        ]
+      },
+      "hints": [
+        "Map paginatedProducts in tbody, not sortedProducts",
+        "Each <tr> needs key={product.id}",
+        "Previous: onClick={() => setCurrentPage(currentPage - 1)}",
+        "Disable Previous when: currentPage === 1",
+        "Disable Next when: currentPage === totalPages"
+      ]
+    }
+  ],
+  "solutionCode": "import { useState } from 'react';\n\nconst products = [\n  { id: 1, name: 'Laptop', price: 999, stock: 5 },\n  { id: 2, name: 'Mouse', price: 25, stock: 50 },\n  { id: 3, name: 'Keyboard', price: 75, stock: 30 },\n  { id: 4, name: 'Monitor', price: 299, stock: 15 },\n  { id: 5, name: 'Webcam', price: 89, stock: 20 },\n  { id: 6, name: 'Headphones', price: 149, stock: 25 },\n  { id: 7, name: 'USB Cable', price: 10, stock: 100 },\n  { id: 8, name: 'Desk Lamp', price: 45, stock: 35 },\n  { id: 9, name: 'Chair', price: 250, stock: 8 },\n  { id: 10, name: 'Desk', price: 399, stock: 6 }\n];\n\nexport default function SortablePaginated() {\n  const [sortField, setSortField] = useState('name');\n  const [sortDirection, setSortDirection] = useState('asc');\n  const [currentPage, setCurrentPage] = useState(1);\n  const ITEMS_PER_PAGE = 5;\n\n  const handleSort = (field) => {\n    if (sortField === field) {\n      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');\n    } else {\n      setSortField(field);\n      setSortDirection('asc');\n    }\n  };\n\n  const sortedProducts = [...products].sort((a, b) => {\n    let comparison = 0;\n    if (sortField === 'name') {\n      comparison = a.name.localeCompare(b.name);\n    } else {\n      comparison = a[sortField] - b[sortField];\n    }\n    return sortDirection === 'asc' ? comparison : -comparison;\n  });\n\n  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;\n  const paginatedProducts = sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);\n  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);\n\n  return (\n    <div>\n      <h2>Product Table</h2>\n      \n      <table>\n        <thead>\n          <tr>\n            <th onClick={() => handleSort('name')}>\n              Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n            <th onClick={() => handleSort('price')}>\n              Price {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n            <th onClick={() => handleSort('stock')}>\n              Stock {sortField === 'stock' && (sortDirection === 'asc' ? '↑' : '↓')}\n            </th>\n          </tr>\n        </thead>\n        <tbody>\n          {paginatedProducts.map(product => (\n            <tr key={product.id}>\n              <td>{product.name}</td>\n              <td>${product.price}</td>\n              <td>{product.stock}</td>\n            </tr>\n          ))}\n        </tbody>\n      </table>\n      \n      <div>\n        <button \n          onClick={() => setCurrentPage(currentPage - 1)}\n          disabled={currentPage === 1}\n        >\n          Previous\n        </button>\n        <span> Page {currentPage} of {totalPages} </span>\n        <button \n          onClick={() => setCurrentPage(currentPage + 1)}\n          disabled={currentPage === totalPages}\n        >\n          Next\n        </button>\n      </div>\n    </div>\n  );\n}"
+}

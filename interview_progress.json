@@ -1,0 +1,68 @@
+{
+  "interviewPrep": {
+    "category": "Interactive UI Components",
+    "topics": [
+      {
+        "name": "Filterable List",
+        "tutorial": {
+          "id": "tutorial-react-filterable-list",
+          "title": "Filterable List with Search and Status",
+          "completed": false,
+          "completedDate": null
+        },
+        "exercise": {
+          "id": "react-ticket-filter",
+          "title": "Support Ticket Filter",
+          "completed": false,
+          "completedDate": null,
+          "attempts": 0,
+          "testsPassed": 0,
+          "testsTotal": 7
+        }
+      },
+      {
+        "name": "Sort & Pagination",
+        "tutorial": {
+          "id": "tutorial-react-sort-pagination",
+          "title": "Sorting and Pagination Patterns",
+          "completed": false,
+          "completedDate": null
+        },
+        "exercise": {
+          "id": "react-sortable-table",
+          "title": "Sortable Product Table",
+          "completed": false,
+          "completedDate": null,
+          "attempts": 0,
+          "testsPassed": 0,
+          "testsTotal": 6
+        }
+      },
+      {
+        "name": "Form Validation",
+        "tutorial": {
+          "id": "tutorial-react-form-validation",
+          "title": "Form Validation and Error Handling",
+          "completed": false,
+          "completedDate": null
+        },
+        "exercise": {
+          "id": "react-form-validator",
+          "title": "Task Creation Form",
+          "completed": false,
+          "completedDate": null,
+          "attempts": 0,
+          "testsPassed": 0,
+          "testsTotal": 8
+        }
+      }
+    ]
+  },
+  "stats": {
+    "tutorialsCompleted": 0,
+    "tutorialsTotal": 3,
+    "exercisesCompleted": 0,
+    "exercisesTotal": 3,
+    "lastUpdated": null
+  }
+}

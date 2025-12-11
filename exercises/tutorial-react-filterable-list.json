@@ -1,0 +1,128 @@
+{
+  "id": "tutorial-react-filterable-list",
+  "title": "Filterable List with Search and Status",
+  "description": "Learn how to build an interactive filterable list component with search functionality, status filtering, and item counts - a common interview pattern.",
+  "environment": "react",
+  "filePath": "src/exercises/FilterableList.tsx",
+  "starterCode": "export default function FilterableList() {\n  return (\n    <div>\n      <h2>Task List</h2>\n    </div>\n  );\n}",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Setting Up the Data and State",
+      "explanation": "In a filterable list, you need to manage the source data and filter criteria separately. The source data remains unchanged, while filter state determines what gets displayed.\n\nFor this tutorial, we'll work with a task list where each task has a title and status (completed or pending). We need:\n1. The full list of tasks (constant data)\n2. State for the search query\n3. State for the selected status filter\n\nThis separation of concerns is important in interviews - it shows you understand that filtering is a view concern, not a data mutation.",
+      "codeExample": "// Sample data structure\nconst products = [\n  { id: 1, name: 'Laptop', category: 'electronics' },\n  { id: 2, name: 'Desk', category: 'furniture' }\n];\n\n// Filter states\nconst [searchQuery, setSearchQuery] = useState('');\nconst [categoryFilter, setCategoryFilter] = useState('all');",
+      "task": "1. Import useState from React\n2. Create a constant array called `tasks` (outside the component) with these 5 tasks:\n   - { id: 1, title: 'Review pull request', status: 'completed' }\n   - { id: 2, title: 'Write documentation', status: 'pending' }\n   - { id: 3, title: 'Fix bug in auth', status: 'pending' }\n   - { id: 4, title: 'Update dependencies', status: 'completed' }\n   - { id: 5, title: 'Design new feature', status: 'pending' }\n3. Inside the component, create two state variables:\n   - searchQuery (initialized to empty string)\n   - statusFilter (initialized to 'all')",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useState",
+          "tasks",
+          "searchQuery",
+          "statusFilter",
+          "completed",
+          "pending"
+        ]
+      },
+      "hints": [
+        "Import useState at the top: import { useState } from 'react'",
+        "Define tasks as a const array outside the component",
+        "Each task should have id, title, and status properties",
+        "Use two separate useState calls for searchQuery and statusFilter"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Creating the Filter Logic",
+      "explanation": "The key to filtering is deriving filtered data from your source data based on current filter states. This is done with array methods like filter() and includes().\n\nIn interviews, you want to show clean logic:\n- Use descriptive variable names (filteredTasks, not ft)\n- Chain filters logically (first by search, then by status)\n- Make the filter case-insensitive for better UX\n\nThis derived state pattern (computing filteredTasks from tasks + filters) is crucial. Don't store filtered results in state - compute them on each render. React is fast enough, and this keeps your state simple and predictable.",
+      "codeExample": "// Generic filtering pattern\nconst filteredItems = items.filter(item => {\n  const matchesSearch = item.name.toLowerCase().includes(query.toLowerCase());\n  const matchesCategory = category === 'all' || item.category === category;\n  return matchesSearch && matchesCategory;\n});",
+      "task": "Create a variable called `filteredTasks` that filters the tasks array based on:\n1. Search query: check if task.title includes the searchQuery (case-insensitive)\n2. Status filter: if statusFilter is 'all', include all tasks; otherwise only include tasks matching that status\n\nBoth conditions must be true for a task to appear in filtered results.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "filteredTasks",
+          "filter",
+          "toLowerCase",
+          "includes",
+          "statusFilter"
+        ]
+      },
+      "hints": [
+        "Use .filter() method on the tasks array",
+        "Convert both title and searchQuery to lowercase for case-insensitive matching",
+        "Use item.title.toLowerCase().includes(searchQuery.toLowerCase())",
+        "For status: statusFilter === 'all' || item.status === statusFilter"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Building the Search Input",
+      "explanation": "A search input is a controlled component - its value is controlled by React state, not the DOM. This is a fundamental React concept interviewers look for.\n\nControlled components require two things:\n1. value prop set to state\n2. onChange handler that updates state\n\nThis pattern ensures React is the single source of truth. Any time you need to programmatically set the input value (like clearing it), you just update the state.",
+      "codeExample": "// Controlled input pattern\n<input \n  type=\"text\"\n  placeholder=\"Search products...\"\n  value={searchText}\n  onChange={(e) => setSearchText(e.target.value)}\n/>",
+      "task": "Add a search input to your JSX:\n1. Input type should be \"text\"\n2. Placeholder text: \"Search tasks...\"\n3. value prop connected to searchQuery state\n4. onChange handler that updates searchQuery with the input's value\n\nPlace this above where you'll render the task list.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "input",
+          "type=\"text\"",
+          "value={searchQuery}",
+          "onChange",
+          "setSearchQuery"
+        ]
+      },
+      "hints": [
+        "Use <input type=\"text\" ... />",
+        "Set value={searchQuery}",
+        "onChange takes an event: (e) => setSearchQuery(e.target.value)",
+        "Don't forget the placeholder for better UX"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Adding Status Filter Buttons",
+      "explanation": "Filter buttons are another form of controlled UI - the selected button reflects your state. In interviews, show you can create reusable, accessible button patterns.\n\nA common pattern is to map over filter options and generate buttons dynamically. This makes it easy to add more filter options later. You can also style the active button differently to show which filter is selected.\n\nAccessibility tip: Use proper button elements (not divs) and consider adding aria-pressed or aria-current for screen readers.",
+      "codeExample": "// Filter button pattern\nconst statuses = ['all', 'active', 'inactive'];\n\n{statuses.map(status => (\n  <button \n    key={status}\n    onClick={() => setFilter(status)}\n    className={filter === status ? 'active' : ''}\n  >\n    {status}\n  </button>\n))}",
+      "task": "Add three filter buttons below the search input:\n1. 'All' button - sets statusFilter to 'all'\n2. 'Completed' button - sets statusFilter to 'completed'  \n3. 'Pending' button - sets statusFilter to 'pending'\n\nEach button should call setStatusFilter with the appropriate value when clicked.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "button",
+          "onClick",
+          "setStatusFilter",
+          "all",
+          "completed",
+          "pending"
+        ]
+      },
+      "hints": [
+        "Create three <button> elements",
+        "Each onClick should call setStatusFilter with a different value",
+        "Example: <button onClick={() => setStatusFilter('all')}>All</button>",
+        "You can add styling to highlight the active filter button"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Rendering the Filtered List with Counts",
+      "explanation": "Now we bring it all together: display the filtered results and show meaningful counts. Counts give users feedback about their filters - \"3 of 10 tasks\" is much better UX than just showing 3 tasks.\n\nIn interviews, showing attention to these details demonstrates:\n- Understanding of user experience\n- Ability to derive multiple pieces of information from the same data\n- Proper use of array methods (length, filter)\n\nThe pattern is: show count summary, then map over filtered items to render each one. Use key prop on list items (this is a common interview gotcha!).",
+      "codeExample": "// List rendering with counts\n<p>Showing {filteredItems.length} of {allItems.length} items</p>\n<ul>\n  {filteredItems.map(item => (\n    <li key={item.id}>{item.name} - {item.status}</li>\n  ))}\n</ul>",
+      "task": "Add to your JSX:\n1. A paragraph showing: \"Showing X of Y tasks\" where X is filteredTasks.length and Y is tasks.length\n2. An unordered list (<ul>) that maps over filteredTasks\n3. For each task, render a list item showing the task title and status\n4. Use the task id as the key prop",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "filteredTasks.length",
+          "tasks.length",
+          "map",
+          "key=",
+          "<li"
+        ]
+      },
+      "hints": [
+        "Show counts: <p>Showing {filteredTasks.length} of {tasks.length} tasks</p>",
+        "Map over filteredTasks: {filteredTasks.map(task => ...)}", 
+        "Each <li> needs a key prop: <li key={task.id}>",
+        "Display task info: {task.title} - {task.status}"
+      ]
+    }
+  ],
+  "solutionCode": "import { useState } from 'react';\n\nconst tasks = [\n  { id: 1, title: 'Review pull request', status: 'completed' },\n  { id: 2, title: 'Write documentation', status: 'pending' },\n  { id: 3, title: 'Fix bug in auth', status: 'pending' },\n  { id: 4, title: 'Update dependencies', status: 'completed' },\n  { id: 5, title: 'Design new feature', status: 'pending' }\n];\n\nexport default function FilterableList() {\n  const [searchQuery, setSearchQuery] = useState('');\n  const [statusFilter, setStatusFilter] = useState('all');\n\n  const filteredTasks = tasks.filter(task => {\n    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());\n    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;\n    return matchesSearch && matchesStatus;\n  });\n\n  return (\n    <div>\n      <h2>Task List</h2>\n      \n      <input \n        type=\"text\"\n        placeholder=\"Search tasks...\"\n        value={searchQuery}\n        onChange={(e) => setSearchQuery(e.target.value)}\n      />\n      \n      <div>\n        <button onClick={() => setStatusFilter('all')}>All</button>\n        <button onClick={() => setStatusFilter('completed')}>Completed</button>\n        <button onClick={() => setStatusFilter('pending')}>Pending</button>\n      </div>\n      \n      <p>Showing {filteredTasks.length} of {tasks.length} tasks</p>\n      \n      <ul>\n        {filteredTasks.map(task => (\n          <li key={task.id}>\n            {task.title} - {task.status}\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}"
+}

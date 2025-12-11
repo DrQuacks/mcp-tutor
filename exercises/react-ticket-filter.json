@@ -1,0 +1,61 @@
+{
+  "id": "react-ticket-filter",
+  "title": "Support Ticket Filter",
+  "description": "Build a filterable support ticket list with search, priority filter, and statistics. Practice the interview pattern of building interactive list UIs.",
+  "environment": "react",
+  "difficulty": "intermediate",
+  "requirements": [
+    "Display a list of support tickets with title, priority (high/medium/low), and status (open/closed)",
+    "Add a search input that filters tickets by title (case-insensitive)",
+    "Add filter buttons for priority: All, High, Medium, Low",
+    "Show a count: 'Showing X of Y tickets'",
+    "Show additional stat: 'Z open tickets' (count of open tickets in filtered results)",
+    "Use controlled components for all inputs",
+    "Each ticket in the list should show: title, priority, and status"
+  ],
+  "starterCode": "export default function TicketFilter() {\n  // Your code here\n  \n  return (\n    <div>\n      <h2>Support Tickets</h2>\n    </div>\n  );\n}",
+  "solutionCode": "import { useState } from 'react';\n\nconst tickets = [\n  { id: 1, title: 'Login page not loading', priority: 'high', status: 'open' },\n  { id: 2, title: 'Add dark mode option', priority: 'low', status: 'closed' },\n  { id: 3, title: 'Payment gateway timeout', priority: 'high', status: 'open' },\n  { id: 4, title: 'Update user profile page', priority: 'medium', status: 'open' },\n  { id: 5, title: 'Fix mobile menu', priority: 'medium', status: 'closed' },\n  { id: 6, title: 'Database connection error', priority: 'high', status: 'open' },\n  { id: 7, title: 'Add export feature', priority: 'low', status: 'open' },\n  { id: 8, title: 'Improve search speed', priority: 'medium', status: 'closed' }\n];\n\nexport default function TicketFilter() {\n  const [searchQuery, setSearchQuery] = useState('');\n  const [priorityFilter, setPriorityFilter] = useState('all');\n\n  const filteredTickets = tickets.filter(ticket => {\n    const matchesSearch = ticket.title.toLowerCase().includes(searchQuery.toLowerCase());\n    const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;\n    return matchesSearch && matchesPriority;\n  });\n\n  const openCount = filteredTickets.filter(t => t.status === 'open').length;\n\n  return (\n    <div>\n      <h2>Support Tickets</h2>\n      \n      <input \n        type=\"text\"\n        placeholder=\"Search tickets...\"\n        value={searchQuery}\n        onChange={(e) => setSearchQuery(e.target.value)}\n      />\n      \n      <div>\n        <button onClick={() => setPriorityFilter('all')}>All</button>\n        <button onClick={() => setPriorityFilter('high')}>High</button>\n        <button onClick={() => setPriorityFilter('medium')}>Medium</button>\n        <button onClick={() => setPriorityFilter('low')}>Low</button>\n      </div>\n      \n      <p>Showing {filteredTickets.length} of {tickets.length} tickets</p>\n      <p>{openCount} open tickets</p>\n      \n      <ul>\n        {filteredTickets.map(ticket => (\n          <li key={ticket.id}>\n            <strong>{ticket.title}</strong> - Priority: {ticket.priority} - Status: {ticket.status}\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}",
+  "filePath": "src/exercises/TicketFilter.tsx",
+  "browserTests": [
+    {
+      "name": "Search input exists",
+      "selector": "input[type='text']",
+      "exists": true
+    },
+    {
+      "name": "Filter buttons exist",
+      "selector": "button:has-text('All')",
+      "exists": true
+    },
+    {
+      "name": "High priority button exists",
+      "selector": "button:has-text('High')",
+      "exists": true
+    },
+    {
+      "name": "Ticket list displays all tickets initially",
+      "selector": "li",
+      "count": 8
+    },
+    {
+      "name": "Search filters tickets",
+      "selector": "input[type='text']",
+      "action": "type",
+      "value": "login",
+      "then": {
+        "selector": "li",
+        "count": 1
+      }
+    },
+    {
+      "name": "Shows ticket count",
+      "selector": "p:has-text('of')",
+      "exists": true
+    },
+    {
+      "name": "Shows open ticket count",
+      "selector": "p:has-text('open tickets')",
+      "exists": true
+    }
+  ]
+}

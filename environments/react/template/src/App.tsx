@@ -1,11 +1,11 @@
 import './App.css'
-import FetchWithTryCatch from './exercises/FetchWithTryCatch'
+import ReactQueryDemo from './exercises/ReactQueryDemo'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Tutorial: Fetch API with Try/Catch</h1>
-      <FetchWithTryCatch />
+      <h1>Tutorial: React Query for Data Fetching</h1>
+      <ReactQueryDemo />
     </div>
   )
 }
