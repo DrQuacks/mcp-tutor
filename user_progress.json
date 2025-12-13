@@ -49,6 +49,33 @@
       ],
       "startedAt": "2025-12-09T04:08:03.953Z",
       "lastActivity": "2025-12-11T22:05:38.581Z"
+    },
+    {
+      "tutorialId": "react-filterable-list",
+      "title": "Filterable List with Search and Status",
+      "currentStep": 6,
+      "completedSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "startedAt": "2025-12-11T22:34:52.430Z",
+      "lastActivity": "2025-12-12T03:47:09.943Z"
+    },
+    {
+      "tutorialId": "react-sort-pagination",
+      "title": "Sorting and Pagination Patterns",
+      "currentStep": 5,
+      "completedSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "startedAt": "2025-12-12T03:55:39.894Z",
+      "lastActivity": "2025-12-13T01:07:58.674Z"
     }
   ],
   "exercises": [
