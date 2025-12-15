@@ -455,6 +455,39 @@
       "testsTotal": 4,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-ticket-filter",
+      "title": "Support Ticket Filter",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-15T21:40:14.616Z",
+      "testsPassed": 7,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-sortable-table",
+      "title": "Sortable Product Table with Pagination",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-15T22:30:53.004Z",
+      "testsPassed": 5,
+      "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-sortable-table",
+      "title": "Sortable Product Table with Pagination",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-15T22:38:00.821Z",
+      "testsPassed": 6,
+      "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }
