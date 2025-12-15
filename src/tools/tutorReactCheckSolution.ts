@@ -7,7 +7,7 @@ import path from "node:path";
 import { chromium, Browser } from "playwright";
 import { EXERCISES_ROOT, NODE_ENV_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getOrStartViteServer } from "../shared/vite.js";
-import { recordAttempt } from "../shared/progress.js";
+import { recordAttempt, markInterviewExerciseComplete } from "../shared/progress.js";
 import type { ToolResponse } from "../shared/types.js";
 
 export async function tutorReactCheckSolution({
@@ -373,6 +373,13 @@ export async function tutorReactCheckSolution({
       exerciseData.title,
       exerciseData.environment,
       allPassed,
+      testResults.filter(t => t.passed).length,
+      testResults.length
+    );
+    
+    // Update interview progress if this exercise is part of interview prep
+    await markInterviewExerciseComplete(
+      exerciseId,
       testResults.filter(t => t.passed).length,
       testResults.length
     );

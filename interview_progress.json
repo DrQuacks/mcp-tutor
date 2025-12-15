@@ -5,10 +5,10 @@
       {
         "name": "Filterable List",
         "tutorial": {
-          "id": "tutorial-react-filterable-list",
+          "id": "react-filterable-list",
           "title": "Filterable List with Search and Status",
-          "completed": false,
-          "completedDate": null
+          "completed": true,
+          "completedDate": "2025-12-15T00:00:00.000Z"
         },
         "exercise": {
           "id": "react-ticket-filter",
@@ -23,10 +23,10 @@
       {
         "name": "Sort & Pagination",
         "tutorial": {
-          "id": "tutorial-react-sort-pagination",
+          "id": "react-sort-pagination",
           "title": "Sorting and Pagination Patterns",
-          "completed": false,
-          "completedDate": null
+          "completed": true,
+          "completedDate": "2025-12-15T00:00:00.000Z"
         },
         "exercise": {
           "id": "react-sortable-table",
@@ -41,10 +41,10 @@
       {
         "name": "Form Validation",
         "tutorial": {
-          "id": "tutorial-react-form-validation",
+          "id": "react-form-validation",
           "title": "Form Validation and Error Handling",
-          "completed": false,
-          "completedDate": null
+          "completed": true,
+          "completedDate": "2025-12-15T00:00:00.000Z"
         },
         "exercise": {
           "id": "react-form-validator",
@@ -59,10 +59,10 @@
     ]
   },
   "stats": {
-    "tutorialsCompleted": 0,
+    "tutorialsCompleted": 3,
     "tutorialsTotal": 3,
     "exercisesCompleted": 0,
     "exercisesTotal": 3,
-    "lastUpdated": null
+    "lastUpdated": "2025-12-15T00:00:00.000Z"
   }
 }

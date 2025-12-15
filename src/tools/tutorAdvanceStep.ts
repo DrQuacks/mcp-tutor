@@ -6,7 +6,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { EXERCISES_ROOT } from "../shared/constants.js";
-import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
+import { getTutorialProgress, updateTutorialProgress, markInterviewTutorialComplete } from "../shared/progress.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
@@ -105,6 +105,7 @@ export async function tutorAdvanceStep({
   } else {
     // Tutorial complete!
     await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
+    await markInterviewTutorialComplete(tutorialId);
     
     return {
       content: [

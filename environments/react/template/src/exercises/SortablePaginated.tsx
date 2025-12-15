@@ -57,7 +57,21 @@ export default function SortablePaginated() {
             </th>
           </tr>
         </thead>
+        <tbody>
+          {paginatedProducts.map(prod => (
+            <tr key={prod.id}>
+              <td>{prod.name}</td>
+              <td>{prod.price}</td>
+              <td>{prod.stock}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
+      <div>
+        <button disabled={currentPage === 1} onClick={()=>setCurrentPage(prev=>prev-1)}>Previous</button>
+        <p>Page {currentPage} of {totalPages}</p>
+        <button disabled={currentPage === totalPages} onClick={()=>setCurrentPage(prev=>prev+1)}>Next</button>
+      </div>
     </div>
   );
 }

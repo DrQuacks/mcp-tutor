@@ -67,6 +67,20 @@
     {
       "tutorialId": "react-sort-pagination",
       "title": "Sorting and Pagination Patterns",
+      "currentStep": 6,
+      "completedSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "startedAt": "2025-12-12T03:55:39.894Z",
+      "lastActivity": "2025-12-13T18:39:41.184Z"
+    },
+    {
+      "tutorialId": "react-form-validation",
+      "title": "Form Validation and Error Handling",
       "currentStep": 5,
       "completedSteps": [
         1,
@@ -74,8 +88,8 @@
         3,
         4
       ],
-      "startedAt": "2025-12-12T03:55:39.894Z",
-      "lastActivity": "2025-12-13T01:07:58.674Z"
+      "startedAt": "2025-12-13T20:00:20.035Z",
+      "lastActivity": "2025-12-14T21:56:44.893Z"
     }
   ],
   "exercises": [
