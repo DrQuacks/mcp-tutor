@@ -55,14 +55,50 @@
           "testsPassed": 0,
           "testsTotal": 8
         }
+      },
+      {
+        "name": "Async Data Fetching",
+        "tutorial": {
+          "id": "react-fetch-trycatch",
+          "title": "Data Fetching with useEffect and Try/Catch",
+          "completed": false,
+          "completedDate": null
+        },
+        "exercise": {
+          "id": "react-task-dashboard",
+          "title": "Task Dashboard with Async Data Fetching",
+          "completed": false,
+          "completedDate": null,
+          "attempts": 0,
+          "testsPassed": 0,
+          "testsTotal": 10
+        }
+      },
+      {
+        "name": "Advanced Async Patterns",
+        "tutorial": {
+          "id": "react-reactquery",
+          "title": "React Query for Data Fetching",
+          "completed": false,
+          "completedDate": null
+        },
+        "exercise": {
+          "id": "react-todo-async",
+          "title": "Async Todo List with Server Sync",
+          "completed": false,
+          "completedDate": null,
+          "attempts": 0,
+          "testsPassed": 0,
+          "testsTotal": 8
+        }
       }
     ]
   },
   "stats": {
     "tutorialsCompleted": 3,
-    "tutorialsTotal": 3,
-    "exercisesCompleted": 0,
-    "exercisesTotal": 3,
-    "lastUpdated": "2025-12-15T00:00:00.000Z"
+    "tutorialsTotal": 5,
+    "exercisesCompleted": 2,
+    "exercisesTotal": 5,
+    "lastUpdated": "2025-12-15T07:30:00.000Z"
   }
 }

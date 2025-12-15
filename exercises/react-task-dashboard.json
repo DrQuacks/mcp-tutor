@@ -1,0 +1,126 @@
+{
+  "id": "react-task-dashboard",
+  "title": "Task Dashboard with Async Data Fetching",
+  "description": "Build a task dashboard that fetches data from a mock API, handles loading and error states, supports refresh functionality, and includes client-side filtering.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "intermediate",
+  "estimatedTime": "30 minutes",
+  "category": "interview-prep",
+  "concepts": ["async/await", "useEffect", "error handling", "loading states", "data fetching"],
+  "starterCode": "import { useState, useEffect } from 'react';\n\ninterface Task {\n  id: number;\n  title: string;\n  status: 'pending' | 'in-progress' | 'completed';\n  priority: 'low' | 'medium' | 'high';\n}\n\n// Mock API function - simulates network delay\nconst fetchTasks = async (): Promise<Task[]> => {\n  await new Promise(resolve => setTimeout(resolve, 1000));\n  \n  // Simulate random errors (20% chance)\n  if (Math.random() < 0.2) {\n    throw new Error('Failed to fetch tasks from server');\n  }\n  \n  return [\n    { id: 1, title: 'Review pull requests', status: 'pending', priority: 'high' },\n    { id: 2, title: 'Update documentation', status: 'in-progress', priority: 'medium' },\n    { id: 3, title: 'Fix login bug', status: 'completed', priority: 'high' },\n    { id: 4, title: 'Setup CI/CD pipeline', status: 'pending', priority: 'low' },\n    { id: 5, title: 'Refactor API endpoints', status: 'in-progress', priority: 'medium' },\n    { id: 6, title: 'Write unit tests', status: 'pending', priority: 'medium' },\n  ];\n};\n\nexport default function TaskDashboard() {\n  // TODO: Implement component\n  return <div>Task Dashboard</div>;\n}\n",
+  "solutionCode": "import { useState, useEffect } from 'react';\n\ninterface Task {\n  id: number;\n  title: string;\n  status: 'pending' | 'in-progress' | 'completed';\n  priority: 'low' | 'medium' | 'high';\n}\n\n// Mock API function - simulates network delay\nconst fetchTasks = async (): Promise<Task[]> => {\n  await new Promise(resolve => setTimeout(resolve, 1000));\n  \n  // Simulate random errors (20% chance)\n  if (Math.random() < 0.2) {\n    throw new Error('Failed to fetch tasks from server');\n  }\n  \n  return [\n    { id: 1, title: 'Review pull requests', status: 'pending', priority: 'high' },\n    { id: 2, title: 'Update documentation', status: 'in-progress', priority: 'medium' },\n    { id: 3, title: 'Fix login bug', status: 'completed', priority: 'high' },\n    { id: 4, title: 'Setup CI/CD pipeline', status: 'pending', priority: 'low' },\n    { id: 5, title: 'Refactor API endpoints', status: 'in-progress', priority: 'medium' },\n    { id: 6, title: 'Write unit tests', status: 'pending', priority: 'medium' },\n  ];\n};\n\nexport default function TaskDashboard() {\n  const [tasks, setTasks] = useState<Task[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState<string | null>(null);\n  const [statusFilter, setStatusFilter] = useState<string>('all');\n\n  const loadTasks = async () => {\n    setLoading(true);\n    setError(null);\n    try {\n      const data = await fetchTasks();\n      setTasks(data);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'An error occurred');\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    loadTasks();\n  }, []);\n\n  const filteredTasks = statusFilter === 'all' \n    ? tasks \n    : tasks.filter(task => task.status === statusFilter);\n\n  if (loading) {\n    return <div className=\"loading\">Loading tasks...</div>;\n  }\n\n  if (error) {\n    return (\n      <div className=\"error\">\n        <p>Error: {error}</p>\n        <button onClick={loadTasks}>Retry</button>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"task-dashboard\">\n      <div className=\"header\">\n        <h1>Task Dashboard</h1>\n        <button onClick={loadTasks}>Refresh</button>\n      </div>\n      \n      <div className=\"filters\">\n        <label>\n          Filter by status:\n          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>\n            <option value=\"all\">All</option>\n            <option value=\"pending\">Pending</option>\n            <option value=\"in-progress\">In Progress</option>\n            <option value=\"completed\">Completed</option>\n          </select>\n        </label>\n      </div>\n\n      <div className=\"task-list\">\n        {filteredTasks.map(task => (\n          <div key={task.id} className=\"task-item\">\n            <h3>{task.title}</h3>\n            <span className=\"status\">{task.status}</span>\n            <span className=\"priority\">{task.priority}</span>\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Display a loading message 'Loading tasks...' with class 'loading' while fetching data",
+    "Show error message with class 'error' if fetch fails, displaying the error text",
+    "Include a 'Retry' button in the error state that refetches data when clicked",
+    "Show a header with an h1 containing 'Task Dashboard' and a 'Refresh' button",
+    "The Refresh button should reload the tasks when clicked",
+    "Display a status filter dropdown with options: All, Pending, In Progress, Completed",
+    "The filter should have a label 'Filter by status:' wrapping both label text and select element",
+    "Filter tasks based on the selected status (show all when 'all' is selected)",
+    "Display each task in a div with class 'task-item' showing title (h3), status (span with class 'status'), and priority (span with class 'priority')",
+    "Use the provided fetchTasks function to load data on component mount",
+    "Properly handle the Task interface type for TypeScript",
+    "Use try/catch/finally for error handling with proper loading state management"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading state initially",
+      "selector": ".loading",
+      "exists": true
+    },
+    {
+      "name": "Shows task dashboard after loading",
+      "actions": [],
+      "then": {
+        "selector": "h1",
+        "expected": "Task Dashboard",
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Displays all 6 tasks initially",
+      "actions": [],
+      "then": {
+        "selector": ".task-item",
+        "count": 6,
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Filter dropdown exists with label",
+      "actions": [],
+      "then": {
+        "selector": "label:has-text('Filter by status:')",
+        "exists": true,
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Filtering by pending shows only pending tasks",
+      "actions": [
+        { "selector": "select", "action": "type", "value": "pending" }
+      ],
+      "then": {
+        "selector": ".task-item .status",
+        "expected": "pending",
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Filtering by completed shows completed tasks",
+      "actions": [
+        { "selector": "select", "action": "type", "value": "completed" }
+      ],
+      "then": {
+        "selector": ".task-item .status",
+        "expected": "completed",
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Refresh button exists",
+      "actions": [],
+      "then": {
+        "selector": "button:has-text('Refresh')",
+        "exists": true,
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Task items show title, status, and priority",
+      "actions": [],
+      "then": {
+        "selector": ".task-item h3",
+        "exists": true,
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Status spans exist in task items",
+      "actions": [],
+      "then": {
+        "selector": ".task-item .status",
+        "exists": true,
+        "waitFor": 2000
+      }
+    },
+    {
+      "name": "Priority spans exist in task items",
+      "actions": [],
+      "then": {
+        "selector": ".task-item .priority",
+        "exists": true,
+        "waitFor": 2000
+      }
+    }
+  ],
+  "hints": {
+    "setup": "You'll need state for: tasks array, loading boolean, error string, and statusFilter string",
+    "fetching": "Create an async loadTasks function that calls fetchTasks() inside try/catch/finally",
+    "useEffect": "Call loadTasks() in useEffect with empty dependency array to fetch on mount",
+    "filtering": "Use tasks.filter() to create filteredTasks based on statusFilter value",
+    "rendering": "Use conditional rendering: if loading return loading div, if error return error div with retry button, else return dashboard"
+  }
+}

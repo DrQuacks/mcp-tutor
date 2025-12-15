@@ -1,0 +1,113 @@
+{
+  "id": "react-todo-async",
+  "title": "Async Todo List with Server Sync",
+  "description": "Build a todo list that syncs with a mock server, handling async add/delete operations, optimistic updates, and rollback on errors.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "advanced",
+  "estimatedTime": "35 minutes",
+  "category": "interview-prep",
+  "concepts": ["async mutations", "optimistic updates", "error recovery", "useEffect", "async/await"],
+  "starterCode": "import { useState, useEffect } from 'react';\n\ninterface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\n// Mock API functions\nconst api = {\n  fetchTodos: async (): Promise<Todo[]> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    return [\n      { id: 1, text: 'Learn React', completed: true },\n      { id: 2, text: 'Build a project', completed: false },\n    ];\n  },\n  \n  addTodo: async (text: string): Promise<Todo> => {\n    await new Promise(resolve => setTimeout(resolve, 800));\n    // 30% chance of failure\n    if (Math.random() < 0.3) {\n      throw new Error('Server error: Could not add todo');\n    }\n    return { id: Date.now(), text, completed: false };\n  },\n  \n  deleteTodo: async (id: number): Promise<void> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    // 20% chance of failure\n    if (Math.random() < 0.2) {\n      throw new Error('Server error: Could not delete todo');\n    }\n  },\n};\n\nexport default function AsyncTodoList() {\n  // TODO: Implement component\n  return <div>Async Todo List</div>;\n}\n",
+  "solutionCode": "import { useState, useEffect } from 'react';\n\ninterface Todo {\n  id: number;\n  text: string;\n  completed: boolean;\n}\n\n// Mock API functions\nconst api = {\n  fetchTodos: async (): Promise<Todo[]> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    return [\n      { id: 1, text: 'Learn React', completed: true },\n      { id: 2, text: 'Build a project', completed: false },\n    ];\n  },\n  \n  addTodo: async (text: string): Promise<Todo> => {\n    await new Promise(resolve => setTimeout(resolve, 800));\n    // 30% chance of failure\n    if (Math.random() < 0.3) {\n      throw new Error('Server error: Could not add todo');\n    }\n    return { id: Date.now(), text, completed: false };\n  },\n  \n  deleteTodo: async (id: number): Promise<void> => {\n    await new Promise(resolve => setTimeout(resolve, 500));\n    // 20% chance of failure\n    if (Math.random() < 0.2) {\n      throw new Error('Server error: Could not delete todo');\n    }\n  },\n};\n\nexport default function AsyncTodoList() {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState<string | null>(null);\n  const [input, setInput] = useState('');\n  const [submitting, setSubmitting] = useState(false);\n\n  useEffect(() => {\n    loadTodos();\n  }, []);\n\n  const loadTodos = async () => {\n    try {\n      const data = await api.fetchTodos();\n      setTodos(data);\n      setError(null);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'Failed to load todos');\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  const handleAdd = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!input.trim()) return;\n\n    const tempId = Date.now();\n    const optimisticTodo: Todo = { id: tempId, text: input, completed: false };\n    \n    // Optimistic update\n    setTodos(prev => [...prev, optimisticTodo]);\n    setInput('');\n    setSubmitting(true);\n\n    try {\n      const newTodo = await api.addTodo(input);\n      // Replace temp with real todo\n      setTodos(prev => prev.map(t => t.id === tempId ? newTodo : t));\n      setError(null);\n    } catch (err) {\n      // Rollback on error\n      setTodos(prev => prev.filter(t => t.id !== tempId));\n      setError(err instanceof Error ? err.message : 'Failed to add todo');\n      setInput(optimisticTodo.text); // Restore input\n    } finally {\n      setSubmitting(false);\n    }\n  };\n\n  const handleDelete = async (id: number) => {\n    const todoToDelete = todos.find(t => t.id === id);\n    if (!todoToDelete) return;\n\n    // Optimistic delete\n    setTodos(prev => prev.filter(t => t.id !== id));\n\n    try {\n      await api.deleteTodo(id);\n      setError(null);\n    } catch (err) {\n      // Rollback on error\n      setTodos(prev => [...prev, todoToDelete]);\n      setError(err instanceof Error ? err.message : 'Failed to delete todo');\n    }\n  };\n\n  if (loading) {\n    return <div className=\"loading\">Loading todos...</div>;\n  }\n\n  return (\n    <div className=\"todo-container\">\n      <h1>Async Todo List</h1>\n      \n      {error && (\n        <div className=\"error-banner\">\n          {error}\n          <button onClick={() => setError(null)}>Dismiss</button>\n        </div>\n      )}\n\n      <form onSubmit={handleAdd}>\n        <input\n          type=\"text\"\n          placeholder=\"Add a new todo\"\n          value={input}\n          onChange={(e) => setInput(e.target.value)}\n          disabled={submitting}\n        />\n        <button type=\"submit\" disabled={submitting}>\n          {submitting ? 'Adding...' : 'Add'}\n        </button>\n      </form>\n\n      <ul className=\"todo-list\">\n        {todos.map(todo => (\n          <li key={todo.id} className=\"todo-item\">\n            <span className={todo.completed ? 'completed' : ''}>{todo.text}</span>\n            <button onClick={() => handleDelete(todo.id)}>Delete</button>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Show 'Loading todos...' with class 'loading' during initial data fetch",
+    "Display an h1 with text 'Async Todo List'",
+    "Show an error banner with class 'error-banner' when errors occur",
+    "Error banner should display the error message and have a 'Dismiss' button to clear it",
+    "Include a form with text input (placeholder: 'Add a new todo') and submit button",
+    "Submit button should show 'Adding...' when submitting, 'Add' otherwise",
+    "Input and button should be disabled while submitting",
+    "Display todos in a ul with class 'todo-list'",
+    "Each todo should be an li with class 'todo-item' containing the text and Delete button",
+    "Implement optimistic updates: add todo to UI immediately before server confirms",
+    "Rollback the optimistic add if server returns error (restore input text)",
+    "Implement optimistic delete: remove from UI immediately",
+    "Rollback the optimistic delete if server returns error",
+    "Load todos on component mount using the api.fetchTodos function",
+    "Handle TypeScript types properly for Todo interface",
+    "Prevent empty todos from being added (trim input)"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading state initially",
+      "selector": ".loading",
+      "exists": true
+    },
+    {
+      "name": "Displays heading after loading",
+      "actions": [],
+      "then": {
+        "selector": "h1",
+        "expected": "Async Todo List",
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Shows initial todos from server",
+      "actions": [],
+      "then": {
+        "selector": ".todo-item",
+        "count": 2,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Input has correct placeholder",
+      "actions": [],
+      "then": {
+        "selector": "input[placeholder='Add a new todo']",
+        "exists": true,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Add button exists",
+      "actions": [],
+      "then": {
+        "selector": "button[type='submit']",
+        "exists": true,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Can add a new todo (optimistic)",
+      "actions": [
+        { "selector": "input[type='text']", "action": "type", "value": "New test todo" },
+        { "selector": "button[type='submit']", "action": "click" }
+      ],
+      "then": {
+        "selector": ".todo-item",
+        "count": 3,
+        "waitFor": 100
+      }
+    },
+    {
+      "name": "Todo items have delete buttons",
+      "actions": [],
+      "then": {
+        "selector": ".todo-item button:has-text('Delete')",
+        "exists": true,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Deleting a todo removes it (optimistic)",
+      "actions": [
+        { "selector": ".todo-item >> nth=0 >> button", "action": "click" }
+      ],
+      "then": {
+        "selector": ".todo-item",
+        "count": 1,
+        "waitFor": 100
+      }
+    }
+  ],
+  "hints": {
+    "state": "You need: todos array, loading boolean, error string, input string, and submitting boolean",
+    "optimistic": "Add todo to state immediately, then replace with server response (or rollback on error)",
+    "rollback": "Store the item before deleting, so you can restore it if the server call fails",
+    "form": "Use e.preventDefault() in handleAdd and check input.trim() before adding",
+    "errors": "Set error state in catch blocks, clear it on success or when user dismisses"
+  }
+}
