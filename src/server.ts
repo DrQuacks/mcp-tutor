@@ -23,6 +23,7 @@ import { tutorConnectPattern } from "./tools/tutorConnectPattern.js";
 import { tutorValidateResponse } from "./tools/tutorValidateResponse.js";
 import { tutorValidateTutorialJSON } from "./tools/tutorValidateTutorialJSON.js";
 import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
+import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -323,6 +324,15 @@ async function main() {
       inputSchema: z.object({}),
     },
     async () => tutorViewProgress()
+  );
+
+  server.registerTool(
+    "tutor_generate_session_state",
+    {
+      description: "Generates a session state snapshot for easy context restoration in new chats. Analyzes current progress and creates a session_state.json file with current activity, next steps, and recent work. Use this before ending a session or when context window is getting large.",
+      inputSchema: z.object({}),
+    },
+    async () => tutorGenerateSessionState()
   );
 
   server.registerTool(
