@@ -1,0 +1,101 @@
+{
+  "title": "useRef - Refs and Mutable Values",
+  "description": "Master useRef for accessing DOM elements and storing mutable values that persist across renders without triggering re-renders. Learn the key differences between useRef and useState, when to use each, and common patterns like focus management and storing interval IDs.",
+  "environment": "react",
+  "filePath": "src/exercises/RefMastery.tsx",
+  "starterCode": "import { useState } from 'react';\n\nfunction RefMastery() {\n  return (\n    <div>\n      <h2>useRef Mastery</h2>\n    </div>\n  );\n}\n\nexport default RefMastery;",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Create a Ref to Access a DOM Element",
+      "explanation": "useRef creates a mutable reference object that persists for the lifetime of your component. The ref object has a .current property that you can read and write to. Unlike state, changing .current does NOT trigger a re-render.\n\nThe most common use of useRef is accessing DOM elements directly. You attach the ref to a JSX element using the ref attribute, and React sets ref.current to that DOM node after rendering. This gives you direct access to call DOM methods like focus(), scrollIntoView(), or measure dimensions.\n\nWhy not just use querySelector? Because refs are tied to React's render cycle and guaranteed to point to the right element, even if your component re-renders or moves in the DOM. They're also more performant and idiomatic in React.",
+      "codeExample": "import { useRef } from 'react';\n\nfunction MyComponent() {\n  // Create a ref - initially ref.current is null\n  const inputRef = useRef(null);\n  \n  const handleClick = () => {\n    // After render, ref.current points to the input DOM node\n    inputRef.current.focus();\n  };\n  \n  return (\n    <>\n      <input ref={inputRef} />\n      <button onClick={handleClick}>Focus Input</button>\n    </>\n  );\n}",
+      "task": "1. Import useRef from 'react'\n2. Create a ref called 'inputRef' using useRef(null)\n3. Add an <input> element with type='text' and attach the ref using the ref attribute\n4. Add a <button> with text 'Focus Input'\n5. When the button is clicked, call inputRef.current.focus() to focus the input",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import { useState, useRef } from 'react'",
+          "const inputRef = useRef(null)",
+          "ref={inputRef}",
+          "inputRef.current.focus()"
+        ]
+      },
+      "hints": [
+        "Add useRef to your imports: import { useState, useRef } from 'react'",
+        "Call useRef(null) to create the ref",
+        "Attach it to the input: <input ref={inputRef} />",
+        "In the button's onClick handler, call inputRef.current.focus()"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Store Mutable Values Without Re-rendering",
+      "explanation": "useRef's second superpower: storing values that persist across renders WITHOUT causing re-renders when changed. This is fundamentally different from useState.\n\nWhen you call setState, React schedules a re-render. When you change ref.current, nothing happens - no re-render, no lifecycle methods, nothing. The value just silently updates and persists.\n\nThis is perfect for: (1) Storing interval/timeout IDs so you can clear them later, (2) Tracking previous values of props or state, (3) Keeping instance variables that DOM doesn't depend on, (4) Storing any value where you need the latest value but don't want to trigger renders.",
+      "codeExample": "function Timer() {\n  const [count, setCount] = useState(0);\n  const intervalRef = useRef(null); // Stores interval ID\n  \n  const start = () => {\n    // Store interval ID in ref\n    intervalRef.current = setInterval(() => {\n      setCount(c => c + 1);\n    }, 1000);\n  };\n  \n  const stop = () => {\n    // Use stored ID to clear interval\n    clearInterval(intervalRef.current);\n  };\n  \n  return <div>{count}</div>;\n}",
+      "task": "1. Add state for 'count' starting at 0\n2. Create a ref called 'timerRef' using useRef(null) - this will store the interval ID\n3. Add a 'Start Timer' button that:\n   - Creates an interval that increments count every second\n   - Stores the interval ID in timerRef.current\n4. Add a 'Stop Timer' button that:\n   - Clears the interval using clearInterval(timerRef.current)\n5. Display the count in your JSX",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [count, setCount] = useState(0)",
+          "const timerRef = useRef(null)",
+          "timerRef.current = setInterval",
+          "clearInterval(timerRef.current)"
+        ]
+      },
+      "hints": [
+        "useState(0) for the count state",
+        "useRef(null) for the timer ref",
+        "setInterval returns an ID - store it: timerRef.current = setInterval(...)",
+        "To stop: clearInterval(timerRef.current)",
+        "Use setCount(c => c + 1) in the interval to avoid stale closures"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Track Previous State Value",
+      "explanation": "A powerful pattern: using refs to remember the previous value of state or props. Since refs persist across renders but don't trigger re-renders when updated, they're perfect for storing \"what it was last time.\"\n\nThe technique: in useEffect, after reading the current value, store it in a ref. On the next render, the ref still has the old value while state has the new value. This lets you compare current vs previous.\n\nUse cases: detecting when a specific prop changes (not just any prop), calculating deltas (current - previous), conditionally running effects only when going from one value to another, showing \"value increased\" or \"value decreased\" indicators.",
+      "codeExample": "function Component({ value }) {\n  const previousRef = useRef();\n  \n  useEffect(() => {\n    // On first render, previousRef.current is undefined\n    // On later renders, it holds the value from last render\n    console.log('Previous:', previousRef.current);\n    console.log('Current:', value);\n    \n    // Store current value for next render\n    previousRef.current = value;\n  }, [value]);\n  \n  return <div>{value}</div>;\n}",
+      "task": "1. Create state 'score' starting at 0\n2. Create a ref 'previousScoreRef' using useRef()\n3. Create a useEffect that:\n   - Runs when score changes ([score] dependency)\n   - Logs 'Previous score: ' + previousScoreRef.current\n   - Logs 'Current score: ' + score\n   - Updates previousScoreRef.current to the current score\n4. Add a button that increases score by 10\n5. Display the current score",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [score, setScore] = useState(0)",
+          "const previousScoreRef = useRef()",
+          "previousScoreRef.current",
+          "previousScoreRef.current = score",
+          ", [score])"
+        ]
+      },
+      "hints": [
+        "useState(0) for score",
+        "useRef() creates previousScoreRef (no initial value needed)",
+        "In useEffect, log both previousScoreRef.current and score",
+        "At the end of the effect, update: previousScoreRef.current = score",
+        "Add [score] to the dependency array so it runs when score changes"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Understand useRef vs useState",
+      "explanation": "The fundamental difference: useState triggers re-renders, useRef doesn't. This has profound implications for when to use each.\n\nUse useState when: the value affects what's displayed (JSX depends on it), you want React to update the UI when it changes, the value is part of your component's visual state.\n\nUse useRef when: you need to store a value across renders but the DOM doesn't depend on it, changing it shouldn't trigger a re-render, you're storing \"meta\" information (like interval IDs, previous values, flags), you need direct DOM access.\n\nA key insight: changing ref.current is synchronous and immediate. Changing state is asynchronous - React batches updates and schedules re-renders. If you need the value NOW and don't want to wait for a re-render, use a ref.",
+      "codeExample": "function Comparison() {\n  const [renderCount, setRenderCount] = useState(0);\n  const clickCountRef = useRef(0);\n  \n  const handleClick = () => {\n    clickCountRef.current += 1; // Updates immediately, no re-render\n    console.log('Clicks:', clickCountRef.current); // Shows updated value instantly\n    \n    setRenderCount(renderCount + 1); // Schedules re-render\n  };\n  \n  return (\n    <div>\n      <p>Renders: {renderCount}</p>\n      <p>Clicks: {clickCountRef.current}</p> {/* Doesn't update until next render */}\n      <button onClick={handleClick}>Click</button>\n    </div>\n  );\n}",
+      "task": "Create a demonstration showing the difference:\n\n1. Add state 'stateClicks' starting at 0\n2. Add ref 'refClicksRef' starting at 0\n3. Add a button 'Click Me' that when clicked:\n   - Increments refClicksRef.current by 1 (no setState call)\n   - Logs 'Ref clicks: ' + refClicksRef.current (you'll see it increment immediately)\n4. Add another button 'Trigger Re-render' that increments stateClicks\n5. Display both values: 'State: {stateClicks}' and 'Ref: {refClicksRef.current}'\n6. Notice: ref value in the console updates immediately, but in the UI it only updates when the component re-renders",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [stateClicks, setStateClicks] = useState(0)",
+          "const refClicksRef = useRef(0)",
+          "refClicksRef.current += 1",
+          "refClicksRef.current}"
+        ]
+      },
+      "hints": [
+        "Create both state and ref: useState(0) and useRef(0)",
+        "For the first button, just do: refClicksRef.current += 1 (no setState)",
+        "For the second button: setStateClicks(stateClicks + 1)",
+        "Display both in JSX - the ref value only updates in UI when state changes cause a re-render",
+        "Check the console - ref logs show immediate updates even though UI doesn't"
+      ]
+    }
+  ]
+}

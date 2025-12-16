@@ -1,0 +1,128 @@
+{
+  "title": "React Render Cycle and Component Lifecycle",
+  "description": "Understand when and why React components re-render. Learn about the render phase, commit phase, reconciliation algorithm, and how React decides what to update in the DOM. Master the mental model of React's lifecycle to write more efficient components.",
+  "environment": "react",
+  "filePath": "src/exercises/RenderCycle.tsx",
+  "starterCode": "import { useState } from 'react';\n\nfunction RenderCycle() {\n  return (\n    <div>\n      <h2>React Render Cycle</h2>\n    </div>\n  );\n}\n\nexport default RenderCycle;",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Understand What Triggers a Render",
+      "explanation": "React components re-render when their state or props change. This is fundamental. Every setState call schedules a re-render. When a parent re-renders, all its children re-render by default (unless optimized).\n\nThree things trigger renders: (1) State changes via setState, (2) Parent component re-renders, (3) Context value changes. That's it. Changing a ref doesn't trigger renders. Calling a function doesn't trigger renders. Only these three things.\n\nUnderstanding this is crucial for debugging. If your component isn't updating, check: did state change? If it's updating too much, check: is parent re-rendering unnecessarily? Is state changing when it shouldn't?",
+      "codeExample": "function Parent() {\n  const [count, setCount] = useState(0);\n  console.log('Parent rendered');\n  \n  return (\n    <div>\n      <button onClick={() => setCount(count + 1)}>+</button>\n      <Child /> {/* Re-renders every time Parent renders */}\n    </div>\n  );\n}\n\nfunction Child() {\n  console.log('Child rendered');\n  return <div>I'm a child</div>;\n}",
+      "task": "Create a demonstration of render triggers:\n\n1. Add console.log('RenderCycle rendered') at the top of your component\n2. Add state 'parentCount' starting at 0\n3. Add a button 'Update Parent' that increments parentCount\n4. Create a child component 'ChildComponent' OUTSIDE RenderCycle:\n   - Takes no props\n   - Logs 'ChildComponent rendered' at the top\n   - Returns <div>I am a child component</div>\n5. Render ChildComponent in RenderCycle\n6. Click the button - notice BOTH components log renders\n7. Display parentCount in your JSX\n\nOpen the browser console to see the render logs!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "console.log('RenderCycle rendered')",
+          "const [parentCount, setParentCount] = useState(0)",
+          "function ChildComponent(",
+          "console.log('ChildComponent rendered')",
+          "<ChildComponent"
+        ]
+      },
+      "hints": [
+        "Put console.log at the very top of your component function",
+        "Create ChildComponent as a separate function outside RenderCycle",
+        "ChildComponent needs its own console.log",
+        "Use <ChildComponent /> in your JSX (self-closing tag)",
+        "Check browser console - both should log when you click the button"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Render Phase vs Commit Phase",
+      "explanation": "React's render process has two phases. Understanding this is key to understanding React's performance.\n\nRender Phase: React calls your component function, gets the new JSX, and compares it to the previous render. This is pure computation - no DOM changes yet. React can interrupt this phase if needed.\n\nCommit Phase: React applies the changes to the actual DOM. This is synchronous and can't be interrupted. Only the DIFFERENCES found in the render phase get applied - React doesn't rebuild the entire DOM.\n\nThis two-phase approach is why React is fast. Calling your component function is cheap. Updating the DOM is expensive. React minimizes DOM updates by computing differences first.",
+      "codeExample": "function MyComponent() {\n  const [count, setCount] = useState(0);\n  \n  // RENDER PHASE: This runs every render\n  console.log('Render phase - computing JSX');\n  const expensiveValue = count * 2; // Pure computation\n  \n  useEffect(() => {\n    // COMMIT PHASE: This runs after DOM is updated\n    console.log('Commit phase - DOM is updated now');\n  });\n  \n  // RENDER PHASE: Returning JSX\n  return <div>{expensiveValue}</div>;\n}",
+      "task": "Demonstrate the two phases:\n\n1. Add state 'renderCount' starting at 0\n2. Add console.log('RENDER PHASE: Computing JSX, renderCount = ' + renderCount) at the top\n3. Add useEffect with NO dependency array that logs 'COMMIT PHASE: DOM updated'\n4. Add a second useEffect with [] that logs 'COMMIT PHASE: Initial mount only'\n5. Add a button that increments renderCount\n6. Display renderCount\n\nCheck console:\n- First load: see both commit phase logs (mount) and one render phase log\n- Click button: see render phase log and the first commit log (not the mount-only one)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [renderCount, setRenderCount] = useState(0)",
+          "console.log('RENDER PHASE:",
+          "useEffect(() => {",
+          "console.log('COMMIT PHASE:",
+          ", [])"
+        ]
+      },
+      "hints": [
+        "First console.log goes at the top of the component (render phase)",
+        "First useEffect has NO dependency array (runs after every render)",
+        "Second useEffect has [] (runs only on mount)",
+        "Each phase runs at a different time - observe the console order",
+        "Render phase always runs before commit phase"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "React's Reconciliation Algorithm",
+      "explanation": "Reconciliation is how React figures out what changed. When you return new JSX, React doesn't replace the entire DOM - it compares the new JSX tree to the old one and updates only what changed.\n\nThe algorithm is smart but follows rules: (1) Different element types cause full replacement (div to span = unmount old, mount new), (2) Same type = keep DOM node, update attributes, (3) Keys identify which items in lists are the same across renders.\n\nThis is why keys matter in lists! Without keys, React assumes list items are the same based on position. [A, B, C] to [B, C, A] without keys = React updates all three. WITH keys = React just moves them. Huge performance difference.",
+      "codeExample": "function List() {\n  const [items, setItems] = useState(['A', 'B', 'C']);\n  \n  const shuffle = () => {\n    setItems([...items].sort(() => Math.random() - 0.5));\n  };\n  \n  return (\n    <div>\n      {items.map(item => (\n        // WITH key: React tracks which item is which\n        <div key={item}>{item}</div>\n        \n        // WITHOUT key: React updates all items every shuffle\n        // <div>{item}</div>\n      ))}\n      <button onClick={shuffle}>Shuffle</button>\n    </div>\n  );\n}",
+      "task": "Demonstrate reconciliation:\n\n1. Create state 'items' as an array: [{ id: 1, text: 'First' }, { id: 2, text: 'Second' }, { id: 3, text: 'Third' }]\n2. Map over items to render each one:\n   - Use key={item.id} (proper reconciliation)\n   - Create an input for each item with defaultValue={item.text}\n3. Add a 'Reverse Order' button that reverses the items array: setItems([...items].reverse())\n4. Type in the inputs, then click Reverse\n5. Notice: with proper keys, the input VALUES move with their items!\n   (If you remove keys, the values stay in place while text moves - wrong!)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [items, setItems] = useState([",
+          "{ id:",
+          "items.map(",
+          "key={item.id}",
+          "items.reverse()"
+        ]
+      },
+      "hints": [
+        "useState with array of objects: [{ id: 1, text: 'First' }, ...]",
+        "Map with key: items.map(item => <div key={item.id}>...)",
+        "Each item should render an input with defaultValue={item.text}",
+        "Reverse: setItems([...items].reverse()) - spread to create new array",
+        "Try removing key to see the difference in behavior!"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Batching and Asynchronous Updates",
+      "explanation": "React batches state updates for performance. Multiple setState calls in the same event handler get batched into one re-render. This prevents unnecessary renders.\n\nIn React 18+, batching happens automatically everywhere - event handlers, promises, setTimeout, native events. Before React 18, only event handlers were batched.\n\nCritical insight: setState is asynchronous. Calling setState doesn't immediately update the state - it schedules an update. If you call setState then immediately read state, you'll see the old value. This is why updater functions exist: setCount(c => c + 1) uses the latest value.",
+      "codeExample": "function Counter() {\n  const [count, setCount] = useState(0);\n  \n  const handleClick = () => {\n    // ❌ WRONG - reads stale count three times\n    setCount(count + 1); // count is 0, sets to 1\n    setCount(count + 1); // count is STILL 0, sets to 1\n    setCount(count + 1); // count is STILL 0, sets to 1\n    // Result: count becomes 1, not 3\n  };\n  \n  const handleClickCorrect = () => {\n    // ✅ CORRECT - updater function gets latest value\n    setCount(c => c + 1); // c is 0, returns 1\n    setCount(c => c + 1); // c is 1, returns 2\n    setCount(c => c + 1); // c is 2, returns 3\n    // Result: count becomes 3\n  };\n  \n  return <div>{count}</div>;\n}",
+      "task": "Demonstrate batching and updater functions:\n\n1. Add state 'batchCount' starting at 0\n2. Add button 'Wrong: Add 3':\n   - Calls setbatchCount(batchCount + 1) THREE times\n   - Add console.log after each call\n   - Notice: only increases by 1, not 3!\n3. Add button 'Correct: Add 3':\n   - Calls setBatchCount(c => c + 1) THREE times\n   - Increases by 3 correctly\n4. Add console.log('Component rendered, batchCount = ' + batchCount) at top\n5. Display batchCount\n\nNotice in console:\n- Multiple setState calls = only ONE render (batching)\n- Updater function uses latest value, direct value doesn't",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [batchCount, setBatchCount] = useState(0)",
+          "setBatchCount(batchCount + 1)",
+          "setBatchCount(c => c + 1)",
+          "console.log('Component rendered"
+        ]
+      },
+      "hints": [
+        "Create two separate button handlers",
+        "First button: setBatchCount(batchCount + 1) called three times",
+        "Second button: setBatchCount(c => c + 1) called three times",
+        "Console.log at the top shows you only render once per click",
+        "The wrong way only increases by 1 because batchCount is stale"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Preventing Unnecessary Renders",
+      "explanation": "By default, when a component renders, all its children render too. This is usually fine, but for expensive components or deep trees, it can cause performance issues.\n\nOptimization techniques: (1) React.memo wraps a component and prevents re-render if props haven't changed, (2) useMemo caches expensive calculations, (3) useCallback caches functions so they're stable references.\n\nCritical: only optimize when you have a measured performance problem. Premature optimization adds complexity for no benefit. Profile first, then optimize. Most components are fast enough without optimization.",
+      "codeExample": "// Without optimization - Child re-renders even when props don't change\nfunction Parent() {\n  const [count, setCount] = useState(0);\n  const [other, setOther] = useState(0);\n  \n  return (\n    <>\n      <button onClick={() => setOther(other + 1)}>Change Other</button>\n      <Child count={count} /> {/* Re-renders even when count unchanged */}\n    </>\n  );\n}\n\n// With React.memo - Child only re-renders when count changes\nconst Child = React.memo(function Child({ count }) {\n  console.log('Child rendered');\n  return <div>{count}</div>;\n});\n\n// Now clicking 'Change Other' doesn't re-render Child!",
+      "task": "Demonstrate preventing unnecessary renders:\n\n1. Import React at the top: import React, { useState } from 'react'\n2. Create state 'parentState' starting at 0\n3. Create state 'childProp' starting at 0\n4. Create a child component 'ExpensiveChild' wrapped in React.memo:\n   - Takes a prop 'value'\n   - Logs 'ExpensiveChild rendered with value: ' + value\n   - Returns <div>Child value: {value}</div>\n5. Add button 'Update Parent' that increments parentState (NOT childProp)\n6. Add button 'Update Child Prop' that increments childProp\n7. Render <ExpensiveChild value={childProp} />\n8. Display both parentState and childProp\n\nNotice: clicking 'Update Parent' doesn't log ExpensiveChild render (memo works!)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import React,",
+          "const [parentState, setParentState] = useState(0)",
+          "const [childProp, setChildProp] = useState(0)",
+          "React.memo(function ExpensiveChild",
+          "<ExpensiveChild value={childProp}"
+        ]
+      },
+      "hints": [
+        "Import React: import React, { useState } from 'react'",
+        "Create ExpensiveChild outside your main component",
+        "Wrap it: const ExpensiveChild = React.memo(function ExpensiveChild({ value }) { ... })",
+        "Two buttons update different state variables",
+        "ExpensiveChild only logs when childProp changes, not when parentState changes"
+      ]
+    }
+  ]
+}

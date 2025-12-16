@@ -1,0 +1,110 @@
+{
+  "title": "Custom Hooks - Rules and Patterns",
+  "description": "Learn to write your own custom hooks following React's Rules of Hooks. Understand what is and isn't allowed, when to extract logic into custom hooks, and how to create reusable, composable hooks that encapsulate complex logic.",
+  "environment": "react",
+  "filePath": "src/exercises/CustomHooks.tsx",
+  "starterCode": "import { useState } from 'react';\n\nfunction CustomHooks() {\n  return (\n    <div>\n      <h2>Custom Hooks</h2>\n    </div>\n  );\n}\n\nexport default CustomHooks;",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Create Your First Custom Hook",
+      "explanation": "Custom hooks are JavaScript functions that use React hooks. That's it. The naming convention is critical: they MUST start with 'use' (like useState, useEffect). This tells React and linting tools that this function follows the Rules of Hooks.\n\nWhy create custom hooks? To extract and reuse stateful logic. When you find yourself copying the same useState/useEffect pattern across components, that's a signal to create a custom hook. They let you share logic without sharing components.\n\nA custom hook is just a function. It can call other hooks (useState, useEffect, etc.), accept parameters, and return anything you want (values, functions, arrays, objects). The magic is that hooks let you tap into React's lifecycle from outside components.",
+      "codeExample": "// Custom hook for toggling boolean state\nfunction useToggle(initialValue = false) {\n  const [value, setValue] = useState(initialValue);\n  \n  const toggle = () => setValue(v => !v);\n  \n  // Return both the value and the toggle function\n  return [value, toggle];\n}\n\n// Usage in a component\nfunction MyComponent() {\n  const [isOn, toggleIsOn] = useToggle(false);\n  \n  return (\n    <>\n      <p>Switch is {isOn ? 'ON' : 'OFF'}</p>\n      <button onClick={toggleIsOn}>Toggle</button>\n    </>\n  );\n}",
+      "task": "Create a custom hook called 'useCounter' OUTSIDE your component (before the function CustomHooks declaration):\n\n1. The hook should accept an initialValue parameter (default to 0)\n2. Inside, use useState to create count state with the initialValue\n3. Create three functions: increment (adds 1), decrement (subtracts 1), reset (sets to initialValue)\n4. Return an object: { count, increment, decrement, reset }\n5. In your CustomHooks component, call useCounter() and use the returned values\n6. Add buttons for increment, decrement, and reset, and display the count",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "function useCounter(",
+          "const [count, setCount] = useState(",
+          "return { count, increment, decrement, reset }",
+          "const { count, increment, decrement, reset } = useCounter()"
+        ]
+      },
+      "hints": [
+        "Define useCounter BEFORE your component: function useCounter(initialValue = 0) { ... }",
+        "Inside useCounter, call useState(initialValue)",
+        "Create functions using setCount: const increment = () => setCount(c => c + 1)",
+        "Return an object with all four values",
+        "In your component, destructure: const { count, increment, decrement, reset } = useCounter()"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Understand the Rules of Hooks",
+      "explanation": "React has strict Rules of Hooks that you MUST follow. Breaking these rules causes bugs that are hard to debug.\n\nRule 1: Only call hooks at the TOP LEVEL. Never inside loops, conditions, or nested functions. React relies on hook call order to track state - if the order changes between renders, React gets confused and bugs appear.\n\nRule 2: Only call hooks from React functions (components or custom hooks). Don't call them from regular JavaScript functions, event handlers, or class components.\n\nWhy these rules? React uses the order of hook calls to associate state with components. On first render: useState called → React creates state slot 1. Second useState → state slot 2. On re-render, React expects the same order. If you conditionally skip a hook, the order breaks.",
+      "codeExample": "// ❌ WRONG - hooks in conditions\nfunction Bad({ showCount }) {\n  if (showCount) {\n    const [count, setCount] = useState(0); // Order changes!\n  }\n  const [name, setName] = useState(''); // Sometimes slot 1, sometimes slot 2\n}\n\n// ✅ CORRECT - hooks at top level\nfunction Good({ showCount }) {\n  const [count, setCount] = useState(0); // Always slot 1\n  const [name, setName] = useState(''); // Always slot 2\n  \n  if (showCount) {\n    // Use the state conditionally, not define it conditionally\n    return <div>{count}</div>;\n  }\n}\n\n// ❌ WRONG - hook in loop\nfunction Bad({ items }) {\n  items.forEach(item => {\n    const [value, setValue] = useState(item); // Different number of calls each render!\n  });\n}\n\n// ✅ CORRECT - one useState for all items\nfunction Good({ items }) {\n  const [values, setValues] = useState(items);\n}",
+      "task": "Create a custom hook 'useLocalStorage' that demonstrates proper hook usage:\n\n1. The hook takes a 'key' and 'initialValue' parameter\n2. Use useState to create state, but initialize it by reading from localStorage:\n   - Try to get the value from localStorage.getItem(key)\n   - If it exists, parse it with JSON.parse\n   - If not, use initialValue\n3. Use useEffect to save to localStorage whenever the value changes:\n   - Use JSON.stringify to convert the value\n   - Use localStorage.setItem(key, stringifiedValue)\n   - Dependencies: [key, value]\n4. Return [value, setValue]\n5. In your component, use: const [name, setName] = useLocalStorage('name', '')\n6. Add an input that updates the name (value={name} onChange sets it)\n7. Refresh the page - the name should persist!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "function useLocalStorage(",
+          "localStorage.getItem(key)",
+          "JSON.parse",
+          "useEffect(",
+          "localStorage.setItem(key",
+          "JSON.stringify",
+          "const [name, setName] = useLocalStorage("
+        ]
+      },
+      "hints": [
+        "Initialize state: useState(() => { const item = localStorage.getItem(key); return item ? JSON.parse(item) : initialValue; })",
+        "In useEffect: localStorage.setItem(key, JSON.stringify(value))",
+        "Dependencies: [key, value]",
+        "Notice hooks are at top level - useState then useEffect, no conditions",
+        "In component: useLocalStorage('name', '') and use it with an input"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Compose Hooks Together",
+      "explanation": "The power of custom hooks: they can use other custom hooks! This is composition - building complex behavior from simple pieces. Each hook has one clear purpose, and you combine them to create sophisticated functionality.\n\nThis is similar to how you compose regular functions, but now your functions can have state and effects. A custom hook can call useState, useEffect, AND other custom hooks. This creates layers of abstraction.\n\nBest practice: keep hooks focused. A hook should do ONE thing well. If your hook is doing too much, split it into multiple hooks. Then compose them. This makes hooks easier to test, reuse, and understand.",
+      "codeExample": "// Simple hook - one purpose\nfunction useOnline() {\n  const [online, setOnline] = useState(navigator.onLine);\n  \n  useEffect(() => {\n    const handleOnline = () => setOnline(true);\n    const handleOffline = () => setOffline(false);\n    \n    window.addEventListener('online', handleOnline);\n    window.addEventListener('offline', handleOffline);\n    \n    return () => {\n      window.removeEventListener('online', handleOnline);\n      window.removeEventListener('offline', handleOffline);\n    };\n  }, []);\n  \n  return online;\n}\n\n// Composed hook - uses multiple hooks\nfunction useOnlineStatus() {\n  const online = useOnline(); // Uses custom hook\n  const [lastOnline, setLastOnline] = useState(Date.now());\n  \n  useEffect(() => {\n    if (online) {\n      setLastOnline(Date.now());\n    }\n  }, [online]);\n  \n  return { online, lastOnline };\n}",
+      "task": "Create two hooks that work together:\n\n1. First hook 'useWindowSize':\n   - Create state: width and height (use window.innerWidth/innerHeight as initial values)\n   - In useEffect (with [] dependencies):\n     - Create a handleResize function that updates width/height\n     - Add 'resize' event listener\n     - Return cleanup that removes the listener\n   - Return { width, height }\n\n2. Second hook 'useIsMobile' that USES the first hook:\n   - Call const { width } = useWindowSize()\n   - Return width < 768\n\n3. In your component, use: const isMobile = useIsMobile()\n4. Display: 'Device: Mobile' or 'Device: Desktop' based on isMobile\n5. Try resizing your browser window - it should update!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "function useWindowSize(",
+          "window.innerWidth",
+          "window.addEventListener('resize'",
+          "function useIsMobile(",
+          "const { width } = useWindowSize()",
+          "width < 768",
+          "const isMobile = useIsMobile()"
+        ]
+      },
+      "hints": [
+        "useWindowSize: useState for width/height, useEffect for resize listener",
+        "handleResize: () => { setWidth(window.innerWidth); setHeight(window.innerHeight); }",
+        "useIsMobile is simple: just call useWindowSize() and check if width < 768",
+        "Notice composition: useIsMobile uses useWindowSize, which uses useState and useEffect",
+        "Each hook has a single, clear purpose"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Return Values and API Design",
+      "explanation": "How you return values from custom hooks affects how easy they are to use. You have choices: return a single value, an array (like useState), or an object. Each has tradeoffs.\n\nReturn an array when: there are 1-3 values AND users will want to rename them. useState returns [value, setValue] - users name these however they want. This is flexible.\n\nReturn an object when: there are many values OR they have specific meaning that shouldn't be renamed. useWindowSize returns { width, height } - these names have meaning, renaming would be confusing.\n\nReturn a single value when: there's just one thing to return. useOnline() returns a boolean - no need for array/object wrapper.\n\nAPI design matters! A well-designed hook API is intuitive and hard to use incorrectly. Think about the developer experience.",
+      "codeExample": "// Returns array - good for 2 values, allows renaming\nfunction useToggle(initial) {\n  const [value, setValue] = useState(initial);\n  const toggle = () => setValue(v => !v);\n  return [value, toggle]; // User can name these anything\n}\nconst [isOpen, setIsOpen] = useToggle(false); // Renamed\n\n// Returns object - good for many values, clear naming\nfunction useUser(id) {\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n  \n  // ... fetch logic ...\n  \n  return { user, loading, error }; // Clear what each is\n}\nconst { user, loading, error } = useUser(123);\n\n// Returns single value - simplest\nfunction useIsOnline() {\n  const [online, setOnline] = useState(navigator.onLine);\n  // ... event listeners ...\n  return online; // Just a boolean\n}\nconst online = useIsOnline();",
+      "task": "Create a hook 'useFetch' that demonstrates good API design:\n\n1. Takes a 'url' parameter\n2. Creates three state variables: data, loading, error (all starting as null, true, null)\n3. In useEffect (dependency [url]):\n   - Set loading to true\n   - Fetch the url\n   - On success: set data to response, loading to false\n   - On error: set error to error message, loading to false\n4. Return an object: { data, loading, error, refetch }\n   - refetch is a function that re-fetches (you can create it as a separate function)\n5. In your component, use: const { data, loading, error } = useFetch('https://api.github.com/users/github')\n6. Display: loading state, error if present, or data.name if available\n\nNote: Return object (not array) because these names have specific meaning",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "function useFetch(",
+          "const [data, setData] = useState(null)",
+          "const [loading, setLoading] = useState(true)",
+          "const [error, setError] = useState(null)",
+          "fetch(url)",
+          "return { data, loading, error",
+          "const { data, loading, error } = useFetch("
+        ]
+      },
+      "hints": [
+        "Three useState calls for data, loading, error",
+        "In useEffect: try/catch with fetch(url).then(r => r.json()).then(setData).catch(setError)",
+        "Set loading to false in finally block",
+        "Return object with all four values: { data, loading, error, refetch }",
+        "User destructures with meaningful names - this is why object return is better than array here"
+      ]
+    }
+  ]
+}

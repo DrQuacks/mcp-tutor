@@ -1,0 +1,113 @@
+{
+  "title": "useEffect and Component Lifecycle",
+  "description": "Master useEffect by understanding component mount/unmount, cleanup functions, and dependency arrays with non-primitive values. Learn when effects run, how to prevent infinite loops, and best practices for managing side effects in React components.",
+  "environment": "react",
+  "filePath": "src/exercises/EffectLifecycle.tsx",
+  "starterCode": "import { useState } from 'react';\n\nfunction EffectLifecycle() {\n  return (\n    <div>\n      <h2>useEffect Lifecycle</h2>\n    </div>\n  );\n}\n\nexport default EffectLifecycle;",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Import useEffect and Add Mount Effect",
+      "explanation": "useEffect is React's hook for handling side effects - code that needs to interact with the outside world (APIs, timers, DOM, subscriptions). Unlike render logic which must be pure, effects let you synchronize your component with external systems.\n\nEffects run AFTER React finishes rendering and updating the DOM. This timing is crucial: your component renders first, the DOM updates, then your effect runs. This ensures you're working with the latest DOM state.\n\nThe basic pattern is simple: call useEffect and pass a function. This function runs after every render by default. Think of it as saying \"after you finish rendering, do this side effect.\"",
+      "codeExample": "import { useEffect } from 'react';\n\nfunction MyComponent() {\n  useEffect(() => {\n    // This runs AFTER render\n    console.log('Component rendered!');\n  });\n  \n  return <div>Hello</div>;\n}",
+      "task": "1. Import useEffect from 'react' (add it to your existing import)\n2. Inside your component, call useEffect with a function that logs 'Component mounted' to the console\n3. This effect will run after every render - we'll optimize this in the next step",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import { useState, useEffect } from 'react'",
+          "useEffect(",
+          "console.log"
+        ]
+      },
+      "hints": [
+        "Add useEffect to the import: import { useState, useEffect } from 'react'",
+        "Call useEffect inside your component, before the return statement",
+        "Pass a function to useEffect: useEffect(() => { console.log('Component mounted') })"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Control When Effect Runs with Dependency Array",
+      "explanation": "By default, effects run after EVERY render. This is rarely what you want. The dependency array lets you control when your effect runs by specifying which values it depends on.\n\nAn empty dependency array [] means \"run this effect only once, after the initial mount.\" This is perfect for setup code that should happen once when the component appears (like fetching initial data or setting up subscriptions).\n\nThink of the dependency array as answering: \"What values does this effect care about?\" If the answer is \"nothing, just run it once,\" use []. If it depends on props or state, list them in the array.",
+      "codeExample": "// Runs after EVERY render (no dependency array)\nuseEffect(() => {\n  console.log('Every render');\n});\n\n// Runs ONCE after mount (empty array)\nuseEffect(() => {\n  console.log('Only on mount');\n}, []);\n\n// Runs when count changes (count in array)\nuseEffect(() => {\n  console.log('Count changed:', count);\n}, [count]);",
+      "task": "Add an empty dependency array [] as the second argument to your useEffect call.\n\nThis tells React: \"Only run this effect once after the component first mounts, then never again.\"",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useEffect(",
+          ", [])"
+        ]
+      },
+      "hints": [
+        "useEffect takes two arguments: a function and an array",
+        "The empty array goes after the function: useEffect(() => { ... }, [])",
+        "The [] means this effect has no dependencies, so it runs only once"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Add Cleanup Function for Unmount",
+      "explanation": "Effects can return a cleanup function. This function runs when the component unmounts OR before the effect runs again. Cleanup is essential for preventing memory leaks and bugs.\n\nCommon use cases for cleanup: clearing timers, canceling network requests, unsubscribing from events, removing event listeners. Without cleanup, these keep running even after your component is gone.\n\nThe cleanup timing is precise: React calls your cleanup BEFORE running the effect again, and when the component unmounts. This ensures you clean up the old effect before starting the new one.",
+      "codeExample": "useEffect(() => {\n  // Setup: start a timer\n  const timerId = setInterval(() => {\n    console.log('Tick');\n  }, 1000);\n  \n  // Cleanup: stop the timer\n  return () => {\n    clearInterval(timerId);\n    console.log('Timer cleaned up');\n  };\n}, []);",
+      "task": "Modify your useEffect to return a cleanup function that logs 'Component unmounted' to the console.\n\nThe pattern is:\nuseEffect(() => {\n  console.log('Component mounted');\n  \n  return () => {\n    // cleanup code here\n  };\n}, []);",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "return () => {",
+          "Component unmounted"
+        ]
+      },
+      "hints": [
+        "Your effect function should return another function",
+        "The returned function is the cleanup - it runs when the component unmounts",
+        "Structure: useEffect(() => { setup; return () => { cleanup }; }, [])"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Add State and Track Changes with Dependencies",
+      "explanation": "When your effect needs to respond to changing values (props or state), list them in the dependency array. React compares the current values to the previous render's values. If any changed, the effect runs again.\n\nThis is how you create effects that \"react\" to changes. The effect re-runs whenever its dependencies change, keeping your side effects in sync with your component's data.\n\nCritical rule: if you use a value inside your effect, it MUST be in the dependency array. Otherwise you'll have stale values and bugs. Modern tooling (ESLint with react-hooks plugin) will warn you about missing dependencies.",
+      "codeExample": "function Counter() {\n  const [count, setCount] = useState(0);\n  \n  // This effect depends on count\n  useEffect(() => {\n    document.title = `Count: ${count}`;\n    // count is used, so it MUST be in dependencies\n  }, [count]); // ✅ Correct\n  \n  return <button onClick={() => setCount(count + 1)}>+</button>;\n}",
+      "task": "1. Add a new state variable called 'count' initialized to 0 (use useState)\n2. Add a button that increments count when clicked\n3. Create a NEW useEffect (in addition to your mount/unmount one) that:\n   - Logs 'Count changed to: ' followed by the count value\n   - Has [count] as its dependency array (runs whenever count changes)\n4. Display the count in your JSX",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [count, setCount] = useState(0)",
+          "setCount(count + 1)",
+          "Count changed to:",
+          ", [count])"
+        ]
+      },
+      "hints": [
+        "You'll have TWO useEffect calls now - one with [] and one with [count]",
+        "useState(0) creates the count state",
+        "In the button's onClick, call setCount with count + 1",
+        "The second effect should log the count and have [count] in its dependency array"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Handle Object Dependencies Correctly",
+      "explanation": "Here's a critical pitfall: React compares dependencies using Object.is(), which means objects and arrays are compared by REFERENCE, not by value. Even if an object's contents are identical, if it's a new object instance, React sees it as changed.\n\nThis causes infinite loops! If you create a new object/array in your component body and put it in dependencies, it's recreated every render. Effect runs, component re-renders, new object created, effect runs again - infinite loop.\n\nSolutions: (1) Move objects outside component if they don't depend on props/state, (2) Use individual primitive values instead of objects, (3) Use useCallback/useMemo to stabilize references, (4) Sometimes you need to compare object properties individually.",
+      "codeExample": "// ❌ INFINITE LOOP - new object every render\nfunction Bad() {\n  const config = { url: '/api' }; // New object each render!\n  \n  useEffect(() => {\n    fetch(config.url);\n  }, [config]); // Effect sees new object, runs again!\n}\n\n// ✅ SOLUTION 1: Use primitive values\nfunction Good() {\n  const url = '/api';\n  \n  useEffect(() => {\n    fetch(url);\n  }, [url]); // String is compared by value\n}\n\n// ✅ SOLUTION 2: Move object outside component\nconst config = { url: '/api' }; // Created once\nfunction Good() {\n  useEffect(() => {\n    fetch(config.url);\n  }, [config]); // Same reference every time\n}",
+      "task": "1. Create a new state variable 'user' that holds an object: { name: 'Alice', age: 25 }\n2. Add a button that updates the user's age (create a new object with ...user, age: user.age + 1)\n3. Create a useEffect that logs the user's name\n4. Put user.name (NOT user) in the dependency array - this way it only runs when the name actually changes, not when any part of the object changes\n5. Display the user's name and age in your JSX",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [user, setUser] = useState",
+          "name: 'Alice'",
+          "...user",
+          "user.name",
+          ", [user.name])"
+        ]
+      },
+      "hints": [
+        "useState({ name: 'Alice', age: 25 }) creates the user object state",
+        "To update: setUser({ ...user, age: user.age + 1 })",
+        "In the effect, log user.name",
+        "Dependency array should be [user.name], not [user]",
+        "This way the effect only runs when the name changes, not the age"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "title": "useMemo and useCallback - Performance Optimization",
+  "description": "Master React's memoization hooks to optimize performance. Learn when useMemo and useCallback are necessary, how they work with dependency arrays and complex values, and avoid common pitfalls. Understand the difference between premature optimization and necessary optimization.",
+  "environment": "react",
+  "filePath": "src/exercises/MemoOptimization.tsx",
+  "starterCode": "import { useState } from 'react';\n\nfunction MemoOptimization() {\n  return (\n    <div>\n      <h2>Memoization Optimization</h2>\n    </div>\n  );\n}\n\nexport default MemoOptimization;",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Understand When useMemo is Needed",
+      "explanation": "useMemo caches the result of an expensive calculation between renders. Without it, the calculation runs on EVERY render. With useMemo, it only re-runs when dependencies change.\n\nWhen to use useMemo: (1) Truly expensive calculations (complex loops, heavy math, filtering large arrays), (2) Creating objects/arrays used as dependencies in other hooks, (3) Passing objects as props to memoized components.\n\nWhen NOT to use: simple calculations, primitive values, or when the component rarely re-renders. useMemo has overhead - don't use it unless you've measured a performance problem. Profile first, optimize second.\n\nThe syntax: useMemo(() => expensiveCalculation, [dependencies]). First argument is a function that returns the value. Second is the dependency array - when these change, recalculate.",
+      "codeExample": "function Component({ items }) {\n  // ❌ WITHOUT useMemo - runs every render\n  const expensiveResult = items\n    .filter(item => item.active)\n    .map(item => item.value * 2)\n    .reduce((sum, val) => sum + val, 0);\n  \n  // ✅ WITH useMemo - only runs when items changes\n  const expensiveResult = useMemo(() => {\n    console.log('Calculating...');\n    return items\n      .filter(item => item.active)\n      .map(item => item.value * 2)\n      .reduce((sum, val) => sum + val, 0);\n  }, [items]);\n  \n  return <div>{expensiveResult}</div>;\n}",
+      "task": "Demonstrate useMemo with an expensive calculation:\n\n1. Import useMemo: import { useState, useMemo } from 'react'\n2. Add state 'numbers' as an array: [1, 2, 3, 4, 5]\n3. Add state 'count' starting at 0 (unrelated to numbers)\n4. Create an expensive calculation WITHOUT useMemo:\n   - Loop through numbers and sum them (add console.log('Calculating sum'))\n   - Store in 'sum' variable\n5. Add button 'Increment Count' that increments count\n6. Display both count and sum\n\nNotice: console logs 'Calculating sum' on EVERY render, even when numbers didn't change!",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import { useState, useMemo } from 'react'",
+          "const [numbers, setNumbers] = useState([1, 2, 3, 4, 5])",
+          "const [count, setCount] = useState(0)",
+          "console.log('Calculating sum')"
+        ]
+      },
+      "hints": [
+        "Import useMemo from react",
+        "Two state variables: numbers (array) and count (number)",
+        "Calculate sum with a loop: let sum = 0; numbers.forEach(n => sum += n);",
+        "Add console.log before calculating to see how often it runs",
+        "Click the count button - sum recalculates even though numbers didn't change"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Optimize with useMemo",
+      "explanation": "Now let's fix the unnecessary recalculation. useMemo takes two arguments: a function that computes the value, and a dependency array. The function only re-runs when dependencies change.\n\nThe dependency array works like useEffect's: React compares current values to previous values. If any dependency changed (using Object.is comparison), the function runs again. If none changed, React returns the cached value from last time.\n\nCritical: include ALL values used in the calculation in the dependency array. If you use a value but don't list it as a dependency, you'll have stale values and bugs. ESLint's react-hooks plugin helps catch this.",
+      "codeExample": "function Component({ numbers, multiplier }) {\n  const sum = useMemo(() => {\n    console.log('Calculating...');\n    return numbers.reduce((acc, n) => acc + n * multiplier, 0);\n  }, [numbers, multiplier]); // Only recalculates when these change\n  \n  return <div>{sum}</div>;\n}\n\n// Now if parent re-renders but numbers and multiplier are the same,\n// the calculation doesn't run - we use the cached value!",
+      "task": "Convert your calculation to use useMemo:\n\n1. Wrap your sum calculation in useMemo:\n   - First argument: function that calculates and returns the sum\n   - Second argument: [numbers] dependency array\n2. Keep the console.log inside the useMemo function\n3. Now click 'Increment Count' again\n\nNotice: console NO LONGER logs on every render! Only when numbers changes.\nAdd a new button 'Add Number' that adds a random number to the array to see it recalculate.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "useMemo(",
+          "console.log('Calculating sum')",
+          ", [numbers])"
+        ]
+      },
+      "hints": [
+        "Wrap calculation: const sum = useMemo(() => { /* calculation */ }, [numbers])",
+        "The function inside useMemo should return the sum value",
+        "Dependency array is [numbers]",
+        "Now incrementing count doesn't trigger recalculation",
+        "Only changes to numbers trigger it"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "useMemo with Objects and Arrays",
+      "explanation": "A critical use case for useMemo: creating stable object/array references. Remember, React compares objects by reference. If you create a new object every render, it's a new reference even if the contents are identical.\n\nThis matters when: (1) The object is a dependency in useEffect/useMemo/useCallback, (2) You're passing it as props to a React.memo component. Without useMemo, you'd create infinite loops or bypass memoization.\n\nThe pattern: use useMemo to create the object, with dependencies being the primitive values it's built from. Now the object reference stays stable until those primitives change.",
+      "codeExample": "function Component({ userId, userName }) {\n  // ❌ New object every render - breaks memoization\n  const user = { id: userId, name: userName };\n  \n  useEffect(() => {\n    fetchData(user); // Runs every render!\n  }, [user]); // user is new object each time\n  \n  // ✅ Stable object reference - only new when primitives change\n  const user = useMemo(() => {\n    return { id: userId, name: userName };\n  }, [userId, userName]); // Only creates new object when these change\n  \n  useEffect(() => {\n    fetchData(user); // Only runs when userId or userName changes!\n  }, [user]);\n}",
+      "task": "Demonstrate useMemo with objects:\n\n1. Add state 'userId' starting at 1\n2. Add state 'renderCount' starting at 0\n3. Create a 'user' object with useMemo:\n   - Returns { id: userId, name: 'User ' + userId }\n   - Dependencies: [userId]\n4. Create useEffect with dependency [user]:\n   - Logs 'User object changed: ' + JSON.stringify(user)\n5. Add button 'Trigger Render' that increments renderCount\n6. Add button 'Change User' that increments userId\n7. Display renderCount and user.name\n\nNotice:\n- 'Trigger Render' doesn't log (user object is stable)\n- 'Change User' does log (user object changed)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [userId, setUserId] = useState(1)",
+          "const [renderCount, setRenderCount] = useState(0)",
+          "const user = useMemo(",
+          "{ id: userId",
+          ", [userId])",
+          "useEffect(",
+          ", [user])"
+        ]
+      },
+      "hints": [
+        "Two state variables: userId and renderCount",
+        "useMemo returns object: { id: userId, name: 'User ' + userId }",
+        "Dependencies for useMemo: [userId]",
+        "useEffect depends on [user]",
+        "First button changes renderCount (doesn't affect user)",
+        "Second button changes userId (does affect user, triggers effect)"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "useCallback for Stable Function References",
+      "explanation": "useCallback is like useMemo, but for functions. It returns a memoized version of the function that only changes when dependencies change. Without it, you create a new function every render.\n\nWhen to use: (1) Passing callbacks to optimized child components (React.memo), (2) Functions as dependencies in useEffect/useMemo, (3) Event handlers passed as props to child components that are expensive to render.\n\nThe syntax is almost identical to useMemo: useCallback(() => { doSomething() }, [dependencies]). The difference: useMemo calls the function and caches the RESULT. useCallback doesn't call it, it caches the FUNCTION itself.\n\nThey're related: useCallback(fn, deps) is equivalent to useMemo(() => fn, deps). One returns a value, one returns a function.",
+      "codeExample": "function Parent() {\n  const [count, setCount] = useState(0);\n  \n  // ❌ New function every render - child re-renders unnecessarily\n  const handleClick = () => {\n    console.log('Clicked');\n  };\n  \n  // ✅ Stable function reference - child doesn't re-render\n  const handleClick = useCallback(() => {\n    console.log('Clicked');\n  }, []); // No dependencies = never changes\n  \n  return <MemoizedChild onClick={handleClick} />;\n}\n\nconst MemoizedChild = React.memo(function Child({ onClick }) {\n  console.log('Child rendered');\n  return <button onClick={onClick}>Click</button>;\n});",
+      "task": "Demonstrate useCallback:\n\n1. Import useCallback and React: import React, { useState, useMemo, useCallback } from 'react'\n2. Add state 'parentCount' starting at 0\n3. Create a callback using useCallback:\n   - Name it 'handleChildClick'\n   - It should log 'Child clicked!'\n   - Empty dependency array []\n4. Create a memoized child component 'MemoChild':\n   - Wrapped in React.memo\n   - Takes prop 'onClick'\n   - Logs 'MemoChild rendered'\n   - Returns <button onClick={onClick}>Click Child</button>\n5. Add button 'Update Parent' that increments parentCount\n6. Render <MemoChild onClick={handleChildClick} />\n7. Display parentCount\n\nNotice: clicking 'Update Parent' doesn't log 'MemoChild rendered' (callback is stable!)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "import React,",
+          "useCallback",
+          "const [parentCount, setParentCount] = useState(0)",
+          "const handleChildClick = useCallback(",
+          ", [])",
+          "React.memo(function MemoChild",
+          "<MemoChild onClick={handleChildClick}"
+        ]
+      },
+      "hints": [
+        "Import React and useCallback",
+        "Create callback: const handleChildClick = useCallback(() => { console.log(...) }, [])",
+        "MemoChild: const MemoChild = React.memo(function MemoChild({ onClick }) { ... })",
+        "Pass the callback: <MemoChild onClick={handleChildClick} />",
+        "Because callback reference is stable, MemoChild doesn't re-render when parent does"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Dependencies in useCallback - The Closure Trap",
+      "explanation": "The tricky part of useCallback: closures and stale values. If your callback uses state or props, you MUST include them in dependencies. Otherwise you'll capture stale values in the closure.\n\nWithout dependencies, the callback \"remembers\" values from when it was created. State updates don't affect it - it's stuck with old values. This causes bugs that are hard to debug.\n\nSolutions: (1) Include all used values in dependencies (callback recreates when they change), (2) Use the updater form of setState (doesn't need current state in dependencies), (3) Use refs for values you need but don't want to cause recreation.\n\nThe updater form is powerful: setCount(c => c + 1) doesn't use count from the closure - it gets the current value from React. This lets you keep dependencies minimal.",
+      "codeExample": "function Component() {\n  const [count, setCount] = useState(0);\n  \n  // ❌ STALE - captures initial count (0) forever\n  const handleClick = useCallback(() => {\n    console.log('Count is:', count); // Always logs 0!\n  }, []); // count not in dependencies\n  \n  // ✅ CORRECT - recreates when count changes\n  const handleClick = useCallback(() => {\n    console.log('Count is:', count); // Logs current count\n  }, [count]); // count in dependencies\n  \n  // ✅ BEST - uses updater, doesn't need count in deps\n  const increment = useCallback(() => {\n    setCount(c => c + 1); // Gets current value from React\n  }, []); // No dependencies needed!\n}",
+      "task": "Demonstrate the closure trap and solution:\n\n1. Add state 'callbackCount' starting at 0\n2. Create 'handleBadClick' with useCallback:\n   - Logs 'Bad callback, count is: ' + callbackCount\n   - Empty dependencies [] (WRONG!)\n3. Create 'handleGoodClick' with useCallback:\n   - Logs 'Good callback, count is: ' + callbackCount\n   - Dependencies [callbackCount] (CORRECT)\n4. Create 'handleBestClick' with useCallback:\n   - Calls setCallbackCount(c => c + 1) (doesn't use callbackCount directly)\n   - Empty dependencies [] (OK because using updater form)\n5. Add three buttons that call each callback\n6. Display callbackCount\n\nClick buttons and check console:\n- Bad callback always logs 0 (stale)\n- Good callback logs current value (but recreates often)\n- Best approach increments without logging (updater form)",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const [callbackCount, setCallbackCount] = useState(0)",
+          "const handleBadClick = useCallback(",
+          "callbackCount",
+          ", [])",
+          "const handleGoodClick = useCallback(",
+          ", [callbackCount])",
+          "setCallbackCount(c => c + 1)"
+        ]
+      },
+      "hints": [
+        "Three useCallback calls, each with different dependencies",
+        "First: uses callbackCount but [] deps (captures stale value)",
+        "Second: uses callbackCount with [callbackCount] deps (recreates when it changes)",
+        "Third: uses setCallbackCount(c => c + 1) with [] deps (updater form, no stale values)",
+        "The updater form is the best pattern when you need to update based on previous value"
+      ]
+    }
+  ]
+}
