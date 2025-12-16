@@ -1,0 +1,84 @@
+{
+  "id": "react-form-validator",
+  "title": "Form Validator",
+  "environment": "react",
+  "filePath": "src/exercises/FormValidator.tsx",
+  "description": "Create a simple form with email and password inputs that validates user input and shows error messages. This exercise teaches form handling, validation logic, conditional rendering, and managing multiple pieces of state.\n\nFor example:\n- User types invalid email → Error message appears\n- User types valid email → Error message disappears\n- User types short password → Error message appears\n- Form only submits when both fields are valid\n\nYou'll learn how to validate user input and provide helpful feedback.",
+  "requirements": [
+    "Use React.useState to manage email input (starting as empty string)",
+    "Use React.useState to manage password input (starting as empty string)",
+    "Render an email input field (type='email')",
+    "Render a password input field (type='password')",
+    "Render a submit button with text 'Submit'",
+    "Show an error message if email is non-empty and doesn't contain '@'",
+    "Show an error message if password is non-empty and has less than 8 characters",
+    "Error messages should appear as paragraph elements with the text of the error",
+    "Export the FormValidator component as the default export"
+  ],
+  "hints": [
+    "Use two separate useState calls for email and password",
+    "Check email validity: email.length > 0 && !email.includes('@')",
+    "Check password validity: password.length > 0 && password.length < 8",
+    "Use conditional rendering: {showError && <p>Error message</p>}",
+    "Error messages help users understand what they need to fix"
+  ],
+  "starterCode": "import { useState } from 'react';\n\nfunction FormValidator() {\n  // TODO: Add state for email and password\n  \n  return (\n    <div>\n      <h2>Sign Up Form</h2>\n      {/* TODO: Add email input */}\n      {/* TODO: Add password input */}\n      {/* TODO: Add error messages */}\n      {/* TODO: Add submit button */}\n    </div>\n  );\n}\n\nexport default FormValidator;",
+  "solutionCode": "import { useState } from 'react';\n\nfunction FormValidator() {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  \n  const emailError = email.length > 0 && !email.includes('@');\n  const passwordError = password.length > 0 && password.length < 8;\n  \n  return (\n    <div style={{ padding: '20px' }}>\n      <h2>Sign Up Form</h2>\n      <div>\n        <input \n          type=\"email\" \n          value={email}\n          onChange={(e) => setEmail(e.target.value)}\n          placeholder=\"Email\"\n        />\n        {emailError && <p style={{ color: 'red' }}>Email must contain @</p>}\n      </div>\n      <div>\n        <input \n          type=\"password\" \n          value={password}\n          onChange={(e) => setPassword(e.target.value)}\n          placeholder=\"Password\"\n        />\n        {passwordError && <p style={{ color: 'red' }}>Password must be at least 8 characters</p>}\n      </div>\n      <button>Submit</button>\n    </div>\n  );\n}\n\nexport default FormValidator;",
+  "browserTests": [
+    {
+      "name": "Email input is present",
+      "selector": "input[type='email']",
+      "exists": true
+    },
+    {
+      "name": "Password input is present",
+      "selector": "input[type='password']",
+      "exists": true
+    },
+    {
+      "name": "Submit button is present",
+      "selector": "button",
+      "expected": "Submit"
+    },
+    {
+      "name": "Shows email error for invalid email",
+      "actions": [
+        { "selector": "input[type='email']", "action": "type", "value": "notanemail" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "@"
+      }
+    },
+    {
+      "name": "No email error when valid email typed",
+      "actions": [
+        { "selector": "input[type='email']", "action": "type", "value": "test@example.com" }
+      ],
+      "then": {
+        "selector": "p",
+        "exists": false
+      }
+    },
+    {
+      "name": "Shows password error for short password",
+      "actions": [
+        { "selector": "input[type='password']", "action": "type", "value": "short" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "8"
+      }
+    },
+    {
+      "name": "No password error when long enough",
+      "actions": [
+        { "selector": "input[type='password']", "action": "type", "value": "longpassword" }
+      ],
+      "then": {
+        "selector": "p",
+        "exists": false
+      }
+    }
+  ]
+}

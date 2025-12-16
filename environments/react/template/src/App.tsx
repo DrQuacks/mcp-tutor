@@ -1,11 +1,11 @@
 import './App.css'
-import SortableTable from './exercises/SortableTable'
+import FormValidator from './exercises/FormValidator'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Sortable Product Table with Pagination</h1>
-      <SortableTable />
+      <h1>React Exercise: Form Validator</h1>
+      <FormValidator />
     </div>
   )
 }

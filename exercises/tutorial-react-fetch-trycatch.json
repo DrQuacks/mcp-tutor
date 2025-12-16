@@ -1,162 +1,122 @@
 {
-  "id": "tutorial-react-fetch-trycatch",
-  "title": "Fetch API with Try/Catch in React",
-  "description": "Learn how to properly handle asynchronous data fetching with error handling in React using fetch, async/await, and try/catch blocks.",
+  "title": "Data Fetching with useEffect and Try/Catch",
+  "description": "Learn the foundational pattern for fetching data in React: using useEffect for side effects, managing loading/error/data states with useState, and handling async errors with try/catch.",
   "environment": "react",
-  "language": "react",
-  "difficulty": "intermediate",
-  "estimatedTime": "20 minutes",
-  "learningObjectives": [
-    "Understand async/await syntax with fetch",
-    "Implement proper error handling with try/catch",
-    "Manage loading and error states in React",
-    "Handle HTTP errors and network failures",
-    "Display user-friendly error messages"
-  ],
+  "filePath": "src/exercises/FetchBasics.tsx",
+  "starterCode": "export default function UserProfile() {\n  return (\n    <div>\n      <h2>User Profile</h2>\n    </div>\n  );\n}",
   "steps": [
     {
       "stepNumber": 1,
-      "title": "Set Up State for Data, Loading, and Errors",
-      "explanation": "When fetching data in React, you need to track three pieces of state: the data itself, whether a request is in progress (loading), and any errors that occur. This gives users feedback about what's happening and handles failures gracefully.",
-      "codeExample": "const [data, setData] = useState(null);\nconst [loading, setLoading] = useState(false);\nconst [error, setError] = useState(null);",
-      "task": "Create three state variables in your component: `user` (initialized to `null`), `loading` (initialized to `false`), and `error` (initialized to `null`).",
-      "hints": [
-        "You'll need three separate useState hooks",
-        "Think about what the initial value should be for each state - what should they be before any fetch happens?",
-        "The user data starts as null because we don't have it yet, loading starts false because we're not fetching yet, and error starts null because there's no error yet"
-      ],
+      "title": "Setting Up State for Async Data",
+      "explanation": "When fetching data in React, you need three pieces of state:\n\n1. **data**: Holds the fetched data (starts as null or undefined)\n2. **loading**: Indicates if the fetch is in progress (starts as true)\n3. **error**: Holds any error that occurs (starts as null)\n\nThis pattern is so common it's almost a best practice. These three states cover the entire lifecycle of an async operation:\n- Loading state: Show a spinner while waiting\n- Error state: Show an error message if something goes wrong\n- Success state: Show the data when ready\n\nThink of it as a state machine with three possible states: loading, error, or success. Only one should be active at a time.",
+      "codeExample": "const [data, setData] = useState(null);\nconst [loading, setLoading] = useState(true);\nconst [error, setError] = useState(null);",
+      "task": "Import useState and create three state variables:\n1. `user` (starts as null) - will hold the user object\n2. `loading` (starts as true) - tracks if data is being fetched\n3. `error` (starts as null) - holds error messages",
       "validation": {
         "type": "code-contains",
         "checks": [
+          "import",
           "useState",
           "user",
           "loading",
           "error"
         ]
-      }
+      },
+      "hints": [
+        "Import: import { useState } from 'react'",
+        "Create three separate useState calls, one for each piece of state",
+        "The loading state should start as true (we'll be fetching immediately)",
+        "Use: const [user, setUser] = useState(null);"
+      ]
     },
     {
       "stepNumber": 2,
-      "title": "Create an Async Function with Try/Catch",
-      "explanation": "Fetch operations are asynchronous and can fail. We use async/await syntax to make asynchronous code look synchronous, and wrap it in try/catch to handle errors. The try block contains the happy path, while the catch block handles failures.",
-      "codeExample": "const fetchData = async () => {\n  try {\n    // Fetch logic here\n  } catch (err) {\n    // Error handling here\n  }\n};",
-      "task": "Create an async function called `fetchUser` that has a try/catch block. Don't implement the logic yet, just create the function structure.",
-      "hints": [
-        "Use the async keyword before the function definition",
-        "The catch block should accept an error parameter (commonly named 'err' or 'error')",
-        "You can define this function inside your component"
-      ],
+      "title": "Understanding useEffect for Data Fetching",
+      "explanation": "The `useEffect` hook is where you perform side effects like data fetching. It runs after your component renders, making it perfect for operations that shouldn't block the initial render.\n\nKey points about useEffect:\n- It runs AFTER the component renders to the DOM\n- The empty dependency array `[]` means it runs only once (on mount)\n- This is where you initiate your fetch request\n\nWhy useEffect and not just fetch directly in the component body? Because fetching directly would cause it to happen on every render, creating an infinite loop when you update state with the fetched data!\n\nuseEffect with an empty dependency array ensures the fetch happens exactly once when the component first mounts.",
+      "codeExample": "useEffect(() => {\n  // This runs once when component mounts\n  fetchData();\n}, []); // Empty array = run once",
+      "task": "Import useEffect and add a useEffect hook that runs once on mount. Inside it, just call `console.log('Fetching user data...')` for now.\n\nMake sure to pass an empty dependency array so it only runs once.",
       "validation": {
         "type": "code-contains",
         "checks": [
-          "async",
-          "fetchUser",
-          "try",
-          "catch"
+          "useEffect",
+          "console.log",
+          "Fetching user data"
         ]
-      }
+      },
+      "hints": [
+        "Import: import { useState, useEffect } from 'react'",
+        "Use the pattern: useEffect(() => { ... }, [])",
+        "The empty array [] is crucial - it means 'run once on mount'"
+      ]
     },
     {
       "stepNumber": 3,
-      "title": "Implement the Fetch Logic in the Try Block",
-      "explanation": "Inside the try block, we set loading to true, fetch the data, parse the JSON response, update our state with the data, and then set loading back to false. We also clear any previous errors. The fetch API returns a Promise that resolves to a Response object, which we then parse as JSON.",
-      "codeExample": "try {\n  setLoading(true);\n  setError(null);\n  const response = await fetch(url);\n  const data = await response.json();\n  setData(data);\n  setLoading(false);\n}",
-      "task": "In the try block of your `fetchUser` function, fetch data from `https://jsonplaceholder.typicode.com/users/1`, parse it as JSON, and update the state. Set loading to `true` at the start and `false` at the end, and clear any previous error.",
-      "hints": [
-        "Use await with fetch() to wait for the response",
-        "Use await again with response.json() to parse the JSON",
-        "Remember to set loading to true before fetching and false after",
-        "Set error to null at the beginning to clear any previous errors"
-      ],
+      "title": "Creating the Async Fetch Function",
+      "explanation": "Inside useEffect, you need an async function to fetch data. Here's why:\n\n1. You can't make the useEffect callback itself async (React doesn't support it)\n2. So you define an async function inside the useEffect, then call it immediately\n\nThis pattern is called 'async function inside useEffect' and you'll see it everywhere in React codebases.\n\nThe fetch flow:\n1. Call fetch() with your URL\n2. Check if response.ok (status 200-299)\n3. Parse the JSON with response.json()\n4. Update state with the data\n\nThe try/catch wrapper handles network errors, 404s, JSON parsing errors, etc.",
+      "codeExample": "useEffect(() => {\n  const fetchData = async () => {\n    try {\n      const response = await fetch('https://api.example.com/data');\n      if (!response.ok) throw new Error('Failed to fetch');\n      const result = await response.json();\n      setData(result);\n    } catch (err) {\n      setError(err.message);\n    }\n  };\n  fetchData();\n}, []);",
+      "task": "Replace the console.log in your useEffect with an async function called `fetchUser` that:\n1. Uses try/catch for error handling\n2. Fetches from 'https://jsonplaceholder.typicode.com/users/1'\n3. Checks if response.ok, throws error if not: `throw new Error('Failed to fetch user')`\n4. Parses the JSON and stores it in the `user` state with `setUser`\n5. If an error occurs, store the error message in the `error` state with `setError`\n6. Calls itself immediately after being defined\n\nDon't worry about updating loading state yet.",
       "validation": {
         "type": "code-contains",
         "checks": [
-          "setLoading(true)",
-          "setError(null)",
-          "await fetch",
-          "await response.json()",
+          "fetchUser",
+          "async",
+          "try",
+          "catch",
+          "fetch",
+          "jsonplaceholder",
+          "response.ok",
           "setUser",
-          "setLoading(false)"
+          "setError"
         ]
-      }
+      },
+      "hints": [
+        "Define the async function inside the useEffect",
+        "Use pattern: const fetchUser = async () => { try { ... } catch (err) { setError(err.message); } }",
+        "Don't forget to call fetchUser() after defining it"
+      ]
     },
     {
       "stepNumber": 4,
-      "title": "Handle Errors in the Catch Block",
-      "explanation": "When a fetch fails (network error, invalid URL, JSON parsing error, etc.), the catch block executes. Here we capture the error, store it in state so we can display it to the user, and ensure loading is set to false so the UI doesn't stay in a loading state indefinitely.",
-      "codeExample": "catch (err) {\n  setError(err.message || 'Something went wrong');\n  setLoading(false);\n}",
-      "task": "In the catch block, save the error message to the error state and set loading to false. Use `err.message` for the error message, with a fallback to 'Failed to fetch user'.",
-      "hints": [
-        "The catch parameter (err) is the error object",
-        "Error objects have a .message property with the error description",
-        "You can use the OR operator (||) to provide a fallback message",
-        "Don't forget to set loading to false so the loading indicator stops"
-      ],
+      "title": "Managing Loading State",
+      "explanation": "Loading state should be updated at two points:\n\n1. **Before the fetch**: It's already true from the initial state\n2. **After the fetch completes**: Set it to false in a `finally` block\n\nThe `finally` block is perfect for this because it runs whether the fetch succeeds OR fails. This ensures loading is always set to false once the operation completes, preventing stuck loading spinners.\n\nStructure:\n```\ntry {\n  // fetch and update data\n} catch (err) {\n  // handle error\n} finally {\n  // always runs - perfect for cleanup\n  setLoading(false);\n}\n```",
+      "codeExample": "try {\n  const data = await fetchData();\n  setData(data);\n} catch (err) {\n  setError(err.message);\n} finally {\n  setLoading(false); // Always runs\n}",
+      "task": "Add a `finally` block to your try/catch that sets loading to false.\n\nThis ensures the loading state is updated whether the fetch succeeds or fails.",
       "validation": {
         "type": "code-contains",
         "checks": [
-          "catch",
-          "setError",
-          "message",
-          "setLoading(false)"
+          "finally",
+          "setLoading",
+          "false"
         ]
-      }
+      },
+      "hints": [
+        "Add finally after your catch block",
+        "Inside finally, call setLoading(false)",
+        "Structure: try { ... } catch { ... } finally { ... }"
+      ]
     },
     {
       "stepNumber": 5,
-      "title": "Display Loading, Error, and Data States",
-      "explanation": "Good UX requires showing different UI based on the current state. If loading, show a loading message. If there's an error, display it. Otherwise, show the data. This pattern of conditional rendering is fundamental in React applications.",
-      "codeExample": "if (loading) return <div>Loading...</div>;\nif (error) return <div>Error: {error}</div>;\nif (!data) return <div>No data</div>;\nreturn <div>{data.name}</div>;",
-      "task": "Add conditional rendering to your component's return statement. Show 'Loading...' when loading is true, show the error message when there's an error, show 'No user loaded' when there's no user data, and display the user's name when data is available. Also include a button with text 'Fetch User' that calls the fetchUser function.",
-      "hints": [
-        "Use if statements or conditional (ternary) operators",
-        "Check loading first, then error, then whether data exists",
-        "The user object from the API has a 'name' property",
-        "The button should have an onClick handler that calls fetchUser"
-      ],
+      "title": "Conditional Rendering Based on State",
+      "explanation": "Now that you're managing loading, error, and data states, you need to render different UI for each:\n\n1. **If loading**: Show a loading message\n2. **Else if error**: Show the error message\n3. **Else if data exists**: Show the data\n4. **Else**: Show nothing or a default message\n\nThis is called 'conditional rendering' and it's crucial for good UX. Users should always know what's happening:\n- Waiting? See a spinner or 'Loading...'\n- Error? See what went wrong\n- Success? See the data\n\nThe order matters! Check loading first (most temporary state), then error, then data.",
+      "codeExample": "if (loading) return <div>Loading...</div>;\nif (error) return <div>Error: {error}</div>;\nif (!data) return null;\nreturn <div>{data.name}</div>;",
+      "task": "Update your component's return statement to show:\n1. If loading is true: Show a `<div>Loading user...</div>`\n2. Else if error exists: Show a `<div>Error: {error}</div>`\n3. Else if user exists: Show a `<div>` containing an `<h2>` with the user's name and a `<p>` with the user's email\n4. Else: return null\n\nUse early returns for cleaner code.",
       "validation": {
         "type": "code-contains",
         "checks": [
+          "if",
           "loading",
+          "Loading user",
           "error",
-          "button",
-          "onClick",
-          "fetchUser"
+          "Error:",
+          "user.name",
+          "user.email"
         ]
-      }
-    }
-  ],
-  "starterCode": "import { useState } from 'react';\n\nexport default function FetchWithTryCatch() {\n  // Your code here\n\n  return (\n    <div>\n      <h2>Fetch User Data</h2>\n      {/* Your UI here */}\n    </div>\n  );\n}",
-  "solutionCode": "import { useState } from 'react';\n\nexport default function FetchWithTryCatch() {\n  const [user, setUser] = useState(null);\n  const [loading, setLoading] = useState(false);\n  const [error, setError] = useState(null);\n\n  const fetchUser = async () => {\n    try {\n      setLoading(true);\n      setError(null);\n      const response = await fetch('https://jsonplaceholder.typicode.com/users/1');\n      const data = await response.json();\n      setUser(data);\n      setLoading(false);\n    } catch (err) {\n      setError(err.message || 'Failed to fetch user');\n      setLoading(false);\n    }\n  };\n\n  if (loading) return <div>Loading...</div>;\n  if (error) return <div>Error: {error}</div>;\n\n  return (\n    <div>\n      <h2>Fetch User Data</h2>\n      <button onClick={fetchUser}>Fetch User</button>\n      {user ? (\n        <div>\n          <p>Name: {user.name}</p>\n          <p>Email: {user.email}</p>\n        </div>\n      ) : (\n        <div>No user loaded</div>\n      )}\n    </div>\n  );\n}",
-  "filePath": "src/exercises/FetchWithTryCatch.tsx",
-  "browserTests": [
-    {
-      "name": "Button exists with correct text",
-      "selector": "button:has-text('Fetch User')",
-      "exists": true
-    },
-    {
-      "name": "Initial state shows no user loaded",
-      "selector": "div:has-text('No user loaded')",
-      "exists": true
-    },
-    {
-      "name": "Clicking button fetches and displays user",
-      "selector": "button:has-text('Fetch User')",
-      "action": "click",
-      "then": {
-        "selector": "p:has-text('Name:')",
-        "exists": true
-      }
-    },
-    {
-      "name": "User name is displayed after fetch",
-      "selector": "button:has-text('Fetch User')",
-      "action": "click",
-      "then": {
-        "selector": "div",
-        "contains": "Leanne Graham"
-      }
+      },
+      "hints": [
+        "Use early returns: if (loading) return <div>Loading user...</div>;",
+        "Check states in order: loading, error, then data",
+        "Access user properties with user.name and user.email"
+      ]
     }
   ]
 }

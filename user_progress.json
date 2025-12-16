@@ -24,7 +24,7 @@
     },
     {
       "tutorialId": "react-fetch-trycatch",
-      "title": "Fetch API with Try/Catch in React",
+      "title": "Data Fetching with useEffect and Try/Catch",
       "currentStep": 6,
       "completedSteps": [
         1,
@@ -33,8 +33,8 @@
         4,
         5
       ],
-      "startedAt": "2025-12-08T20:42:10.607Z",
-      "lastActivity": "2025-12-09T00:25:16.189Z"
+      "startedAt": "2025-12-15T23:35:55.188Z",
+      "lastActivity": "2025-12-16T06:14:15.783Z"
     },
     {
       "tutorialId": "react-reactquery",
@@ -90,6 +90,20 @@
       ],
       "startedAt": "2025-12-13T20:00:20.035Z",
       "lastActivity": "2025-12-14T21:56:44.893Z"
+    },
+    {
+      "tutorialId": "react-flexbox-basics",
+      "title": "CSS Flexbox Basics for Layout",
+      "currentStep": 6,
+      "completedSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "startedAt": "2025-12-16T17:59:17.009Z",
+      "lastActivity": "2025-12-16T18:44:22.305Z"
     }
   ],
   "exercises": [
@@ -486,6 +500,39 @@
       "date": "2025-12-15T22:38:00.821Z",
       "testsPassed": 6,
       "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-16T19:33:34.352Z",
+      "testsPassed": 5,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": false,
+      "date": "2025-12-16T19:36:02.838Z",
+      "testsPassed": 5,
+      "testsTotal": 7,
+      "hintsUsed": 0,
+      "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-form-validator",
+      "title": "Form Validator",
+      "environment": "react",
+      "passed": true,
+      "date": "2025-12-16T19:37:49.696Z",
+      "testsPassed": 7,
+      "testsTotal": 7,
       "hintsUsed": 0,
       "solutionViewed": false
     }

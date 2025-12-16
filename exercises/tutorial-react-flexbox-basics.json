@@ -1,0 +1,107 @@
+{
+  "title": "CSS Flexbox Basics for Layout",
+  "description": "Learn the essential CSS Flexbox properties for positioning and aligning elements on the screen. This tutorial covers the most commonly used layout patterns you'll encounter in interviews.",
+  "environment": "react",
+  "filePath": "src/exercises/FlexboxBasics.tsx",
+  "starterCode": "export default function FlexboxBasics() {\n  return (\n    <div>\n      <h1>Flexbox Layout</h1>\n    </div>\n  );\n}",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Creating a Flex Container",
+      "explanation": "Flexbox works with two concepts: the **flex container** (parent) and **flex items** (children).\n\nTo start using Flexbox, you set `display: flex` on the parent container. This automatically makes all direct children flex items that can be positioned with flex properties.\n\nBy default, flex items:\n- Line up in a row (horizontal)\n- Start at the left edge\n- Stretch to fill the container's height\n\nThink of the container as the 'director' that controls how its children are arranged. Once you set `display: flex`, you unlock powerful layout properties.",
+      "codeExample": "// In your component\nreturn (\n  <div style={{ display: 'flex' }}>\n    <div>Item 1</div>\n    <div>Item 2</div>\n    <div>Item 3</div>\n  </div>\n);",
+      "task": "Create a component that:\n1. Has a main `div` with inline style `{{ display: 'flex' }}`\n2. Inside that div, create three child `div` elements with text 'Box 1', 'Box 2', and 'Box 3'\n3. Give each child div an inline style with `{{ padding: '20px', background: '#e0e0e0', margin: '5px' }}` so you can see them\n\nYou should see three boxes lined up horizontally.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "display: 'flex'",
+          "Box 1",
+          "Box 2",
+          "Box 3"
+        ]
+      },
+      "hints": [
+        "Use inline styles in React: style={{ display: 'flex' }}",
+        "Create three separate div elements inside the flex container",
+        "Each child needs the padding/background/margin style to be visible"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Centering Items with justify-content",
+      "explanation": "The `justify-content` property controls alignment along the **main axis** (horizontal by default).\n\nCommon values:\n- `flex-start` - items at the start (default)\n- `center` - items in the center\n- `flex-end` - items at the end\n- `space-between` - items spread out with space between them\n- `space-around` - items with equal space around them\n\nThis is the property you'll use most for horizontal centering. Want to center something horizontally? Use `justify-content: center`.",
+      "codeExample": "// Centering items horizontally\n<div style={{ display: 'flex', justifyContent: 'center' }}>\n  <div>Centered!</div>\n</div>",
+      "task": "Update your flex container to add `justifyContent: 'center'` to the inline style.\n\nYour three boxes should now be centered horizontally on the screen.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "justifyContent",
+          "center"
+        ]
+      },
+      "hints": [
+        "In React inline styles, use camelCase: justifyContent instead of justify-content",
+        "Add it to the same style object: {{ display: 'flex', justifyContent: 'center' }}",
+        "The boxes should move from the left edge to the center"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Vertical Centering with align-items",
+      "explanation": "The `align-items` property controls alignment along the **cross axis** (vertical by default).\n\nCommon values:\n- `stretch` - items stretch to fill container (default)\n- `flex-start` - items at the top\n- `center` - items vertically centered\n- `flex-end` - items at the bottom\n\nTo perfectly center something both horizontally AND vertically, use:\n```css\ndisplay: flex;\njustify-content: center;  /* horizontal */\nalign-items: center;      /* vertical */\n```\n\nThis is the most common interview pattern for centering!",
+      "codeExample": "// Centering both ways\n<div style={{ \n  display: 'flex', \n  justifyContent: 'center',\n  alignItems: 'center',\n  height: '200px'\n}}>\n  <div>Perfectly centered!</div>\n</div>",
+      "task": "Update your flex container to:\n1. Add `alignItems: 'center'` to center items vertically\n2. Add `height: '300px'` so there's vertical space to see the centering\n\nYour boxes should now be centered both horizontally and vertically.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "alignItems",
+          "center",
+          "height"
+        ]
+      },
+      "hints": [
+        "Use camelCase: alignItems instead of align-items",
+        "You need both justifyContent and alignItems for full centering",
+        "The height gives vertical space to see the alignment"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Changing Direction with flex-direction",
+      "explanation": "The `flex-direction` property changes the main axis direction.\n\nValues:\n- `row` - horizontal (default)\n- `column` - vertical\n- `row-reverse` - horizontal, reversed\n- `column-reverse` - vertical, reversed\n\nWhen you switch to `flex-direction: column`:\n- Items stack vertically\n- `justify-content` now controls VERTICAL alignment\n- `align-items` now controls HORIZONTAL alignment\n\nThey swap! This confuses people at first, but remember: justify-content always works on the main axis.",
+      "codeExample": "// Vertical stacking\n<div style={{ \n  display: 'flex',\n  flexDirection: 'column'\n}}>\n  <div>First</div>\n  <div>Second</div>\n  <div>Third</div>\n</div>",
+      "task": "Change your flex container to:\n1. Use `flexDirection: 'column'` to stack items vertically\n2. Keep the other properties (justifyContent, alignItems, height)\n\nNow your boxes should be stacked vertically and centered.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "flexDirection",
+          "column"
+        ]
+      },
+      "hints": [
+        "Use camelCase: flexDirection instead of flex-direction",
+        "With column direction, items stack top to bottom",
+        "The centering still works, but now justify-content centers vertically"
+      ]
+    },
+    {
+      "stepNumber": 5,
+      "title": "Spacing with gap",
+      "explanation": "The `gap` property adds space between flex items automatically, without needing margins.\n\nThis is much cleaner than using margins on each child. You can use:\n- `gap: '20px'` - same gap in all directions\n- `gap: '20px 10px'` - different vertical and horizontal gaps (row-gap column-gap)\n\nThe `gap` property is modern and widely supported. It's the easiest way to add consistent spacing.\n\nFor interviews, knowing `gap` makes your CSS cleaner and shows you know modern CSS.",
+      "codeExample": "// Adding space between items\n<div style={{ \n  display: 'flex',\n  gap: '20px'\n}}>\n  <div>Item 1</div>\n  <div>Item 2</div>\n</div>",
+      "task": "Update your flex container:\n1. Remove the `margin: '5px'` from your child boxes (if you added it)\n2. Add `gap: '20px'` to your flex container style instead\n\nYou should see consistent spacing between your boxes, controlled by the parent.",
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "gap",
+          "20px"
+        ]
+      },
+      "hints": [
+        "Add gap to the flex container, not the children",
+        "Use gap: '20px' in the inline style object",
+        "Gap automatically adds space between items, not around them"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "react-form-validator-test",
+  "title": "Form Validator Test",
+  "environment": "react",
+  "filePath": "src/exercises/FormValidatorTest.tsx",
+  "description": "Test exercise with vague requirements to demonstrate the validation tool.",
+  "requirements": [
+    "Use React.useState to manage email input (starting as empty string)",
+    "Use React.useState to manage password input (starting as empty string)",
+    "Render an email input field (type='email')",
+    "Render a password input field (type='password')",
+    "Render a submit button with text 'Submit'",
+    "Show an error message if email is invalid",
+    "Show an error message if password is too short",
+    "Error messages should appear as paragraph elements",
+    "Export the FormValidator component as the default export"
+  ],
+  "browserTests": [
+    {
+      "name": "Email input is present",
+      "selector": "input[type='email']",
+      "exists": true
+    },
+    {
+      "name": "Password input is present",
+      "selector": "input[type='password']",
+      "exists": true
+    },
+    {
+      "name": "Submit button is present",
+      "selector": "button",
+      "expected": "Submit"
+    },
+    {
+      "name": "Shows email error for invalid email",
+      "actions": [
+        { "selector": "input[type='email']", "action": "type", "value": "notanemail" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "@"
+      }
+    },
+    {
+      "name": "No email error when valid email typed",
+      "actions": [
+        { "selector": "input[type='email']", "action": "type", "value": "test@example.com" }
+      ],
+      "then": {
+        "selector": "p",
+        "exists": false
+      }
+    },
+    {
+      "name": "Shows password error for short password",
+      "actions": [
+        { "selector": "input[type='password']", "action": "type", "value": "short" }
+      ],
+      "then": {
+        "selector": "p",
+        "contains": "8"
+      }
+    },
+    {
+      "name": "No password error when long enough",
+      "actions": [
+        { "selector": "input[type='password']", "action": "type", "value": "longpassword" }
+      ],
+      "then": {
+        "selector": "p",
+        "exists": false
+      }
+    }
+  ]
+}

@@ -17,39 +17,53 @@
 
 import { useState } from 'react';
 
-const emailError = "Email does not contain '@'"
-const passwordError = "Password needs to be at least 8 characters"
-
 function FormValidator() {
   const [email,setEmail] = useState("")
   const [password,setPassword] = useState("")
-  // const [error,setError] = useState<string[]>([])
-
-  // const handleSubmit = () => {
-  //   console.log('Submit')
-  //   let messages:string[] = []
-  //   if (!email.includes('@')) {
-  //     console.log('bad email')
-  //     messages = [...messages,emailError]
-  //   }
-  //   if (password.length < 8 && password.length > 0) {
-  //     messages = [...messages,passwordError]
-  //   }
-  //   console.log('Messages: ',messages)
-  //   setError(messages)
-  // }
-
+  const [errors,setErrors] = useState({email:'',password:''})
+  const submitHandler = (e) => {
+    e.preventDefault()
+    let isValid = true
+    if (email.length > 0 && !email.includes('@')){
+      setErrors(prev=>({...prev,email:'Please enter valid email'}))
+      isValid=false
+    }
+    if (password.length > 0 && password.length < 8) {
+      setErrors(prev=>({...prev,password:'Please enter a valid password'}))
+      isValid=false
+    }
+    if (isValid) {
+      console.log('Email is: ',email,'. Password is: ',password)
+    }
+  }
   return (
     <div>
       <h2>Sign Up Form</h2>
-      <input type='email' value={email} onChange={(e)=>setEmail(e.currentTarget.value)}/>
-      <input type='password' value={password} onChange={(e)=>setPassword(e.currentTarget.value)}/>
-      <button>Submit</button>
-      {email.length > 0 && !email.includes('@') && <p>{emailError}</p>}
-      {password.length < 8 && password.length > 0 && <p>{passwordError}</p>}
-      {/* {error.map(m => {
-        return <p>{m}</p>
-      })} */}
+      <form onSubmit={submitHandler} noValidate>
+        <input
+          type="email"
+          value={email}
+          onChange={(e)=>{
+            setErrors(prev=>({...prev,'email':''}))
+            setEmail(e.currentTarget.value)
+          }}
+          required
+          placeholder='Email'
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e)=>{
+            setErrors(prev=>({...prev,'password':''}))
+            setPassword(e.currentTarget.value)
+          }}          
+          required
+          placeholder='Password'
+        />
+        <button type="submit">Submit</button>
+        {(email.length > 0 && !email.includes('@')) && <p>Please enter valid email with a @</p>}
+        {(password.length > 0 && password.length < 8) && <p>Please enter a valid password at least 8 characters</p>}
+      </form>
     </div>
   );
 }

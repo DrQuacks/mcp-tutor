@@ -1,0 +1,61 @@
+{
+  "id": "react-card-layout",
+  "title": "Responsive Card Layout with Flexbox",
+  "description": "Build a card grid layout using Flexbox. Practice centering, spacing, and creating a common UI pattern seen in interviews.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "beginner",
+  "estimatedTime": "20 minutes",
+  "category": "css-layout",
+  "concepts": ["flexbox", "CSS layout", "centering", "responsive design"],
+  "starterCode": "export default function CardLayout() {\n  const cards = [\n    { id: 1, title: 'Card 1', description: 'First card description' },\n    { id: 2, title: 'Card 2', description: 'Second card description' },\n    { id: 3, title: 'Card 3', description: 'Third card description' },\n    { id: 4, title: 'Card 4', description: 'Fourth card description' },\n  ];\n\n  return (\n    <div>\n      <h1>Card Layout</h1>\n      {/* TODO: Build your card grid here */}\n    </div>\n  );\n}\n",
+  "solutionCode": "export default function CardLayout() {\n  const cards = [\n    { id: 1, title: 'Card 1', description: 'First card description' },\n    { id: 2, title: 'Card 2', description: 'Second card description' },\n    { id: 3, title: 'Card 3', description: 'Third card description' },\n    { id: 4, title: 'Card 4', description: 'Fourth card description' },\n  ];\n\n  return (\n    <div style={{ padding: '20px' }}>\n      <h1 style={{ textAlign: 'center' }}>Card Layout</h1>\n      <div style={{\n        display: 'flex',\n        justifyContent: 'center',\n        alignItems: 'center',\n        minHeight: '400px',\n        gap: '20px',\n        flexWrap: 'wrap'\n      }}>\n        {cards.map(card => (\n          <div\n            key={card.id}\n            style={{\n              width: '200px',\n              padding: '20px',\n              border: '1px solid #ccc',\n              borderRadius: '8px',\n              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',\n              display: 'flex',\n              flexDirection: 'column',\n              justifyContent: 'space-between'\n            }}\n          >\n            <h3 style={{ margin: '0 0 10px 0' }}>{card.title}</h3>\n            <p style={{ margin: '0', color: '#666' }}>{card.description}</p>\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Create a main container div with centered h1 heading 'Card Layout'",
+    "Create a flex container that centers its contents both horizontally and vertically",
+    "The flex container should have a minimum height of 400px",
+    "Use flexWrap: 'wrap' to allow cards to wrap to new lines",
+    "Add gap of 20px between cards",
+    "Map over the cards array and create a card div for each item",
+    "Each card should have width of 200px",
+    "Each card should display the title in an h3 element",
+    "Each card should display the description in a p element",
+    "Cards should have border, borderRadius, and boxShadow styling",
+    "Cards should use flexDirection: 'column' internally",
+    "Use inline styles (style prop) for all styling"
+  ],
+  "browserTests": [
+    {
+      "name": "Page heading exists",
+      "selector": "h1",
+      "expected": "Card Layout"
+    },
+    {
+      "name": "All 4 cards are rendered",
+      "selector": "h3",
+      "count": 4
+    },
+    {
+      "name": "Card 1 title is displayed",
+      "selector": "h3",
+      "contains": "Card 1"
+    },
+    {
+      "name": "Card descriptions are rendered",
+      "selector": "p",
+      "count": 4
+    },
+    {
+      "name": "First card has description",
+      "selector": "p",
+      "contains": "First card description"
+    }
+  ],
+  "hints": {
+    "container": "Create a flex container with display: 'flex', justifyContent: 'center', alignItems: 'center'",
+    "wrapping": "Use flexWrap: 'wrap' to allow cards to wrap to multiple rows",
+    "mapping": "Use cards.map(card => <div key={card.id}>...</div>) to create cards",
+    "cardStyle": "Each card needs width, padding, border, borderRadius, and boxShadow",
+    "cardLayout": "Inside each card, use flexDirection: 'column' to stack title and description"
+  }
+}

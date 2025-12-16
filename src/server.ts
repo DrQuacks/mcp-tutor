@@ -24,6 +24,7 @@ import { tutorValidateResponse } from "./tools/tutorValidateResponse.js";
 import { tutorValidateTutorialJSON } from "./tools/tutorValidateTutorialJSON.js";
 import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
 import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js";
+import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExerciseRequirements.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -438,6 +439,15 @@ async function main() {
       }),
     },
     async (params) => tutorRespondToStudent(params)
+  );
+
+  server.registerTool(
+    "tutor_validate_exercise_requirements",
+    {
+      description: tutorValidateExerciseRequirements.description,
+      inputSchema: tutorValidateExerciseRequirements.inputSchema,
+    },
+    async (params) => tutorValidateExerciseRequirements.execute(params)
   );
 
   const transport = new StdioServerTransport();
