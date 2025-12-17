@@ -45,3 +45,47 @@ export async function stopViteServer(): Promise<void> {
     console.error("[mcp-tutor] Vite dev server stopped");
   }
 }
+
+/**
+ * Check if the external Vite dev server is running on port 5174
+ * (This is separate from the programmatic server above)
+ */
+export async function checkExternalViteServer(): Promise<{ 
+  running: boolean; 
+  port?: number;
+  message: string;
+}> {
+  // Try port 5174 first (most common)
+  const ports = [5174, 5173, 5175, 5176];
+  
+  for (const port of ports) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      
+      const response = await fetch(`http://localhost:${port}`, {
+        signal: controller.signal,
+        headers: { 'Accept': 'text/html' }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      // Vite server should respond with HTML or at least respond successfully
+      if (response.ok || response.status === 404 || response.status === 304) {
+        return {
+          running: true,
+          port,
+          message: `✅ Vite dev server is running on http://localhost:${port}`
+        };
+      }
+    } catch (error: any) {
+      // If aborted due to timeout or connection refused, try next port
+      continue;
+    }
+  }
+  
+  return {
+    running: false,
+    message: '⚠️ Vite dev server is not running.\n\nTo start it, run:\n  cd environments/react/template\n  npm run dev\n\nOr the server will start automatically when you visit http://localhost:5174 in your browser.'
+  };
+}

@@ -1,11 +1,11 @@
 import './App.css'
-import FormValidator from './exercises/FormValidator'
+import EffectLifecycle from './exercises/EffectLifecycle'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Form Validator</h1>
-      <FormValidator />
+      <h1>Tutorial: useEffect and Component Lifecycle</h1>
+      <EffectLifecycle />
     </div>
   )
 }

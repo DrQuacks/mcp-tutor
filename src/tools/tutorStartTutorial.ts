@@ -8,6 +8,7 @@ import { EXERCISES_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getTutorialProgress, updateTutorialProgress } from "../shared/progress.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
+import { checkExternalViteServer } from "../shared/vite.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
 
 export async function tutorStartTutorial({
@@ -40,6 +41,18 @@ export async function tutorStartTutorial({
   if (progress) {
     currentStepNumber = progress.currentStep;
     completedSteps = progress.completedSteps;
+  }
+
+  // For React tutorials, check if Vite server is running
+  let serverMessage = '';
+  if (tutorialData.environment === "react") {
+    const serverStatus = await checkExternalViteServer();
+    serverMessage = serverStatus.message;
+    
+    // If server not running, include warning in response
+    if (!serverStatus.running) {
+      serverMessage = `\n\n${serverStatus.message}\n\n⚠️ The tutorial will work, but you won't see live updates in the browser until the server is running.`;
+    }
   }
 
   // Create starter file if this is the first step
@@ -108,6 +121,7 @@ export default App
           completedSteps: completedSteps,
           task: filterCopyPasteSolutions(currentStep.task),
           filePath: tutorialData.filePath,
+          serverStatus: serverMessage, // Include server status
         }, null, 2),
       },
     ],

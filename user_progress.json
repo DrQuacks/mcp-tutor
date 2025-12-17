@@ -104,6 +104,14 @@
       ],
       "startedAt": "2025-12-16T17:59:17.009Z",
       "lastActivity": "2025-12-16T18:44:22.305Z"
+    },
+    {
+      "tutorialId": "react-useeffect-lifecycle",
+      "title": "useEffect and Component Lifecycle",
+      "currentStep": 1,
+      "completedSteps": [],
+      "startedAt": "2025-12-17T06:13:20.768Z",
+      "lastActivity": "2025-12-17T06:30:20.022Z"
     }
   ],
   "exercises": [
