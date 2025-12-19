@@ -14,101 +14,72 @@ export async function tutorGenerateSessionState(): Promise<ToolResponse> {
   try {
     // Load current progress
     const userProgress = await loadProgress();
-    
-    // Load interview progress if exists
-    let interviewProgress: any = null;
-    try {
-      const content = await fs.readFile(INTERVIEW_PROGRESS_FILE, "utf8");
-      interviewProgress = JSON.parse(content);
-    } catch {
-      // Interview progress not available
+
+    // Find the most recent activity by timestamp
+    let mostRecentActivity: any = null;
+    let mostRecentTimestamp = 0;
+
+    // Check most recent tutorial
+    if (userProgress.tutorials.length > 0) {
+      const sortedTutorials = [...userProgress.tutorials].sort(
+        (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()
+      );
+      const latestTutorial = sortedTutorials[0];
+      const tutorialTime = new Date(latestTutorial.lastActivity).getTime();
+      if (tutorialTime > mostRecentTimestamp) {
+        mostRecentTimestamp = tutorialTime;
+        mostRecentActivity = {
+          type: "tutorial",
+          data: latestTutorial
+        };
+      }
     }
 
-    // Determine current activity
-    const inProgressTutorials = userProgress.tutorials.filter(
-      t => t.completedSteps.length > 0 && t.completedSteps.length < t.currentStep
-    );
-    
-    const recentExercises = userProgress.exercises.slice(-5);
-    const lastExercise = recentExercises[recentExercises.length - 1];
-    
-    // Get recent completed tutorials
-    const completedTutorials = userProgress.tutorials
-      .filter(t => {
-        // Tutorial is complete if currentStep > total steps
-        return t.currentStep > t.completedSteps.length + 1;
-      })
-      .slice(-3)
-      .map(t => `${t.tutorialId} (${t.title})`);
+    // Check most recent exercise
+    if (userProgress.exercises.length > 0) {
+      const latestExercise = userProgress.exercises[userProgress.exercises.length - 1];
+      const exerciseTime = new Date(latestExercise.date).getTime();
+      if (exerciseTime > mostRecentTimestamp) {
+        mostRecentTimestamp = exerciseTime;
+        mostRecentActivity = {
+          type: "exercise",
+          data: latestExercise
+        };
+      }
+    }
 
-    // Get in-progress exercises
-    const inProgressExercises = recentExercises
-      .filter(e => !e.passed && e.testsPassed > 0)
-      .map(e => `${e.exerciseId} (${e.testsPassed}/${e.testsTotal} tests passing)`);
-
-    // Get completed exercises
-    const completedExercises = userProgress.exercises
-      .filter(e => e.passed)
-      .reduce((acc, e) => {
-        if (!acc.includes(e.exerciseId)) {
-          acc.push(`${e.exerciseId} (${e.title})`);
-        }
-        return acc;
-      }, [] as string[]);
-
-    // Determine phase and next steps
-    let phase = "planning";
-    let activityType = "general";
+    // Build current activity description
     let description = "Ready to start new work";
+    let activityType = "general";
+    let phase = "planning";
     const nextSteps: string[] = [];
 
-    if (interviewProgress?.interviewPrep) {
-      activityType = "interview-prep";
-      const stats = interviewProgress.stats;
-      
-      if (stats.tutorialsCompleted === stats.tutorialsTotal && stats.exercisesCompleted === 0) {
-        phase = "tutorials-completed";
-        description = "All interview prep tutorials completed. Ready to start exercises.";
-        interviewProgress.interviewPrep.topics.forEach((topic: any) => {
-          if (!topic.exercise.completed) {
-            nextSteps.push(
-              `Start ${topic.exercise.id} exercise (${topic.exercise.title} - ${topic.exercise.testsTotal} tests)`
-            );
-          }
-        });
-      } else if (stats.exercisesCompleted === stats.exercisesTotal) {
-        phase = "completed";
-        description = "All interview prep tutorials and exercises completed!";
-        nextSteps.push("Review completed exercises");
-        nextSteps.push("Practice weak areas");
-      } else {
-        phase = "in-progress";
-        description = `Interview prep in progress: ${stats.tutorialsCompleted}/${stats.tutorialsTotal} tutorials, ${stats.exercisesCompleted}/${stats.exercisesTotal} exercises completed.`;
+    if (mostRecentActivity) {
+      if (mostRecentActivity.type === "tutorial") {
+        const tutorial = mostRecentActivity.data;
+        const isInProgress = tutorial.completedSteps.length < tutorial.currentStep;
+        
+        if (isInProgress) {
+          activityType = "tutorial";
+          phase = "in-progress";
+          description = `Working on ${tutorial.title} - Step ${tutorial.currentStep}`;
+          nextSteps.push(`Resume ${tutorial.tutorialId} at step ${tutorial.currentStep}`);
+          nextSteps.push(`File: environments/react/template/src/exercises/`);
+        } else {
+          description = `Last completed: ${tutorial.title}`;
+        }
+      } else if (mostRecentActivity.type === "exercise") {
+        const exercise = mostRecentActivity.data;
+        
+        if (!exercise.passed) {
+          activityType = "exercise";
+          phase = "in-progress";
+          description = `Working on ${exercise.title} - ${exercise.testsPassed}/${exercise.testsTotal} tests passing`;
+          nextSteps.push(`Resume ${exercise.exerciseId}`);
+        } else {
+          description = `Last completed: ${exercise.title}`;
+        }
       }
-    } else if (inProgressTutorials.length > 0) {
-      activityType = "tutorial";
-      phase = "in-progress";
-      const tutorial = inProgressTutorials[0];
-      description = `Working on ${tutorial.title} (step ${tutorial.currentStep})`;
-      nextSteps.push(`Continue tutorial: ${tutorial.tutorialId}`);
-    } else if (lastExercise && !lastExercise.passed) {
-      activityType = "exercise";
-      phase = "in-progress";
-      description = `Working on ${lastExercise.title} (${lastExercise.testsPassed}/${lastExercise.testsTotal} tests passing)`;
-      nextSteps.push(`Fix failing tests in ${lastExercise.exerciseId}`);
-    }
-
-    // Get last tutorial info
-    const lastTutorial = userProgress.tutorials[userProgress.tutorials.length - 1];
-    let lastTutorialInfo = null;
-    if (lastTutorial) {
-      lastTutorialInfo = {
-        id: lastTutorial.tutorialId,
-        title: lastTutorial.title,
-        completedStep: lastTutorial.completedSteps[lastTutorial.completedSteps.length - 1] || 0,
-        totalSteps: lastTutorial.completedSteps.length,
-        status: lastTutorial.currentStep > lastTutorial.completedSteps.length + 1 ? "completed" : "in-progress"
-      };
     }
 
     // Build session state
@@ -118,34 +89,10 @@ export async function tutorGenerateSessionState(): Promise<ToolResponse> {
         type: activityType,
         phase: phase,
         description: description,
-        nextSteps: nextSteps.length > 0 ? nextSteps : ["Check user_progress.json for next steps"]
+        nextSteps: nextSteps.length > 0 ? nextSteps : ["Check user_progress.json for recent activity"],
+        mostRecentTimestamp: mostRecentTimestamp > 0 ? new Date(mostRecentTimestamp).toISOString() : null
       },
-      recentWork: {
-        completedTutorials: completedTutorials,
-        inProgressExercises: inProgressExercises,
-        completedExercises: completedExercises,
-        lastTutorial: lastTutorialInfo
-      },
-      context: {
-        projectType: "mcp-tutor",
-        description: "AI Code Tutor - MCP server for teaching coding with tutorials and exercises",
-        recentChanges: [
-          "Session state tracking system implemented",
-          "Interview progress tracking synchronized with user_progress.json"
-        ],
-        workingDirectory: process.cwd(),
-        activeFiles: [
-          "session_state.json",
-          "user_progress.json",
-          "interview_progress.json"
-        ]
-      },
-      notes: [
-        "Use 'Check session_state.json' at start of new chat for instant context",
-        `Total exercise attempts: ${userProgress.exercises.length}`,
-        `Tutorials in progress: ${inProgressTutorials.length}`,
-        `Completed exercises: ${completedExercises.length}`
-      ]
+      mostRecentActivity: mostRecentActivity
     };
 
     // Save session state
@@ -159,21 +106,14 @@ export async function tutorGenerateSessionState(): Promise<ToolResponse> {
     lines.push(`**Activity:** ${sessionState.currentActivity.type}`);
     lines.push(`**Phase:** ${sessionState.currentActivity.phase}`);
     lines.push(`**Description:** ${sessionState.currentActivity.description}`);
+    if (sessionState.currentActivity.mostRecentTimestamp) {
+      lines.push(`**Last Activity:** ${sessionState.currentActivity.mostRecentTimestamp}`);
+    }
     lines.push("");
     lines.push("## Next Steps");
     sessionState.currentActivity.nextSteps.forEach((step, i) => {
       lines.push(`${i + 1}. ${step}`);
     });
-    lines.push("");
-    lines.push("## Recent Work");
-    if (completedTutorials.length > 0) {
-      lines.push("**Completed Tutorials:**");
-      completedTutorials.forEach(t => lines.push(`- ${t}`));
-    }
-    if (completedExercises.length > 0) {
-      lines.push("**Completed Exercises:**");
-      completedExercises.forEach(e => lines.push(`- ${e}`));
-    }
     lines.push("");
     lines.push("📝 **Session state saved to `session_state.json`**");
     lines.push("");
