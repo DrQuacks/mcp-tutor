@@ -122,13 +122,14 @@
     {
       "tutorialId": "react-usememo",
       "title": "useMemo and useCallback - Performance Optimization",
-      "currentStep": 3,
+      "currentStep": 4,
       "completedSteps": [
         1,
-        2
+        2,
+        3
       ],
       "startedAt": "2025-12-21T20:16:13.248Z",
-      "lastActivity": "2025-12-23T00:37:42.754Z"
+      "lastActivity": "2025-12-23T17:37:18.163Z"
     }
   ],
   "exercises": [
