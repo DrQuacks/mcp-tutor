@@ -25,6 +25,7 @@ import { tutorValidateTutorialJSON } from "./tools/tutorValidateTutorialJSON.js"
 import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
 import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js";
 import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExerciseRequirements.js";
+import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialStatuses.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -448,6 +449,15 @@ async function main() {
       inputSchema: tutorValidateExerciseRequirements.inputSchema,
     },
     async (params) => tutorValidateExerciseRequirements.execute(params)
+  );
+
+  server.registerTool(
+    "tutor_list_react_tutorial_statuses",
+    {
+      description: "Lists all React tutorial statuses for the user (not-started, in-progress, completed)",
+      inputSchema: z.object({}),
+    },
+    async () => tutorListReactTutorialStatuses()
   );
 
   const transport = new StdioServerTransport();
