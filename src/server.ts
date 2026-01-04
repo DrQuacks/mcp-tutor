@@ -26,6 +26,7 @@ import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
 import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js";
 import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExerciseRequirements.js";
 import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialStatuses.js";
+import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -476,7 +477,7 @@ async function main() {
         mode: z.enum(["diff", "file"]).optional(),
       }),
     },
-    notImplemented("seniorDev_start_mode")
+    seniorDev_start_mode
   );
 
   server.registerTool(
