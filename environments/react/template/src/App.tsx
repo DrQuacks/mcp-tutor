@@ -1,11 +1,11 @@
 import './App.css'
-import RefMastery from './exercises/RefMastery'
+import RenderCycle from './exercises/RenderCycle'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Tutorial: useRef - Refs and Mutable Values</h1>
-      <RefMastery />
+      <h1>Tutorial: React Render Cycle and Component Lifecycle</h1>
+      <RenderCycle />
     </div>
   )
 }

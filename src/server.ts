@@ -460,6 +460,108 @@ async function main() {
     async () => tutorListReactTutorialStatuses()
   );
 
+  // --- Senior Dev Mode Tool Stubs ---
+  const notImplemented = (tool: string) => async (): Promise<{content: { type: "text"; text: string }[];}> => ({
+    content: [{ type: "text", text: `❌ ${tool} not implemented yet.` }],
+  });
+
+  server.registerTool(
+    "seniorDev_start_mode",
+    {
+      description: "Initialize a Senior Dev Mode session by capturing the code change context.",
+      inputSchema: z.object({
+        files: z.array(z.string()).optional(),
+        fromCommit: z.string().optional(),
+        toCommit: z.string().optional(),
+        mode: z.enum(["diff", "file"]).optional(),
+      }),
+    },
+    notImplemented("seniorDev_start_mode")
+  );
+
+  server.registerTool(
+    "seniorDev_analyze_skills",
+    {
+      description: "Analyze the code changes and extract a list of relevant skills, concepts, and patterns.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+      }),
+    },
+    notImplemented("seniorDev_analyze_skills")
+  );
+
+  server.registerTool(
+    "seniorDev_select_skills",
+    {
+      description: "Allow the user to select which skills/concepts to focus on in the tutorial.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+        selectedSkills: z.array(z.string()),
+      }),
+    },
+    notImplemented("seniorDev_select_skills")
+  );
+
+  server.registerTool(
+    "seniorDev_generate_tutorial",
+    {
+      description: "Break down the code changes into a step-by-step tutorial, grouped by the selected skills.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+        selectedSkills: z.array(z.string()).optional(),
+      }),
+    },
+    notImplemented("seniorDev_generate_tutorial")
+  );
+
+  server.registerTool(
+    "seniorDev_present_step",
+    {
+      description: "Present the current tutorial step to the user, including context and instructions.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+        stepNumber: z.number(),
+      }),
+    },
+    notImplemented("seniorDev_present_step")
+  );
+
+  server.registerTool(
+    "seniorDev_check_step",
+    {
+      description: "Validate the user’s code for the current step.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+        stepNumber: z.number(),
+        files: z.array(z.string()).optional(),
+      }),
+    },
+    notImplemented("seniorDev_check_step")
+  );
+
+  server.registerTool(
+    "seniorDev_finalize_tutorial",
+    {
+      description: "Summarize the session, review all changes, and reinforce the skills learned.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+      }),
+    },
+    notImplemented("seniorDev_finalize_tutorial")
+  );
+
+  server.registerTool(
+    "seniorDev_abort_session",
+    {
+      description: "Allow the user to abort or reset the session.",
+      inputSchema: z.object({
+        sessionId: z.string(),
+      }),
+    },
+    notImplemented("seniorDev_abort_session")
+  );
+  // --- End Senior Dev Mode Tool Stubs ---
+
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
