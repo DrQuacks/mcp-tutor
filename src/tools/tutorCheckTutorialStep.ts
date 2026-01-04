@@ -208,9 +208,11 @@ export async function tutorCheckTutorialStep({
         ]
       };
     } else {
-      lines.push("🎉 **Congratulations!** You've completed the entire tutorial!");
-      lines.push("");
-      lines.push(`**Summary:** Completed all ${tutorialData.steps.length} steps`);
+        // Final step passed: mark tutorial as completed in progress
+        await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
+        lines.push("🎉 **Congratulations!** You've completed the entire tutorial!");
+        lines.push("");
+        lines.push(`**Summary:** Completed all ${tutorialData.steps.length} steps`);
     }
   } else {
     lines.push("Try again! Use `tutor_tutorial_hint` if you need help.");
