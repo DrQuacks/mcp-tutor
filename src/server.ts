@@ -27,6 +27,7 @@ import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js"
 import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExerciseRequirements.js";
 import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialStatuses.js";
 import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
+import { seniorDev_analyze_skills } from "./tools/seniorDev_analyze_skills.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -488,7 +489,7 @@ async function main() {
         sessionId: z.string(),
       }),
     },
-    notImplemented("seniorDev_analyze_skills")
+    seniorDev_analyze_skills
   );
 
   server.registerTool(
