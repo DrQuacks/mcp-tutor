@@ -30,6 +30,7 @@ import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
 import { seniorDev_analyze_skills } from "./tools/seniorDev_analyze_skills.js";
 import { seniorDev_select_skills } from "./tools/seniorDev_select_skills.js";
 import { seniorDev_generate_tutorial } from "./tools/seniorDev_generate_tutorial.js";
+import { seniorDev_present_step } from "./tools/seniorDev_present_step.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -527,7 +528,7 @@ async function main() {
         stepNumber: z.number(),
       }),
     },
-    notImplemented("seniorDev_present_step")
+    seniorDev_present_step
   );
 
   server.registerTool(
