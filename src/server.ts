@@ -29,6 +29,7 @@ import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialSt
 import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
 import { seniorDev_analyze_skills } from "./tools/seniorDev_analyze_skills.js";
 import { seniorDev_select_skills } from "./tools/seniorDev_select_skills.js";
+import { seniorDev_generate_tutorial } from "./tools/seniorDev_generate_tutorial.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -514,7 +515,7 @@ async function main() {
         selectedSkills: z.array(z.string()).optional(),
       }),
     },
-    notImplemented("seniorDev_generate_tutorial")
+    seniorDev_generate_tutorial
   );
 
   server.registerTool(
