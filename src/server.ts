@@ -28,6 +28,7 @@ import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExercise
 import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialStatuses.js";
 import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
 import { seniorDev_analyze_skills } from "./tools/seniorDev_analyze_skills.js";
+import { seniorDev_select_skills } from "./tools/seniorDev_select_skills.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -501,7 +502,7 @@ async function main() {
         selectedSkills: z.array(z.string()),
       }),
     },
-    notImplemented("seniorDev_select_skills")
+    seniorDev_select_skills
   );
 
   server.registerTool(
