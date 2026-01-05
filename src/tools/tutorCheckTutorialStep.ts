@@ -11,6 +11,7 @@ import { getOrStartViteServer } from "../shared/vite.js";
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
+import { formatTutorialStepForUser } from "../shared/tutorialStepBuilder.js";
 
 export async function tutorCheckTutorialStep({
   tutorialId,
@@ -169,61 +170,58 @@ export async function tutorCheckTutorialStep({
     }
   }
 
-  // Build response
-  const lines: string[] = [];
-  lines.push(`## Step ${currentStep.stepNumber}: ${currentStep.title}`);
-  lines.push("");
-  lines.push(feedback);
-  lines.push("");
-
-  if (passed) {
-    // Mark step as complete and advance
-    const newCompletedSteps = [...progress.completedSteps, progress.currentStep];
-    const nextStep = progress.currentStep + 1;
-    
-    if (nextStep <= tutorialData.steps.length) {
-      await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
-      
-      const nextStepData: TutorialStep = tutorialData.steps[nextStep - 1];
-      
-      // Return request for AI to generate generic example and present next step
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-              validationType: "step-complete-present-next",
-              previousStepNumber: currentStep.stepNumber,
-              previousStepTitle: currentStep.title,
-              ...createGenericExampleRequest(
-                nextStepData.title,
-                nextStepData.explanation,
-                nextStepData.task
-              ),
-              stepNumber: nextStepData.stepNumber,
-              task: filterCopyPasteSolutions(nextStepData.task),
-              instruction: "The previous step passed! Generate a generic code example for the new concept, then present Step " + nextStepData.stepNumber + " to the student with your generic example."
-            }, null, 2)
-          }
-        ]
-      };
-    } else {
-        // Final step passed: mark tutorial as completed in progress
-        await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
-        lines.push("🎉 **Congratulations!** You've completed the entire tutorial!");
-        lines.push("");
-        lines.push(`**Summary:** Completed all ${tutorialData.steps.length} steps`);
-    }
-  } else {
-    lines.push("Try again! Use `tutor_tutorial_hint` if you need help.");
+  // Use shared formatter for presenting the current step (if not passing/advancing)
+  if (!passed) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: formatTutorialStepForUser(currentStep) + "\nTry again! Use `tutor_tutorial_hint` if you need help.",
+        },
+      ],
+    };
   }
 
-  return {
-    content: [
-      {
-        type: "text",
-        text: lines.join("\n"),
-      },
-    ],
-  };
+  // Mark step as complete and advance
+  const newCompletedSteps = [...progress.completedSteps, progress.currentStep];
+  const nextStep = progress.currentStep + 1;
+
+  if (nextStep <= tutorialData.steps.length) {
+    await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
+    const nextStepData: TutorialStep = tutorialData.steps[nextStep - 1];
+    // Return request for AI to generate generic example and present next step
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            validationType: "step-complete-present-next",
+            previousStepNumber: currentStep.stepNumber,
+            previousStepTitle: currentStep.title,
+            ...createGenericExampleRequest(
+              nextStepData.title,
+              nextStepData.explanation,
+              nextStepData.task
+            ),
+            stepNumber: nextStepData.stepNumber,
+            task: filterCopyPasteSolutions(nextStepData.task),
+            instruction: "The previous step passed! Generate a generic code example for the new concept, then present Step " + nextStepData.stepNumber + " to the student with your generic example."
+          }, null, 2)
+        }
+      ]
+    };
+  } else {
+    // Final step passed: mark tutorial as completed in progress
+    await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
+    return {
+      content: [
+        {
+          type: "text",
+          text: formatTutorialStepForUser(currentStep) +
+            "\n🎉 **Congratulations!** You've completed the entire tutorial!\n\n" +
+            `**Summary:** Completed all ${tutorialData.steps.length} steps`,
+        },
+      ],
+    };
+  }
 }

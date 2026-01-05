@@ -1,4 +1,5 @@
 import { seniorDevSessions } from "./seniorDev_start_mode.js";
+import { formatTutorialStepForUser } from "../shared/tutorialStepBuilder.js";
 
 /**
  * Present the current tutorial step to the user, including context and instructions.
@@ -26,29 +27,10 @@ export async function seniorDev_present_step({ sessionId, stepNumber }: { sessio
       step: null,
     };
   }
-  // Present the step in the same format as the main tutorial system
-  let lines: string[] = [];
-  lines.push(`## Step ${step.stepNumber}: ${step.title}`);
-  lines.push("");
-  if (step.explanation) {
-    lines.push(`**Concept:** ${step.explanation}`);
-    lines.push("");
-  }
-  if (step.codeExample) {
-    lines.push(`### 💻 Generic Example`);
-    lines.push("```");
-    lines.push(step.codeExample);
-    lines.push("```");
-    lines.push("");
-  }
-  if (step.task) {
-    lines.push(`### ✏️ Your Task`);
-    lines.push(step.task);
-    lines.push("");
-  }
+  // Use shared formatter for step presentation
   return {
     content: [
-      { type: "text" as const, text: lines.join("\n") },
+      { type: "text" as const, text: formatTutorialStepForUser(step) },
     ],
     step,
   };
