@@ -26,9 +26,29 @@ export async function seniorDev_present_step({ sessionId, stepNumber }: { sessio
       step: null,
     };
   }
+  // Present the step in the same format as the main tutorial system
+  let lines: string[] = [];
+  lines.push(`## Step ${step.stepNumber}: ${step.title}`);
+  lines.push("");
+  if (step.explanation) {
+    lines.push(`**Concept:** ${step.explanation}`);
+    lines.push("");
+  }
+  if (step.codeExample) {
+    lines.push(`### 💻 Generic Example`);
+    lines.push("```");
+    lines.push(step.codeExample);
+    lines.push("```");
+    lines.push("");
+  }
+  if (step.task) {
+    lines.push(`### ✏️ Your Task`);
+    lines.push(step.task);
+    lines.push("");
+  }
   return {
     content: [
-      { type: "text" as const, text: `Step ${stepNumber}: ${step.instructions}` },
+      { type: "text" as const, text: lines.join("\n") },
     ],
     step,
   };
