@@ -3,8 +3,51 @@ import { exec } from "child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-// Session state will be stored in-memory for now (could be persisted later)
-const seniorDevSessions: Record<string, any> = {};
+// Session state will be stored in-memory and persisted to disk
+const SESSION_STATE_PATH = path.join(process.cwd(), "session_state.json");
+let seniorDevSessions: Record<string, any> = {};
+
+
+// Load sessions from disk on startup, migrating legacy formats if needed
+async function loadSessionsFromDisk() {
+  try {
+    const data = await fs.readFile(SESSION_STATE_PATH, "utf8");
+    let parsed = JSON.parse(data);
+    // Use only the 'seniorDevSessions' field, or migrate legacy formats
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      if (parsed.seniorDevSessions && typeof parsed.seniorDevSessions === 'object') {
+        seniorDevSessions = parsed.seniorDevSessions;
+      } else if (parsed.seniorDevSession && parsed.seniorDevSession.sessionId) {
+        seniorDevSessions = { [parsed.seniorDevSession.sessionId]: parsed.seniorDevSession };
+      } else if (parsed.sessionId) {
+        seniorDevSessions = { [parsed.sessionId]: parsed };
+      } else {
+        seniorDevSessions = {};
+      }
+    } else {
+      seniorDevSessions = {};
+    }
+  } catch {
+    seniorDevSessions = {};
+  }
+}
+
+// Immediately load sessions
+await loadSessionsFromDisk();
+
+// Save sessions to disk in sessionId-keyed format
+async function saveSessionsToDisk() {
+  // Read the whole session_state.json, update only the seniorDevSessions field
+  let state: any = {};
+  try {
+    const data = await fs.readFile(SESSION_STATE_PATH, "utf8");
+    state = JSON.parse(data);
+  } catch {
+    state = {};
+  }
+  state.seniorDevSessions = seniorDevSessions;
+  await fs.writeFile(SESSION_STATE_PATH, JSON.stringify(state, null, 2), "utf8");
+}
 
 /**
  * Initialize a Senior Dev Mode session by capturing the code change context.
@@ -93,6 +136,7 @@ export async function seniorDev_start_mode({ files, fromCommit, toCommit, mode }
     mode: mode || "diff",
     createdAt: new Date().toISOString(),
   };
+  await saveSessionsToDisk();
 
   // 5. Return session info
   return {
