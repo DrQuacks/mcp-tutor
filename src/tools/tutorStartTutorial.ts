@@ -10,6 +10,7 @@ import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import { checkExternalViteServer } from "../shared/vite.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
+import { formatTutorialStepForUser } from "../shared/tutorialStepBuilder.js";
 
 export async function tutorStartTutorial({
   tutorialId,
@@ -103,26 +104,16 @@ export default App
     };
   }
 
-  // Return data for AI to generate generic example and present step
+  // Present the current step using the shared formatter
+  let stepText = formatTutorialStepForUser(currentStep);
+  if (serverMessage) {
+    stepText = serverMessage + "\n\n" + stepText;
+  }
   return {
     content: [
       {
         type: "text",
-        text: JSON.stringify({
-          ...createGenericExampleRequest(
-            currentStep.title,
-            currentStep.explanation,
-            currentStep.task
-          ),
-          tutorialTitle: tutorialData.title,
-          tutorialDescription: tutorialData.description,
-          stepNumber: currentStep.stepNumber,
-          totalSteps: tutorialData.steps.length,
-          completedSteps: completedSteps,
-          task: filterCopyPasteSolutions(currentStep.task),
-          filePath: tutorialData.filePath,
-          serverStatus: serverMessage, // Include server status
-        }, null, 2),
+        text: stepText,
       },
     ],
   };
