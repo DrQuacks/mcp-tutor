@@ -10,6 +10,7 @@ import { getTutorialProgress, updateTutorialProgress, markInterviewTutorialCompl
 import { filterCopyPasteSolutions } from "../shared/pedagogyFilter.js";
 import { createGenericExampleRequest } from "../shared/genericExampleGenerator.js";
 import type { ToolResponse, TutorialStep } from "../shared/types.js";
+import { formatTutorialStepForUser } from "../shared/tutorialStepBuilder.js";
 
 export async function tutorAdvanceStep({
   tutorialId,
@@ -63,42 +64,13 @@ export async function tutorAdvanceStep({
 
   if (nextStep <= tutorialData.steps.length) {
     await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
-
     const nextStepData: TutorialStep = tutorialData.steps[nextStep - 1];
-
-    // Return request for AI to generate generic example and present next step
-    const genericExampleData = createGenericExampleRequest(
-      nextStepData.title,
-      nextStepData.explanation,
-      nextStepData.task
-    );
-    
+    // Present the next step using the shared formatter
     return {
       content: [
         {
           type: "text",
-          text: JSON.stringify(
-            {
-              ...genericExampleData,
-              previousStepNumber: currentStep.stepNumber,
-              previousStepTitle: currentStep.title,
-              tutorialTitle: tutorialData.title,
-              tutorialDescription: tutorialData.description,
-              stepNumber: nextStepData.stepNumber,
-              totalSteps: tutorialData.steps.length,
-              completedSteps: newCompletedSteps,
-              task: filterCopyPasteSolutions(nextStepData.task),
-              filePath: tutorialData.filePath,
-              instruction:
-                "Step " +
-                currentStep.stepNumber +
-                " passed! Generate a generic code example that teaches the new concept without solving the specific task. Then present Step " +
-                nextStepData.stepNumber +
-                " to the student with your generic example included.",
-            },
-            null,
-            2
-          ),
+          text: formatTutorialStepForUser(nextStepData),
         },
       ],
     };
@@ -106,17 +78,13 @@ export async function tutorAdvanceStep({
     // Tutorial complete!
     await updateTutorialProgress(tutorialId, tutorialData.title, nextStep, newCompletedSteps);
     await markInterviewTutorialComplete(tutorialId);
-    
     return {
       content: [
         {
           type: "text",
-          text: JSON.stringify({
-            requestType: "tutorial-complete",
-            tutorialTitle: tutorialData.title,
-            totalSteps: tutorialData.steps.length,
-            message: "🎉 Congratulations! You've completed the entire tutorial!",
-          }, null, 2),
+          text:
+            "🎉 **Congratulations!** You've completed the entire tutorial!\n\n" +
+            `**Summary:** Completed all ${tutorialData.steps.length} steps`,
         },
       ],
     };
