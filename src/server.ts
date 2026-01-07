@@ -32,6 +32,8 @@ import { seniorDev_select_skills } from "./tools/seniorDev_select_skills.js";
 import { seniorDev_generate_tutorial } from "./tools/seniorDev_generate_tutorial.js";
 import { seniorDev_present_step } from "./tools/seniorDev_present_step.js";
 import { seniorDev_check_step } from "./tools/seniorDev_check_step.js";
+import { seniorDev_finalize_tutorial } from "./tools/seniorDev_finalize_tutorial.js";
+import { seniorDev_abort_session } from "./tools/seniorDev_abort_session.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -553,7 +555,7 @@ async function main() {
         sessionId: z.string(),
       }),
     },
-    notImplemented("seniorDev_finalize_tutorial")
+    seniorDev_finalize_tutorial
   );
 
   server.registerTool(
@@ -564,7 +566,7 @@ async function main() {
         sessionId: z.string(),
       }),
     },
-    notImplemented("seniorDev_abort_session")
+    seniorDev_abort_session
   );
   // --- End Senior Dev Mode Tool Stubs ---
 
