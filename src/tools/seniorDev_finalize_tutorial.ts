@@ -16,6 +16,14 @@ export async function seniorDev_finalize_tutorial({ sessionId }: { sessionId: st
       summary: "No tutorial plan found."
     };
   }
+  if (session.phase !== "tutorial-generated") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Tutorial can only be finalized after all steps are complete.` },
+      ],
+      summary: `Invalid phase: ${session.phase}`
+    };
+  }
   session.completed = true;
   // Build a summary of all steps
   const steps = session.tutorialPlan.steps;

@@ -13,22 +13,33 @@ async function loadSessionsFromDisk() {
   try {
     const data = await fs.readFile(SESSION_STATE_PATH, "utf8");
     let parsed = JSON.parse(data);
+    if (process.env.SENIORDEV_DEBUG) {
+      console.log("[SeniorDev] Loaded session_state.json:", JSON.stringify(parsed, null, 2));
+    } else {
+      console.log(`[SeniorDev] Loaded session_state.json with keys: ${Object.keys(parsed).join(", ")}`);
+    }
     // Use only the 'seniorDevSessions' field, or migrate legacy formats
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
       if (parsed.seniorDevSessions && typeof parsed.seniorDevSessions === 'object') {
         seniorDevSessions = parsed.seniorDevSessions;
+        console.log(`[SeniorDev] Loaded seniorDevSessions: ${Object.keys(parsed.seniorDevSessions).length} sessions`);
       } else if (parsed.seniorDevSession && parsed.seniorDevSession.sessionId) {
         seniorDevSessions = { [parsed.seniorDevSession.sessionId]: parsed.seniorDevSession };
+        console.log("[SeniorDev] Migrated legacy seniorDevSession format");
       } else if (parsed.sessionId) {
         seniorDevSessions = { [parsed.sessionId]: parsed };
+        console.log("[SeniorDev] Migrated legacy sessionId format");
       } else {
         seniorDevSessions = {};
+        console.log("[SeniorDev] No seniorDevSessions found in session_state.json");
       }
     } else {
       seniorDevSessions = {};
+      console.log("[SeniorDev] session_state.json not an object, resetting seniorDevSessions");
     }
-  } catch {
+  } catch (e) {
     seniorDevSessions = {};
+    console.log("[SeniorDev] Could not read session_state.json, initializing empty seniorDevSessions");
   }
 }
 
@@ -37,16 +48,18 @@ await loadSessionsFromDisk();
 
 // Save sessions to disk in sessionId-keyed format
 async function saveSessionsToDisk() {
-  // Read the whole session_state.json, update only the seniorDevSessions field
-  let state: any = {};
-  try {
-    const data = await fs.readFile(SESSION_STATE_PATH, "utf8");
-    state = JSON.parse(data);
-  } catch {
-    state = {};
+  // Write each session's full data to a separate file in senior-dev-tutorials/
+  await fs.mkdir(path.join(process.cwd(), "senior-dev-tutorials"), { recursive: true });
+  for (const [sessionId, session] of Object.entries(seniorDevSessions)) {
+    const sessionFile = path.join(process.cwd(), "senior-dev-tutorials", `session-${sessionId}.json`);
+    // Write full session data to file
+    await fs.writeFile(sessionFile, JSON.stringify(session, null, 2), "utf8");
   }
-  state.seniorDevSessions = seniorDevSessions;
-  await fs.writeFile(SESSION_STATE_PATH, JSON.stringify(state, null, 2), "utf8");
+  if (process.env.SENIORDEV_DEBUG) {
+    console.log("[SeniorDev] saveSessionsToDisk: All session data written to senior-dev-tutorials/ directory.");
+  } else {
+    console.log(`[SeniorDev] saveSessionsToDisk: Wrote ${Object.keys(seniorDevSessions).length} sessions to senior-dev-tutorials/ directory.`);
+  }
 }
 
 /**
@@ -66,6 +79,7 @@ export async function seniorDev_start_mode({ files, fromCommit, toCommit, mode }
   let before: Record<string, string> = {};
   let after: Record<string, string> = {};
   let diffs: Record<string, string> = {};
+  console.log(`[SeniorDev] Starting new session: ${sessionId}`);
 
   // 2. Determine files to include
   if (!fileList.length) {
@@ -124,7 +138,7 @@ export async function seniorDev_start_mode({ files, fromCommit, toCommit, mode }
     });
   }
 
-  // 4. Store session state
+  // 4. Store session state (in-memory, will be written to file by saveSessionsToDisk)
   seniorDevSessions[sessionId] = {
     sessionId,
     files: fileList,
@@ -135,7 +149,13 @@ export async function seniorDev_start_mode({ files, fromCommit, toCommit, mode }
     toCommit: toCommit || "WORKING",
     mode: mode || "diff",
     createdAt: new Date().toISOString(),
+    phase: "awaiting-skill-analysis"
   };
+  if (process.env.SENIORDEV_DEBUG) {
+    console.log(`[SeniorDev] Session ${sessionId} state before save:`, JSON.stringify(seniorDevSessions[sessionId], null, 2));
+  } else {
+    console.log(`[SeniorDev] Session ${sessionId} state before save: keys: ${Object.keys(seniorDevSessions[sessionId]).join(", ")}`);
+  }
   await saveSessionsToDisk();
 
   // 5. Return session info

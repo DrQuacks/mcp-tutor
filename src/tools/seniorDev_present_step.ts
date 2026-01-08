@@ -18,6 +18,14 @@ export async function seniorDev_present_step({ sessionId, stepNumber }: { sessio
       step: null,
     };
   }
+  if (session.phase !== "tutorial-generated") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Steps can only be presented after tutorial is generated.` },
+      ],
+      step: null,
+    };
+  }
   const step = session.tutorialPlan.steps.find((s: any) => s.stepNumber === stepNumber);
   if (!step) {
     return {

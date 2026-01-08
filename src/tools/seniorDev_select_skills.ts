@@ -17,7 +17,16 @@ export async function seniorDev_select_skills({ sessionId, selectedSkills }: { s
       selectedSkills: [],
     };
   }
+  if (session.phase !== "skills-analyzed") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Skills can only be selected after skill analysis.` },
+      ],
+      selectedSkills: [],
+    };
+  }
   session.selectedSkills = selectedSkills;
+  session.phase = "skills-selected";
   return {
     content: [
       { type: "text" as const, text: `Skills selected: ${selectedSkills.join(", ")}` },

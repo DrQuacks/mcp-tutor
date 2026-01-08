@@ -1,5 +1,7 @@
 import { seniorDevSessions } from "./seniorDev_start_mode.js";
 import { buildTutorialStep } from "../shared/tutorialStepBuilder.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Break down the code changes into a step-by-step tutorial, grouped by the selected skills.
@@ -14,6 +16,14 @@ export async function seniorDev_generate_tutorial({ sessionId, selectedSkills }:
     return {
       content: [
         { type: "text" as const, text: `❌ No session found for ID: ${sessionId}` },
+      ],
+      tutorialPlan: null,
+    };
+  }
+  if (session.phase !== "skills-selected") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Tutorial can only be generated after skills are selected.` },
       ],
       tutorialPlan: null,
     };
@@ -53,17 +63,35 @@ export async function seniorDev_generate_tutorial({ sessionId, selectedSkills }:
       diff: Object.entries(session.diffs).map(([file, diff]) => ({ file, diff })),
     }));
   }
+  // Build the full tutorial plan in the same format as regular tutorials
   const tutorialPlan = {
+    title: `Senior Dev Tutorial (${sessionId})`,
+    description: `A step-by-step tutorial generated from code changes in Senior Dev Mode. Skills: ${skills.join(", ")}`,
+    environment: "node", // or infer from session/files if needed
+    filePath: session.files && session.files.length ? session.files[0] : "src/server.ts",
+    starterCode: session.before && session.files && session.files.length ? session.before[session.files[0]] : "",
+    steps,
     sessionId,
     skills,
-    steps,
     createdAt: new Date().toISOString(),
   };
-  session.tutorialPlan = tutorialPlan;
+
+  // Write the tutorial plan to senior-dev-tutorials/tutorial-senior-dev-{sessionId}.json
+  const tutorialFileName = `tutorial-senior-dev-${sessionId}.json`;
+  const tutorialFilePath = path.join(process.cwd(), "senior-dev-tutorials", tutorialFileName);
+  await fs.writeFile(tutorialFilePath, JSON.stringify(tutorialPlan, null, 2), "utf8");
+
+  // Store reference in session (not the full plan)
+  session.tutorialFilePath = tutorialFilePath;
+  session.phase = "tutorial-generated";
+  // After updating session, persist minimal session state
+  const { saveSessionsToDisk } = await import("./seniorDev_start_mode.js");
+  await saveSessionsToDisk();
+
   return {
     content: [
-      { type: "text" as const, text: `Tutorial plan generated with ${steps.length} step(s).` },
+      { type: "text" as const, text: `Tutorial plan generated with ${steps.length} step(s). File: senior-dev-tutorials/${tutorialFileName}` },
     ],
-    tutorialPlan,
+    tutorialFilePath,
   };
 }

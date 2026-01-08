@@ -18,6 +18,15 @@ export async function seniorDev_analyze_skills({ sessionId }: { sessionId: strin
       summary: "No session found."
     };
   }
+  if (session.phase !== "awaiting-skill-analysis") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Skill analysis can only run after session start.` },
+      ],
+      skills: [],
+      summary: `Invalid phase: ${session.phase}`
+    };
+  }
 
   // LLM-based skill extraction: analyze the diff and session context directly
   const diffs = Object.values(session.diffs).join("\n");
@@ -55,6 +64,7 @@ export async function seniorDev_analyze_skills({ sessionId }: { sessionId: strin
 
   summary = `Skills inferred from code changes: ${skills.join(", ")}`;
 
+  session.phase = "skills-analyzed";
   return {
     content: [
       { type: "text" as const, text: summary },

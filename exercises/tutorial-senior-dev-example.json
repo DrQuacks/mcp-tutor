@@ -1,0 +1,36 @@
+{
+  "title": "Senior Dev Mode Tutorial Example",
+  "description": "A step-by-step tutorial generated from real code changes using Senior Dev Mode. This follows the same structure as regular tutorials.",
+  "environment": "node",
+  "filePath": "src/server.ts",
+  "starterCode": "// Starter code from the commit before changes\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Review the code diff",
+      "explanation": "Examine the changes made between the selected commits. Understand what was added, removed, or refactored.",
+      "codeExample": "// Example diff output\n// ...",
+      "task": "Summarize the main changes in your own words.",
+      "validation": { "type": "code-contains", "checks": ["summary"] },
+      "hints": ["Focus on the most significant changes.", "Look for new functions, classes, or patterns."]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Identify new skills or patterns",
+      "explanation": "Based on the code changes, identify any new skills, patterns, or concepts introduced.",
+      "codeExample": "// Example: async/await, error handling, new API usage\n",
+      "task": "List the skills or patterns you see in the diff.",
+      "validation": { "type": "code-contains", "checks": ["async", "pattern"] },
+      "hints": ["Check for new keywords or structures.", "Consider architectural changes."]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Practice applying a new pattern",
+      "explanation": "Take one of the identified patterns and implement a small example or refactor an existing part of the code to use it.",
+      "codeExample": "// Example: Refactor a callback to use async/await\n",
+      "task": "Refactor a function in src/server.ts to use the new pattern.",
+      "validation": { "type": "code-contains", "checks": ["refactor"] },
+      "hints": ["Choose a simple function to refactor.", "Test your changes to ensure correctness."]
+    }
+  ]
+}

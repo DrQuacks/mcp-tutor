@@ -23,6 +23,15 @@ export async function seniorDev_check_step({ sessionId, stepNumber, files }: { s
       details: "No tutorial plan found."
     };
   }
+  if (session.phase !== "tutorial-generated") {
+    return {
+      content: [
+        { type: "text" as const, text: `❌ Invalid phase: ${session.phase}. Steps can only be checked after tutorial is generated.` },
+      ],
+      valid: false,
+      details: `Invalid phase: ${session.phase}`
+    };
+  }
   const step = session.tutorialPlan.steps.find((s: any) => s.stepNumber === stepNumber);
   if (!step) {
     return {
