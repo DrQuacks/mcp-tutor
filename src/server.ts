@@ -34,6 +34,7 @@ import { seniorDev_present_step } from "./tools/seniorDev_present_step.js";
 import { seniorDev_check_step } from "./tools/seniorDev_check_step.js";
 import { seniorDev_finalize_tutorial } from "./tools/seniorDev_finalize_tutorial.js";
 import { seniorDev_abort_session } from "./tools/seniorDev_abort_session.js";
+import { startViteDevServer } from "./tools/startViteDevServer.js";
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -466,6 +467,15 @@ async function main() {
       inputSchema: z.object({}),
     },
     async () => tutorListReactTutorialStatuses()
+  );
+
+  server.registerTool(
+    "start_vite_dev_server",
+    {
+      description: "Starts the Vite dev server for React exercises on port 5174. Use this tool to reliably start the correct dev server for React tutorials and exercises.",
+      inputSchema: z.object({}),
+    },
+    async () => startViteDevServer()
   );
 
   // --- Senior Dev Mode Tool Stubs ---
