@@ -9,8 +9,8 @@
     "servers": {
       "ai-code-tutor": {
         "type": "stdio",
-        "command": "npx",
-        "args": ["tsx", "/Users/Kellar/Develop/Projects/mcp-tutor/src/server.ts"],
+        "command": "./node_modules/.bin/tsx",
+        "args": ["src/server.ts"],
         "cwd": "/Users/Kellar/Develop/Projects/mcp-tutor"
       }
     }
