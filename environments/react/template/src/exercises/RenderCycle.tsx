@@ -1,19 +1,21 @@
 import { useState } from 'react';
 
-const ChildComponent = () => {
-  return(
-    <div>I am a child component</div>
+const Child = () => {
+  console.log('Child Rendered')
+  return (
+    <div>I'm a Child</div>
   )
 }
 function RenderCycle() {
-  console.log('RenderCycle rendered')
-  const [parentCount,setParentCount] = useState(0)
+  console.log('Component Rendered')
+  const [counter,setCounter] = useState(0)
+
   return (
     <div>
       <h2>React Render Cycle</h2>
-      <button onClick={()=>setParentCount(prev=>prev+1)}>Update Parent</button>
-      <ChildComponent/>
-      <p>Parent count is: {parentCount}</p>
+      <button onClick={()=>setCounter(prev=>prev+1)}>Raise Count</button>
+      <Child/>
+      <p>Parent Count is: {counter}</p>
     </div>
   );
 }

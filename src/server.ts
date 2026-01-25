@@ -472,10 +472,12 @@ async function main() {
   server.registerTool(
     "start_vite_dev_server",
     {
-      description: "Starts the Vite dev server for React exercises on port 5174. Use this tool to reliably start the correct dev server for React tutorials and exercises.",
-      inputSchema: z.object({}),
+      description: "Starts (or confirms) the Vite dev server for React exercises. This is the REQUIRED path for Vite startup in this workspace.",
+      inputSchema: z.object({
+        port: z.number().optional().describe("Optional port for the Vite dev server (defaults to 5174)."),
+      }),
     },
-    async () => startViteDevServer()
+    async (params) => startViteDevServer(params.port)
   );
 
   // --- Senior Dev Mode Tool Stubs ---
