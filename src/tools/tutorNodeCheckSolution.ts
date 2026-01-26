@@ -21,6 +21,22 @@ export async function tutorNodeCheckSolution({
     const content = await fs.readFile(exercisePath, "utf8");
     exerciseData = JSON.parse(content);
   } catch (err: any) {
+    const tutorialPath = path.join(EXERCISES_ROOT, `tutorial-${exerciseId}.json`);
+    try {
+      await fs.access(tutorialPath);
+      return {
+        content: [
+          {
+            type: "text",
+            text:
+              `❌ '${exerciseId}' is a tutorial, not an exercise. ` +
+              `Use tutor_check_tutorial_step with tutorialId '${exerciseId}'.`,
+          },
+        ],
+      };
+    } catch {
+      // fall through to generic error
+    }
     return {
       content: [
         {
