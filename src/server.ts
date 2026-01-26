@@ -582,6 +582,10 @@ async function main() {
   );
   // --- End Senior Dev Mode Tool Stubs ---
 
+  console.error(
+    "[mcp-tutor] Tools registered: tutor_start_tutorial, tutor_check_tutorial_step, tutor_explain_concept, tutor_connect_pattern, tutor_tutorial_hint, tutor_validate_response, tutor_respond_to_student, tutor_list_react_tutorial_statuses, start_vite_dev_server, and others."
+  );
+
   const transport = new StdioServerTransport();
 
   await server.connect(transport);
