@@ -149,10 +149,13 @@
     {
       "tutorialId": "react-render-cycle",
       "title": "React Render Cycle and Component Lifecycle",
-      "currentStep": 1,
-      "completedSteps": [],
+      "currentStep": 3,
+      "completedSteps": [
+        1,
+        2
+      ],
       "startedAt": "2026-01-04T07:59:19.083Z",
-      "lastActivity": "2026-01-26T20:56:26.941Z"
+      "lastActivity": "2026-01-29T23:26:23.543Z"
     }
   ],
   "exercises": [
