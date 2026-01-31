@@ -46,8 +46,9 @@ export type ToolDefinition = {
 export const TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     name: "tutor_echo",
-    description:
-      "Echo back a message from the user (for testing the MCP server connection).",
+    description: `
+Echo back a message from the user (for testing the MCP server connection).
+`.trim(),
     inputSchema: z.object({
       message: z
         .string()
@@ -57,15 +58,17 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_js_hello_prompt",
-    description:
-      "Gives the user an exercise: write a JavaScript helloWorld() function.",
+    description: `
+Gives the user an exercise: write a JavaScript helloWorld() function.
+`.trim(),
     inputSchema: z.object({}),
     handler: async () => tutorJsHelloPrompt(),
   },
   {
     name: "tutor_js_hello_check",
-    description:
-      "Checks a JavaScript hello world function the user has written.",
+    description: `
+Checks a JavaScript hello world function the user has written.
+`.trim(),
     inputSchema: z.object({
       code: z
         .string()
@@ -77,8 +80,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_js_run_with_tests",
-    description:
-      "Runs JavaScript solution code together with test code in a sandbox and reports whether tests passed.",
+    description: `
+Runs JavaScript solution code together with test code in a sandbox and reports whether tests passed.
+`.trim(),
     inputSchema: z.object({
       solutionCode: z
         .string()
@@ -95,8 +99,42 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_react_exercise_prompt",
-    description:
-      "Loads a React exercise and creates starter file for the student (TypeScript .tsx by default). Does NOT reveal the solution. By default, creates files in normal difficulty (no TODO comments). Use mode='easy' to include helpful TODO comments in the code.\n\n⚠️ PREREQUISITE: You must first create the exercise JSON file in exercises/ folder before calling this tool.\n\n📋 CRITICAL RULES for creating browserTests in the JSON file:\n\n1. TESTABLE REQUIREMENTS - Make Playwright selection deterministic!\n   • Include specific testable attributes in requirements (e.g., placeholder text, button text, labels)\n   • Example GOOD requirement: 'Display an input with placeholder \"Enter URL\" for the image URL'\n   • Example GOOD requirement: 'Include a button with text \"Add Image\" that adds the image'\n   • Example BAD requirement: 'Display an input for the image URL' (too vague - how to select it?)\n   • This allows using reliable selectors like input[placeholder='Enter URL'] or button:has-text('Add Image')\n   • Makes tests robust against different DOM structures while still allowing implementation freedom\n\n2. TEST ISOLATION - Most common mistake!\n   • Page reloads before EVERY test (tests are completely isolated)\n   • Each test starts with fresh/empty component state\n   • Never assume state from previous tests exists\n   • Example mistake: Test 1 adds 'ItemA', Test 2 adds 'ItemB' expecting both to exist\n   • Correct approach: Test 2 must add BOTH 'ItemA' AND 'ItemB' if it needs both\n\n3. COMPREHENSIVE COVERAGE - Don't skip important behaviors!\n   • Test ALL interactive features, not just element presence\n   • For toggleable features, test BOTH states (on AND off)\n   • Example: If clicking adds strikethrough, test: click once (strikethrough on), click twice (strikethrough off)\n   • Test with multiple items if feature involves lists/collections\n\n4. SUPPORTED TEST ACTIONS - Use only these:\n   • Actions: 'click' and 'type' ONLY (no fill, count, getStyle, etc.)\n   • Assertions: 'exists' (boolean), 'expected' (exact text match), 'contains' (partial text match), 'count' (number of elements)\n   • Multi-action format: 'actions' array with multiple steps in ONE test\n   • Playwright selectors: Use >> nth=N for indexed selection, text=MyText for text matching, or standard CSS selectors",
+     description: `
+  Loads a React exercise and creates starter file for the student (TypeScript .tsx by default). Does NOT reveal the solution.
+
+  By default, creates files in normal difficulty (no TODO comments). Use mode='easy' to include helpful TODO comments in the code.
+
+  ⚠️ PREREQUISITE: You must first create the exercise JSON file in exercises/ folder before calling this tool.
+
+  📋 CRITICAL RULES for creating browserTests in the JSON file:
+
+  1. TESTABLE REQUIREMENTS - Make Playwright selection deterministic!
+    • Include specific testable attributes in requirements (e.g., placeholder text, button text, labels)
+    • Example GOOD requirement: 'Display an input with placeholder "Enter URL" for the image URL'
+    • Example GOOD requirement: 'Include a button with text "Add Image" that adds the image'
+    • Example BAD requirement: 'Display an input for the image URL' (too vague - how to select it?)
+    • This allows using reliable selectors like input[placeholder='Enter URL'] or button:has-text('Add Image')
+    • Makes tests robust against different DOM structures while still allowing implementation freedom
+
+  2. TEST ISOLATION - Most common mistake!
+    • Page reloads before EVERY test (tests are completely isolated)
+    • Each test starts with fresh/empty component state
+    • Never assume state from previous tests exists
+    • Example mistake: Test 1 adds 'ItemA', Test 2 adds 'ItemB' expecting both to exist
+    • Correct approach: Test 2 must add BOTH 'ItemA' AND 'ItemB' if it needs both
+
+  3. COMPREHENSIVE COVERAGE - Don't skip important behaviors!
+    • Test ALL interactive features, not just element presence
+    • For toggleable features, test BOTH states (on AND off)
+    • Example: If clicking adds strikethrough, test: click once (strikethrough on), click twice (strikethrough off)
+    • Test with multiple items if feature involves lists/collections
+
+  4. SUPPORTED TEST ACTIONS - Use only these:
+    • Actions: 'click' and 'type' ONLY (no fill, count, getStyle, etc.)
+    • Assertions: 'exists' (boolean), 'expected' (exact text match), 'contains' (partial text match), 'count' (number of elements)
+    • Multi-action format: 'actions' array with multiple steps in ONE test
+    • Playwright selectors: Use >> nth=N for indexed selection, text=MyText for text matching, or standard CSS selectors
+  `.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -112,8 +150,13 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_node_check_solution",
-    description:
-      "Tests the student's Node.js solution against the exercise test cases.\n\n🚫 ABSOLUTE PROHIBITION: NEVER edit the student's exercise files under ANY circumstances. NEVER show copy-paste solutions in your messages. Only report test results and guide their thinking. If student says 'continue' or 'next', only run tests - do NOT write code for them.\n\n⚠️ CRITICAL SAFEGUARD: After running tests, if ANY tests fail, you MUST call tutor_validate_response with your planned response BEFORE sending guidance to the student. This ensures you don't accidentally provide copy-paste solutions.",
+    description: `
+Tests the student's Node.js solution against the exercise test cases.
+
+🚫 ABSOLUTE PROHIBITION: NEVER edit the student's exercise files under ANY circumstances. NEVER show copy-paste solutions in your messages. Only report test results and guide their thinking. If student says 'continue' or 'next', only run tests - do NOT write code for them.
+
+⚠️ CRITICAL SAFEGUARD: After running tests, if ANY tests fail, you MUST call tutor_validate_response with your planned response BEFORE sending guidance to the student. This ensures you don't accidentally provide copy-paste solutions.
+`.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -125,8 +168,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_node_show_solution",
-    description:
-      "Shows the complete solution code for a Node.js exercise. Only use this when the student explicitly asks for the solution.",
+    description: `
+Shows the complete solution code for a Node.js exercise. Only use this when the student explicitly asks for the solution.
+`.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -138,8 +182,31 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_react_check_solution",
-    description:
-      "Tests the student's React solution against the exercise test cases using a real browser. IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.\n\nSupported test formats:\n1. Element existence: { name: string, selector: string, exists: boolean }\n2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected\n3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }\n4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: boolean } }\n5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: boolean } }\n\nDo NOT use: count, fill, getStyle, or any other action types - they are not supported.\n\n🚫 ABSOLUTE PROHIBITION - NEVER EDIT STUDENT FILES:\n1. NEVER edit the student's exercise solution files under ANY circumstances\n2. NEVER show copy-paste code solutions in your messages to the student\n3. When tests fail, explain WHAT behavior failed (e.g., 'the error message appears when it shouldn't')\n4. Point to the REQUIREMENT that wasn't met, not the specific line to change\n5. Only provide explicit code if student explicitly asks for hint/solution using those tools\n6. Be pedagogical - guide the student to discover the fix themselves\n7. If student says 'continue' or 'next', only run tests - do NOT implement code\n\n⚠️ CRITICAL SAFEGUARD: After running tests, if ANY tests fail, you MUST call tutor_validate_response with your planned response BEFORE sending guidance to the student. This ensures you don't accidentally provide copy-paste solutions.",
+    description: `
+Tests the student's React solution against the exercise test cases using a real browser.
+
+IMPORTANT: The page reloads before each test for isolation, so each test starts with a fresh component state. When creating browserTests in exercise JSON files, ensure each test is self-contained and does not rely on state from previous tests.
+
+Supported test formats:
+1. Element existence: { name: string, selector: string, exists: boolean }
+2. Text content check: { name: string, selector: string, expected: string } - checks if text contains expected
+3. Click action: { name: string, selector: string, action: 'click', then: { selector: string, expected?: string, contains?: string, exists?: boolean } }
+4. Type action: { name: string, selector: string, action: 'type', value: string, then: { selector: string, expected?: string, contains?: boolean } }
+5. Multiple actions: { name: string, actions: Array<{selector: string, action: 'click'|'type', value?: string}>, then: { selector: string, expected?: string, contains?: boolean } }
+
+Do NOT use: count, fill, getStyle, or any other action types - they are not supported.
+
+🚫 ABSOLUTE PROHIBITION - NEVER EDIT STUDENT FILES:
+1. NEVER edit the student's exercise solution files under ANY circumstances
+2. NEVER show copy-paste code solutions in your messages to the student
+3. When tests fail, explain WHAT behavior failed (e.g., 'the error message appears when it shouldn't')
+4. Point to the REQUIREMENT that wasn't met, not the specific line to change
+5. Only provide explicit code if student explicitly asks for hint/solution using those tools
+6. Be pedagogical - guide the student to discover the fix themselves
+7. If student says 'continue' or 'next', only run tests - do NOT implement code
+
+⚠️ CRITICAL SAFEGUARD: After running tests, if ANY tests fail, you MUST call tutor_validate_response with your planned response BEFORE sending guidance to the student. This ensures you don't accidentally provide copy-paste solutions.
+`.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -157,8 +224,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_react_show_solution",
-    description:
-      "Shows the complete solution code for a React exercise. Only use this when the student explicitly asks for the solution.",
+    description: `
+Shows the complete solution code for a React exercise. Only use this when the student explicitly asks for the solution.
+`.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -170,8 +238,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_get_hint",
-    description:
-      "Provides progressive, targeted hints for the current exercise without revealing the solution. Reads the student's code to give specific guidance. Use this when the student asks for help or is stuck. ⚠️ CRITICAL: This tool only provides hints - it does NOT and MUST NOT edit the student's exercise files.",
+    description: `
+Provides progressive, targeted hints for the current exercise without revealing the solution. Reads the student's code to give specific guidance. Use this when the student asks for help or is stuck.
+
+⚠️ CRITICAL: This tool only provides hints - it does NOT and MUST NOT edit the student's exercise files.
+`.trim(),
     inputSchema: z.object({
       exerciseId: z
         .string()
@@ -187,21 +258,53 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_view_progress",
-    description: "Shows your exercise progress history and statistics.",
+    description: `
+Shows your exercise progress history and statistics.
+`.trim(),
     inputSchema: z.object({}),
     handler: async () => tutorViewProgress(),
   },
   {
     name: "tutor_generate_session_state",
-    description:
-      "Generates a session state snapshot for easy context restoration in new chats. Analyzes current progress and creates a session_state.json file with current activity, next steps, and recent work. Use this before ending a session or when context window is getting large.",
+    description: `
+Generates a session state snapshot for easy context restoration in new chats.
+
+Analyzes current progress and creates a session_state.json file with current activity, next steps, and recent work. Use this before ending a session or when context window is getting large.
+`.trim(),
     inputSchema: z.object({}),
     handler: async () => tutorGenerateSessionState(),
   },
   {
     name: "tutor_start_tutorial",
-    description:
-      "Starts or resumes a step-by-step tutorial. Returns JSON with tutorial content that you MUST present clearly to the user.\n\n⚠️ CRITICAL: After calling this tool, you MUST present the tutorial content in your response like this:\n\n---\n# 📚 Tutorial: [tutorialTitle]\n[tutorialDescription]\n\n**Progress:** Step [stepNumber] of [totalSteps]\n[If completedSteps exists: **Completed:** steps X, Y, Z]\n\n## Step [stepNumber]: [stepTitle]\n\n### 📖 What You'll Learn\n[explanation]\n\n[If codeExample exists:]\n### 💻 Generic Pattern\n```tsx\n[codeExample]\n```\n\n### ✏️ Your Task\n[task]\n\n📁 File: `[filePath]`\n---\n\nDO NOT just say 'the tutorial started' - present the actual content so it's visible!",
+    description: `
+Starts or resumes a step-by-step tutorial. Returns JSON with tutorial content that you MUST present clearly to the user.
+
+⚠️ CRITICAL: After calling this tool, you MUST present the tutorial content in your response like this:
+
+---
+# 📚 Tutorial: [tutorialTitle]
+[tutorialDescription]
+
+**Progress:** Step [stepNumber] of [totalSteps]
+[If completedSteps exists: **Completed:** steps X, Y, Z]
+
+## Step [stepNumber]: [stepTitle]
+
+### 📖 What You'll Learn
+[explanation]
+
+[If codeExample exists:]
+### 💻 Generic Pattern (TSX)
+[codeExample]
+
+### ✏️ Your Task
+[task]
+
+📁 File: [filePath]
+---
+
+DO NOT just say 'the tutorial started' - present the actual content so it's visible!
+`.trim(),
     inputSchema: z.object({
       tutorialId: z
         .string()
@@ -211,8 +314,19 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_check_tutorial_step",
-    description:
-      "Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance. Returns pass/fail with list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.\n\n🚫 ABSOLUTE PROHIBITION: You must NEVER edit student exercise/tutorial files under ANY circumstances. This includes:\n- NEVER use replace_string_in_file, multi_replace_string_in_file, or create_file on student files\n- NEVER show copy-paste solutions in your messages\n- NEVER implement code changes when student says 'continue' or 'next step'\n- The ONLY time to edit is if student explicitly says 'write the code for me' or 'give me the solution'\n\nYour role is to VALIDATE (this tool), EXPLAIN (tutor_explain_concept), GUIDE (tutor_connect_pattern), and HINT (tutor_tutorial_hint). Let the student write the code.",
+    description: `
+Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance.
+
+Returns pass/fail with a list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.
+
+🚫 ABSOLUTE PROHIBITION: You must NEVER edit student exercise/tutorial files under ANY circumstances. This includes:
+- NEVER use replace_string_in_file, multi_replace_string_in_file, or create_file on student files
+- NEVER show copy-paste solutions in your messages
+- NEVER implement code changes when student says 'continue' or 'next step'
+- The ONLY time to edit is if student explicitly says 'write the code for me' or 'give me the solution'
+
+Your role is to VALIDATE (this tool), EXPLAIN (tutor_explain_concept), GUIDE (tutor_connect_pattern), and HINT (tutor_tutorial_hint). Let the student write the code.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z
         .string()
@@ -222,8 +336,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_advance_step",
-    description:
-      "⚠️ INTERNAL USE ONLY - Called by the AI after validating student code to advance to the next tutorial step. DO NOT call this directly - it's automatically invoked after tutor_check_tutorial_step when validation passes.",
+    description: `
+⚠️ INTERNAL USE ONLY - Called by the AI after validating student code to advance to the next tutorial step.
+
+DO NOT call this directly - it's automatically invoked after tutor_check_tutorial_step when validation passes.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z
         .string()
@@ -233,8 +350,13 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_explain_concept",
-    description:
-      "Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial. Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.\n\n🚫 NEVER edit student files or provide copy-paste solutions. Only explain concepts and show generic examples.",
+    description: `
+Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial.
+
+Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.
+
+🚫 NEVER edit student files or provide copy-paste solutions. Only explain concepts and show generic examples.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z.string().describe("The ID of the tutorial"),
     }),
@@ -242,8 +364,13 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_connect_pattern",
-    description:
-      "Helps the student connect the generic pattern to their specific task WITHOUT giving the answer. Shows what the tutorial is looking for and guides thinking about how to adapt the pattern. Use this when the student understands the concept but needs help applying it to their specific code. Does NOT provide copy-paste solutions.",
+    description: `
+Helps the student connect the generic pattern to their specific task WITHOUT giving the answer.
+
+Shows what the tutorial is looking for and guides thinking about how to adapt the pattern. Use this when the student understands the concept but needs help applying it to their specific code.
+
+Does NOT provide copy-paste solutions.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z.string().describe("The ID of the tutorial"),
       studentQuestion: z
@@ -255,8 +382,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_tutorial_hint",
-    description:
-      "Provides progressive hints for the current tutorial step. Use this when the student is stuck after trying. Gives increasingly specific guidance without revealing the full solution.",
+    description: `
+Provides progressive hints for the current tutorial step.
+
+Use this when the student is stuck after trying. Gives increasingly specific guidance without revealing the full solution.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z.string().describe("The ID of the tutorial"),
     }),
@@ -264,8 +394,22 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_validate_response",
-    description:
-      "🔴 MANDATORY: Validates your response before sending ANY tutorial/exercise-related guidance to students. You MUST call this tool BEFORE responding when:\n- Student asks a question about tutorial code\n- Student asks for clarification on requirements\n- You're explaining what the task means\n- You're discussing the current tutorial/exercise step\n- Responding to confusion or providing hints\n\nONLY exceptions:\n- User explicitly says 'give me the solution' or 'show me the answer'\n- Using the show solution tool\n\nThis validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.",
+    description: `
+🔴 MANDATORY: Validates your response before sending ANY tutorial/exercise-related guidance to students.
+
+You MUST call this tool BEFORE responding when:
+- Student asks a question about tutorial code
+- Student asks for clarification on requirements
+- You're explaining what the task means
+- You're discussing the current tutorial/exercise step
+- Responding to confusion or providing hints
+
+ONLY exceptions:
+- User explicitly says 'give me the solution' or 'show me the answer'
+- Using the show solution tool
+
+This validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.
+`.trim(),
     inputSchema: z.object({
       responseText: z
         .string()
@@ -286,8 +430,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_validate_tutorial_json",
-    description:
-      "Validates a tutorial JSON file for copy-paste code violations in task descriptions. Can optionally auto-fix by removing violating code. Use this to clean tutorial files before using them with students.",
+    description: `
+Validates a tutorial JSON file for copy-paste code violations in task descriptions.
+
+Can optionally auto-fix by removing violating code. Use this to clean tutorial files before using them with students.
+`.trim(),
     inputSchema: z.object({
       tutorialId: z
         .string()
@@ -305,8 +452,13 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_respond_to_student",
-    description:
-      "🔴 MANDATORY GATEWAY: Use this tool to respond to students during tutorials/exercises. This is the ONLY way to send responses when discussing tutorial code. Pass your draft response and it will automatically validate it before allowing you to send it. If you read tutorial JSON, student code, or receive task details from another tool, you MUST use this tool to respond. DO NOT respond directly - always use this gateway.",
+    description: `
+🔴 MANDATORY GATEWAY: Use this tool to respond to students during tutorials/exercises.
+
+This is the ONLY way to send responses when discussing tutorial code. Pass your draft response and it will automatically validate it before allowing you to send it.
+
+If you read tutorial JSON, student code, or receive task details from another tool, you MUST use this tool to respond. DO NOT respond directly - always use this gateway.
+`.trim(),
     inputSchema: z.object({
       draftResponse: z
         .string()
@@ -331,15 +483,19 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_list_react_tutorial_statuses",
-    description:
-      "Lists all React tutorial statuses for the user (not-started, in-progress, completed)",
+    description: `
+Lists all React tutorial statuses for the user (not-started, in-progress, completed).
+`.trim(),
     inputSchema: z.object({}),
     handler: async () => tutorListReactTutorialStatuses(),
   },
   {
     name: "start_vite_dev_server",
-    description:
-      "Starts (or confirms) the Vite dev server for React exercises. This is the REQUIRED path for Vite startup in this workspace.",
+    description: `
+Starts (or confirms) the Vite dev server for React exercises.
+
+This is the REQUIRED path for Vite startup in this workspace.
+`.trim(),
     inputSchema: z.object({
       port: z
         .number()
@@ -353,8 +509,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Senior Dev Mode tools ---
   {
     name: "seniorDev_start_mode",
-    description:
-      "Initialize a Senior Dev Mode session by capturing the code change context.",
+    description: `
+Initialize a Senior Dev Mode session by capturing the code change context.
+`.trim(),
     inputSchema: z.object({
       files: z.array(z.string()).optional(),
       fromCommit: z.string().optional(),
@@ -365,8 +522,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_analyze_skills",
-    description:
-      "Analyze the code changes and extract a list of relevant skills, concepts, and patterns.",
+    description: `
+Analyze the code changes and extract a list of relevant skills, concepts, and patterns.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
     }),
@@ -374,8 +532,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_select_skills",
-    description:
-      "Allow the user to select which skills/concepts to focus on in the tutorial.",
+    description: `
+Allow the user to select which skills/concepts to focus on in the tutorial.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
       selectedSkills: z.array(z.string()),
@@ -384,8 +543,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_generate_tutorial",
-    description:
-      "Break down the code changes into a step-by-step tutorial, grouped by the selected skills.",
+    description: `
+Break down the code changes into a step-by-step tutorial, grouped by the selected skills.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
       selectedSkills: z.array(z.string()).optional(),
@@ -394,8 +554,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_present_step",
-    description:
-      "Present the current tutorial step to the user, including context and instructions.",
+    description: `
+Present the current tutorial step to the user, including context and instructions.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
       stepNumber: z.number(),
@@ -404,8 +565,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_check_step",
-    description:
-      "Validate the user’s code for the current step.",
+    description: `
+Validate the user's code for the current step.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
       stepNumber: z.number(),
@@ -415,8 +577,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_finalize_tutorial",
-    description:
-      "Summarize the session, review all changes, and reinforce the skills learned.",
+    description: `
+Summarize the session, review all changes, and reinforce the skills learned.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
     }),
@@ -424,8 +587,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_abort_session",
-    description:
-      "Allow the user to abort or reset the session.",
+    description: `
+Allow the user to abort or reset the session.
+`.trim(),
     inputSchema: z.object({
       sessionId: z.string(),
     }),
