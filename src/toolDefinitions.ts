@@ -36,6 +36,7 @@ import { startViteDevServer } from "./tools/startViteDevServer.js";
 
 export type ToolDefinition = {
   name: string;
+  role: ToolRole;
   description: string;
   inputSchema: z.ZodTypeAny;
   // Handlers always return a MCP content array wrapped in a Promise
@@ -43,10 +44,18 @@ export type ToolDefinition = {
   handler: (params: any) => Promise<any> | any;
 };
 
+export type ToolRole =
+  | "student"
+  | "author"
+  | "internal"
+  | "infra"
+  | "senior-dev";
+
 export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Demo / sandbox tools ---
   {
     name: "tutor_echo",
+    role: "infra",
     description: `
   Echo back a message from the user (for testing the MCP server connection).
   `.trim(),
@@ -60,6 +69,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- JavaScript hello-world exercise tools ---
   {
     name: "tutor_js_hello_prompt",
+    role: "student",
     description: `
   Gives the user an exercise: write a JavaScript helloWorld() function.
   `.trim(),
@@ -68,6 +78,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_js_hello_check",
+    role: "student",
     description: `
   Checks a JavaScript hello world function the user has written.
   `.trim(),
@@ -82,6 +93,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_js_run_with_tests",
+    role: "student",
     description: `
   Runs JavaScript solution code together with test code in a sandbox and reports whether tests passed.
   `.trim(),
@@ -102,6 +114,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Exercise tools (React & Node) ---
   {
     name: "tutor_react_exercise_prompt",
+    role: "student",
     description: `
   Loads a React exercise and creates starter file for the student (TypeScript .tsx by default). Does NOT reveal the solution.
 
@@ -153,6 +166,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_node_check_solution",
+    role: "student",
     description: `
   Tests the student's Node.js solution against the exercise test cases.
 
@@ -171,6 +185,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_node_show_solution",
+    role: "student",
     description: `
   Shows the complete solution code for a Node.js exercise. Only use this when the student explicitly asks for the solution.
   `.trim(),
@@ -185,6 +200,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_react_check_solution",
+    role: "student",
     description: `
   Tests the student's React solution against the exercise test cases using a real browser.
 
@@ -227,6 +243,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_react_show_solution",
+    role: "student",
     description: `
   Shows the complete solution code for a React exercise. Only use this when the student explicitly asks for the solution.
   `.trim(),
@@ -241,6 +258,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_get_hint",
+    role: "student",
     description: `
   Provides progressive, targeted hints for the current exercise without revealing the solution. Reads the student's code to give specific guidance. Use this when the student asks for help or is stuck.
 
@@ -261,6 +279,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_view_progress",
+    role: "student",
     description: `
   Shows your exercise progress history and statistics.
   `.trim(),
@@ -269,6 +288,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_generate_session_state",
+    role: "infra",
     description: `
   Generates a session state snapshot for easy context restoration in new chats.
 
@@ -280,6 +300,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Tutorial flow tools ---
   {
     name: "tutor_start_tutorial",
+    role: "student",
     description: `
   Starts or resumes a step-by-step tutorial. Returns JSON with tutorial content that you MUST present clearly to the user.
 
@@ -318,6 +339,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_check_tutorial_step",
+    role: "student",
     description: `
   Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance.
 
@@ -340,6 +362,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_advance_step",
+    role: "internal",
     description: `
   ⚠️ INTERNAL USE ONLY - Called by the AI after validating student code to advance to the next tutorial step.
 
@@ -354,6 +377,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_explain_concept",
+    role: "student",
     description: `
   Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial.
 
@@ -368,6 +392,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_connect_pattern",
+    role: "student",
     description: `
   Helps the student connect the generic pattern to their specific task WITHOUT giving the answer.
 
@@ -386,6 +411,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_tutorial_hint",
+    role: "student",
     description: `
   Provides progressive hints for the current tutorial step.
 
@@ -399,6 +425,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Pedagogy and validation tools ---
   {
     name: "tutor_validate_response",
+    role: "internal",
     description: `
   🔴 MANDATORY: Validates your response before sending ANY tutorial/exercise-related guidance to students.
 
@@ -435,6 +462,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_validate_tutorial_json",
+    role: "author",
     description: `
   Validates a tutorial JSON file for copy-paste code violations in task descriptions.
 
@@ -457,6 +485,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_respond_to_student",
+    role: "internal",
     description: `
   🔴 MANDATORY GATEWAY: Use this tool to respond to students during tutorials/exercises.
 
@@ -482,6 +511,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "tutor_validate_exercise_requirements",
+    role: "author",
     description: tutorValidateExerciseRequirements.description,
     inputSchema: tutorValidateExerciseRequirements.inputSchema,
     handler: async (params) => tutorValidateExerciseRequirements.execute(params),
@@ -489,6 +519,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Progress and environment tools ---
   {
     name: "tutor_list_react_tutorial_statuses",
+    role: "student",
     description: `
   Lists all React tutorial statuses for the user (not-started, in-progress, completed).
   `.trim(),
@@ -497,6 +528,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "start_vite_dev_server",
+    role: "infra",
     description: `
   Starts (or confirms) the Vite dev server for React exercises.
 
@@ -515,6 +547,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   // --- Senior Dev Mode tools ---
   {
     name: "seniorDev_start_mode",
+    role: "senior-dev",
     description: `
   Initialize a Senior Dev Mode session by capturing the code change context.
   `.trim(),
@@ -528,6 +561,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_analyze_skills",
+    role: "senior-dev",
     description: `
   Analyze the code changes and extract a list of relevant skills, concepts, and patterns.
   `.trim(),
@@ -538,6 +572,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_select_skills",
+    role: "senior-dev",
     description: `
   Allow the user to select which skills/concepts to focus on in the tutorial.
   `.trim(),
@@ -549,6 +584,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_generate_tutorial",
+    role: "senior-dev",
     description: `
   Break down the code changes into a step-by-step tutorial, grouped by the selected skills.
   `.trim(),
@@ -560,6 +596,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_present_step",
+    role: "senior-dev",
     description: `
   Present the current tutorial step to the user, including context and instructions.
   `.trim(),
@@ -571,6 +608,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_check_step",
+    role: "senior-dev",
     description: `
   Validate the user's code for the current step.
   `.trim(),
@@ -583,6 +621,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_finalize_tutorial",
+    role: "senior-dev",
     description: `
   Summarize the session, review all changes, and reinforce the skills learned.
   `.trim(),
@@ -593,6 +632,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   },
   {
     name: "seniorDev_abort_session",
+    role: "senior-dev",
     description: `
   Allow the user to abort or reset the session.
   `.trim(),
