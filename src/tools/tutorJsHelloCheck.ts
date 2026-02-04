@@ -4,14 +4,11 @@
 
 import vm from "node:vm";
 import type { ToolResponse } from "../shared/types.js";
+import { createCommonJsSandbox } from "../shared/vmSandbox.js";
 
 export async function tutorJsHelloCheck({ code }: { code: string }): Promise<ToolResponse> {
   // Prepare a sandboxed context
-  const sandbox: any = {
-    module: { exports: {} },
-    exports: {},
-    console, // allow console.log in their code
-  };
+  const sandbox: any = createCommonJsSandbox();
 
   vm.createContext(sandbox);
 

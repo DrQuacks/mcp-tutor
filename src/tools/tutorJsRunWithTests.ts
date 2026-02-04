@@ -4,6 +4,7 @@
 
 import vm from "node:vm";
 import type { ToolResponse } from "../shared/types.js";
+import { createCommonJsSandbox } from "../shared/vmSandbox.js";
 
 export async function tutorJsRunWithTests({
   solutionCode,
@@ -14,15 +15,13 @@ export async function tutorJsRunWithTests({
 }): Promise<ToolResponse> {
   const logs: string[] = [];
 
-  const sandbox: any = {
-    module: { exports: {} },
-    exports: {},
-    console: {
+  const sandbox: any = createCommonJsSandbox({
+    consoleImpl: {
       log: (...args: unknown[]) => {
         logs.push(args.map((a) => String(a)).join(" "));
       },
     },
-  };
+  });
 
   vm.createContext(sandbox);
 
