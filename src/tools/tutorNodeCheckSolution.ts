@@ -7,6 +7,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { EXERCISES_ROOT, NODE_ENV_ROOT } from "../shared/constants.js";
 import { recordAttempt, markInterviewExerciseComplete } from "../shared/progress.js";
+import { createCommonJsSandbox } from "../shared/vmSandbox.js";
 import type { ToolResponse } from "../shared/types.js";
 
 export async function tutorNodeCheckSolution({
@@ -94,11 +95,7 @@ export async function tutorNodeCheckSolution({
 
   for (const test of exerciseData.tests) {
     try {
-      const sandbox: any = {
-        module: { exports: {} },
-        exports: {},
-        console,
-      };
+      const sandbox: any = createCommonJsSandbox();
 
       vm.createContext(sandbox);
       vm.runInContext(codeToRun, sandbox, { timeout: 1000 });
