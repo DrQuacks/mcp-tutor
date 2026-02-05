@@ -4,7 +4,6 @@ import { z } from "zod";
 import { tutorEcho } from "./tools/tutorEcho.js";
 import { tutorJsHelloPrompt } from "./tools/tutorJsHelloPrompt.js";
 import { tutorJsHelloCheck } from "./tools/tutorJsHelloCheck.js";
-import { tutorJsRunWithTests } from "./tools/tutorJsRunWithTests.js";
 import { tutorReactExercisePrompt } from "./tools/tutorReactExercisePrompt.js";
 import { tutorNodeCheckSolution } from "./tools/tutorNodeCheckSolution.js";
 import { tutorNodeShowSolution } from "./tools/tutorNodeShowSolution.js";
@@ -90,26 +89,6 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
         ),
     }),
     handler: async (params) => tutorJsHelloCheck(params),
-  },
-  {
-    name: "tutor_js_run_with_tests",
-    role: "student",
-    description: `
-  Runs JavaScript solution code together with test code in a sandbox and reports whether tests passed.
-  `.trim(),
-    inputSchema: z.object({
-      solutionCode: z
-        .string()
-        .describe(
-          "The student's JavaScript solution code. This is evaluated first in a sandbox."
-        ),
-      testCode: z
-        .string()
-        .describe(
-          "JavaScript test code that assumes the solution has been loaded, and throws errors if tests fail."
-        ),
-    }),
-    handler: async (params) => tutorJsRunWithTests(params),
   },
   // --- Exercise tools (React & Node) ---
   {
