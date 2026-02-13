@@ -7,7 +7,7 @@ import path from "node:path";
 import { chromium, Browser } from "playwright";
 import { EXERCISES_ROOT, NODE_ENV_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getOrStartViteServer } from "../shared/vite.js";
-import { formatExerciseResultsAndRecord } from "../shared/exerciseResults.js";
+import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
 
 export async function tutorReactCheckSolution({
@@ -242,7 +242,7 @@ export async function tutorReactCheckSolution({
     }
 
     // Run browser tests
-    const testResults: Array<{ name: string; passed: boolean; error?: string }> = [];
+    const testResults: ExerciseTestResult[] = [];
     
     for (let i = 0; i < exerciseData.browserTests.length; i++) {
       const test = exerciseData.browserTests[i];

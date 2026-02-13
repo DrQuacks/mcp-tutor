@@ -7,7 +7,7 @@ import path from "node:path";
 import vm from "node:vm";
 import { EXERCISES_ROOT, NODE_ENV_ROOT } from "../shared/constants.js";
 import { createCommonJsSandbox } from "../shared/vmSandbox.js";
-import { formatExerciseResultsAndRecord } from "../shared/exerciseResults.js";
+import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
 
 export async function tutorNodeCheckSolution({
@@ -91,7 +91,7 @@ export async function tutorNodeCheckSolution({
   }
 
   // Run tests using VM sandbox
-  const testResults: Array<{ name: string; passed: boolean; error?: string }> = [];
+  const testResults: ExerciseTestResult[] = [];
 
   for (const test of exerciseData.tests) {
     try {
