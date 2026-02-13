@@ -2,14 +2,12 @@
  * Tests React solutions using Playwright browser automation
  */
 
-import fs from "node:fs/promises";
-import path from "node:path";
 import { chromium, Browser } from "playwright";
-import { EXERCISES_ROOT, NODE_ENV_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
+import { NODE_ENV_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getOrStartViteServer } from "../shared/vite.js";
 import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
-import { loadExercise } from "../shared/exerciseLoader.js";
+import { loadExercise, requireSolutionFile } from "../shared/exerciseLoader.js";
 
 export async function tutorReactCheckSolution({
   exerciseId,
@@ -27,19 +25,14 @@ export async function tutorReactCheckSolution({
 
   // Verify solution file exists
   const envRoot = exerciseData.environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
-  const solutionPath = path.join(envRoot, exerciseData.filePath);
+  const solutionCheck = await requireSolutionFile({
+    envRoot,
+    filePath: exerciseData.filePath,
+    missingMessage: `❌ Solution file not found at ${exerciseData.filePath}. Did you create the file?`,
+  });
 
-  try {
-    await fs.access(solutionPath);
-  } catch (err: any) {
-    return {
-      content: [
-        {
-          type: "text",
-          text: `❌ Solution file not found at ${exerciseData.filePath}. Did you create the file?`,
-        },
-      ],
-    };
+  if (solutionCheck.kind === "error") {
+    return solutionCheck.response;
   }
 
   let browser: Browser | undefined;

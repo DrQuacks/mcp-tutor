@@ -5,11 +5,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import vm from "node:vm";
-import { EXERCISES_ROOT, NODE_ENV_ROOT } from "../shared/constants.js";
+import { NODE_ENV_ROOT } from "../shared/constants.js";
 import { createCommonJsSandbox } from "../shared/vmSandbox.js";
 import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
-import { loadExercise } from "../shared/exerciseLoader.js";
+import { loadExercise, requireSolutionFile } from "../shared/exerciseLoader.js";
 
 export async function tutorNodeCheckSolution({
   exerciseId,
@@ -24,7 +24,18 @@ export async function tutorNodeCheckSolution({
   const { exerciseData } = loaded;
 
   // Verify solution file exists
-  const solutionPath = path.join(NODE_ENV_ROOT, exerciseData.filePath);
+  const solutionCheck = await requireSolutionFile({
+    envRoot: NODE_ENV_ROOT,
+    filePath: exerciseData.filePath,
+    missingMessage:
+      `❌ Solution file not found at ${exerciseData.filePath}. Did you create the file in environments/node/?`,
+  });
+
+  if (solutionCheck.kind === "error") {
+    return solutionCheck.response;
+  }
+
+  const { solutionPath } = solutionCheck;
 
   let solutionCode: string;
   try {

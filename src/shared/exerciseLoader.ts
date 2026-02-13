@@ -52,3 +52,35 @@ export async function loadExercise<T = any>(exerciseId: string): Promise<LoadedE
     };
   }
 }
+
+export type SolutionFileCheckResult =
+  | { kind: "ok"; solutionPath: string }
+  | { kind: "error"; response: ToolResponse };
+
+export async function requireSolutionFile(options: {
+  envRoot: string;
+  filePath: string;
+  missingMessage?: string;
+}): Promise<SolutionFileCheckResult> {
+  const { envRoot, filePath, missingMessage } = options;
+  const solutionPath = path.join(envRoot, filePath);
+
+  try {
+    await fs.access(solutionPath);
+    return { kind: "ok", solutionPath };
+  } catch {
+    return {
+      kind: "error",
+      response: {
+        content: [
+          {
+            type: "text",
+            text:
+              missingMessage ??
+              `❌ Solution file not found at ${filePath}. Did you create the file?`,
+          },
+        ],
+      },
+    };
+  }
+}
