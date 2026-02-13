@@ -9,44 +9,19 @@ import { EXERCISES_ROOT, NODE_ENV_ROOT } from "../shared/constants.js";
 import { createCommonJsSandbox } from "../shared/vmSandbox.js";
 import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
+import { loadExercise } from "../shared/exerciseLoader.js";
 
 export async function tutorNodeCheckSolution({
   exerciseId,
 }: {
   exerciseId: string;
 }): Promise<ToolResponse> {
-  const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
-
-  let exerciseData: any;
-  try {
-    const content = await fs.readFile(exercisePath, "utf8");
-    exerciseData = JSON.parse(content);
-  } catch (err: any) {
-    const tutorialPath = path.join(EXERCISES_ROOT, `tutorial-${exerciseId}.json`);
-    try {
-      await fs.access(tutorialPath);
-      return {
-        content: [
-          {
-            type: "text",
-            text:
-              `❌ '${exerciseId}' is a tutorial, not an exercise. ` +
-              `Use tutor_check_tutorial_step with tutorialId '${exerciseId}'.`,
-          },
-        ],
-      };
-    } catch {
-      // fall through to generic error
-    }
-    return {
-      content: [
-        {
-          type: "text",
-          text: `❌ Exercise '${exerciseId}' not found or invalid.`,
-        },
-      ],
-    };
+  const loaded = await loadExercise<any>(exerciseId);
+  if (loaded.kind === "error") {
+    return loaded.response;
   }
+
+  const { exerciseData } = loaded;
 
   // Verify solution file exists
   const solutionPath = path.join(NODE_ENV_ROOT, exerciseData.filePath);
