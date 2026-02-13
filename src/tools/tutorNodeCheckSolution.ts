@@ -6,8 +6,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import vm from "node:vm";
 import { EXERCISES_ROOT, NODE_ENV_ROOT } from "../shared/constants.js";
-import { recordAttempt, markInterviewExerciseComplete } from "../shared/progress.js";
 import { createCommonJsSandbox } from "../shared/vmSandbox.js";
+import { formatExerciseResultsAndRecord } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
 
 export async function tutorNodeCheckSolution({
@@ -151,59 +151,11 @@ export async function tutorNodeCheckSolution({
     }
   }
 
-  // Format results
-  const allPassed = testResults.every(t => t.passed);
-  const lines: string[] = [];
-
-  if (allPassed) {
-    lines.push(`✅ Excellent! All ${testResults.length} tests passed for ${exerciseData.title}!`);
-    lines.push("");
-    lines.push("Tests run:");
-    for (const test of testResults) {
-      lines.push(`  ✅ ${test.name}`);
-    }
-  } else {
-    lines.push(`❌ Some tests failed for ${exerciseData.title}`);
-    lines.push("");
-    lines.push("Test results:");
-    for (const test of testResults) {
-      if (test.passed) {
-        lines.push(`  ✅ ${test.name}`);
-      } else {
-        lines.push(`  ❌ ${test.name}`);
-        if (test.error) {
-          lines.push(`     Error: ${test.error}`);
-        }
-      }
-    }
-    lines.push("");
-    lines.push(`Would you like a hint about what might be wrong? Let me know and I can provide more specific guidance.`);
-    lines.push(`Or use \`tutor_node_show_solution\` with exerciseId: "${exerciseId}" to see the full solution.`);
-  }
-
-  // Record attempt for progress tracking
-  await recordAttempt(
+  return await formatExerciseResultsAndRecord({
     exerciseId,
-    exerciseData.title,
-    exerciseData.environment,
-    allPassed,
-    testResults.filter(t => t.passed).length,
-    testResults.length
-  );
-  
-  // Update interview progress if this exercise is part of interview prep
-  await markInterviewExerciseComplete(
-    exerciseId,
-    testResults.filter(t => t.passed).length,
-    testResults.length
-  );
-
-  return {
-    content: [
-      {
-        type: "text",
-        text: lines.join("\n"),
-      },
-    ],
-  };
+    exerciseTitle: exerciseData.title,
+    environment: exerciseData.environment,
+    testResults,
+    showSolutionToolName: "tutor_node_show_solution",
+  });
 }
