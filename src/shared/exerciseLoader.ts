@@ -4,7 +4,7 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
-import { EXERCISES_ROOT } from "./constants.js";
+import { EXERCISES_ROOT, NODE_ENV_ROOT, REACT_ENV_ROOT } from "./constants.js";
 import type { ToolResponse } from "./types.js";
 
 export type LoadedExercise<T = any> =
@@ -51,6 +51,10 @@ export async function loadExercise<T = any>(exerciseId: string): Promise<LoadedE
       },
     };
   }
+}
+
+export function getEnvironmentRoot(environment: string): string {
+  return environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
 }
 
 export type SolutionFileCheckResult =

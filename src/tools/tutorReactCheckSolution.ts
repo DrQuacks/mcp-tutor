@@ -3,11 +3,10 @@
  */
 
 import { chromium, Browser } from "playwright";
-import { NODE_ENV_ROOT, REACT_ENV_ROOT } from "../shared/constants.js";
 import { getOrStartViteServer } from "../shared/vite.js";
 import { formatExerciseResultsAndRecord, ExerciseTestResult } from "../shared/exerciseResults.js";
 import type { ToolResponse } from "../shared/types.js";
-import { loadExercise, requireSolutionFile } from "../shared/exerciseLoader.js";
+import { loadExercise, requireSolutionFile, getEnvironmentRoot } from "../shared/exerciseLoader.js";
 
 export async function tutorReactCheckSolution({
   exerciseId,
@@ -24,7 +23,7 @@ export async function tutorReactCheckSolution({
   const { exerciseData } = loaded;
 
   // Verify solution file exists
-  const envRoot = exerciseData.environment === "node" ? NODE_ENV_ROOT : REACT_ENV_ROOT;
+  const envRoot = getEnvironmentRoot(exerciseData.environment);
   const solutionCheck = await requireSolutionFile({
     envRoot,
     filePath: exerciseData.filePath,
