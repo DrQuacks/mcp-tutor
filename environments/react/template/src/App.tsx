@@ -1,11 +1,11 @@
 import './App.css'
-import RenderCycle from './exercises/RenderCycle'
+import CustomHooks from './exercises/CustomHooks'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Tutorial: React Render Cycle and Component Lifecycle</h1>
-      <RenderCycle />
+      <h1>Tutorial: Custom Hooks - Rules and Patterns</h1>
+      <CustomHooks />
     </div>
   )
 }

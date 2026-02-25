@@ -281,7 +281,11 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_start_tutorial",
     role: "student",
     description: `
-  Starts or resumes a step-by-step tutorial. Returns JSON with tutorial content that you MUST present clearly to the user.
+  Starts or resumes a step-by-step tutorial. Returns JSON with the CURRENT step content that you MUST present clearly to the user.
+
+  Use this to begin a tutorial or to re-load the student's current step at the start of a session.
+
+  ⚠️ Do NOT use this to move from step N to step N+1 after validation. To advance, you MUST use the combination of tutor_check_tutorial_step (to inspect/validate the student's work) and tutor_advance_step (to actually mark the step complete and load the next one).
 
   ⚠️ CRITICAL: After calling this tool, you MUST present the tutorial content in your response like this:
 
@@ -322,7 +326,13 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     description: `
   Validates the current step of an active tutorial. ONLY checks if code meets requirements - does NOT provide explanations or guidance.
 
-  Returns pass/fail with a list of what's missing. If successful, automatically presents the next step. If unsuccessful, use OTHER tools (tutor_explain_concept, tutor_connect_pattern) to help the student.
+  For code-based and browser-based validations, this tool returns a JSON payload (for example, with studentCode or testResults and a validationType field) that the AI must interpret. It does NOT itself update tutorial progress or move to the next step.
+
+  The expected flow is:
+  1. Call tutor_check_tutorial_step(tutorialId) to get the current step's validation data.
+  2. As the AI, decide whether the student's work semantically passes.
+  3. If it FAILS: craft guidance and route it through tutor_validate_response and tutor_respond_to_student.
+  4. If it PASSES: call tutor_advance_step(tutorialId) to mark the step complete and load the next step.
 
   🚫 ABSOLUTE PROHIBITION: You must NEVER edit student exercise/tutorial files under ANY circumstances. This includes:
   - NEVER use replace_string_in_file, multi_replace_string_in_file, or create_file on student files
@@ -343,9 +353,14 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_advance_step",
     role: "internal",
     description: `
-  ⚠️ INTERNAL USE ONLY - Called by the AI after validating student code to advance to the next tutorial step.
+  ⚠️ INTERNAL USE ONLY - Advances the tutorial to the next step AFTER the AI has validated that the current step passes.
 
-  DO NOT call this directly - it's automatically invoked after tutor_check_tutorial_step when validation passes.
+  This tool:
+  - Marks the current step as completed in the user's tutorial progress
+  - Updates currentStep to point at the next step
+  - Returns the next step's content (or a completion summary if there are no more steps)
+
+  It is NOT called automatically. The AI must explicitly call tutor_advance_step(tutorialId) once it has decided, based on tutor_check_tutorial_step's output, that the student's code satisfies the current step's requirements.
   `.trim(),
     inputSchema: z.object({
       tutorialId: z
