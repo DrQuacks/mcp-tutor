@@ -1,9 +1,17 @@
+/**
+ * Starts a dummy Express backend server for frontend exercises.
+ *
+ * Pattern is similar to the Vite dev server starter: we track the
+ * last-known port and PID in the shared state file so we can
+ * detect an already-running server and avoid starting duplicates.
+ */
+
 import { spawn } from "child_process";
 import net from "node:net";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const VITE_STATE_FILE = path.join(process.cwd(), "session_state_vite_server.json");
+const STATE_FILE = path.join(process.cwd(), "session_state_vite_server.json");
 
 type ServerProcessState = {
   port: number;
@@ -15,10 +23,6 @@ type MultiServerState = {
   backend?: ServerProcessState;
 };
 
-/**
- * Starts the Vite dev server for React exercises.
- * Usage: Registered as an MCP tool for reliably starting the correct dev server.
- */
 async function isPortInUse(port: number): Promise<boolean> {
   return new Promise((resolve) => {
     const socket = net.createConnection({ port, host: "127.0.0.1" });
@@ -32,9 +36,8 @@ async function isPortInUse(port: number): Promise<boolean> {
 
 async function readFullState(): Promise<MultiServerState | null> {
   try {
-    const raw = await fs.readFile(VITE_STATE_FILE, "utf8");
+    const raw = await fs.readFile(STATE_FILE, "utf8");
     const data = JSON.parse(raw);
-    // New shape: { vite?: { port, pid }, backend?: { port, pid } }
     if (typeof data === "object" && (data.vite || data.backend)) {
       const state: MultiServerState = {};
       if (data.vite && typeof data.vite.port === "number") {
@@ -51,7 +54,8 @@ async function readFullState(): Promise<MultiServerState | null> {
       }
       return state;
     }
-    // Backwards-compatible shape: { port, pid }
+    // Backwards-compatible: if file was created by older Vite-only code,
+    // treat it as Vite state and no backend entry.
     if (typeof data.port === "number") {
       return {
         vite: {
@@ -61,51 +65,47 @@ async function readFullState(): Promise<MultiServerState | null> {
       };
     }
   } catch {
-    // Ignore missing or invalid state file
+    // Ignore missing or invalid file
   }
   return null;
 }
 
 async function writeFullState(state: MultiServerState): Promise<void> {
   try {
-    await fs.writeFile(VITE_STATE_FILE, JSON.stringify(state, null, 2), "utf8");
+    await fs.writeFile(STATE_FILE, JSON.stringify(state, null, 2), "utf8");
   } catch {
-    // Best-effort only; failures here shouldn't block starting the server
+    // Best-effort only
   }
 }
 
-async function readViteState(): Promise<ServerProcessState | null> {
+async function readBackendState(): Promise<ServerProcessState | null> {
   const state = await readFullState();
-  return state?.vite ?? null;
+  return state?.backend ?? null;
 }
 
-async function writeViteState(port: number, pid?: number): Promise<void> {
+async function writeBackendState(port: number, pid?: number): Promise<void> {
   const state = (await readFullState()) ?? {};
-  state.vite = { port, pid };
+  state.backend = { port, pid };
   await writeFullState(state);
 }
 
-async function clearViteState(): Promise<void> {
+async function clearBackendState(): Promise<void> {
   try {
     const state = await readFullState();
-    if (!state) {
-      return;
-    }
-    delete state.vite;
-    if (!state.backend) {
-      await fs.unlink(VITE_STATE_FILE);
+    if (!state) return;
+    delete state.backend;
+    if (!state.vite) {
+      await fs.unlink(STATE_FILE);
     } else {
       await writeFullState(state);
     }
   } catch {
-    // Ignore if file does not exist
+    // Ignore if file missing
   }
 }
 
-async function stopViteServerIfRunning(state: ServerProcessState): Promise<boolean> {
-  if (!state.pid) {
-    return false;
-  }
+async function stopBackendIfRunning(state: ServerProcessState): Promise<boolean> {
+  if (!state.pid) return false;
 
   try {
     process.kill(state.pid);
@@ -120,7 +120,7 @@ async function stopViteServerIfRunning(state: ServerProcessState): Promise<boole
   for (let i = 0; i < 20; i++) {
     await new Promise((resolve) => setTimeout(resolve, 100));
     if (!(await isPortInUse(state.port))) {
-      await clearViteState();
+      await clearBackendState();
       return true;
     }
   }
@@ -128,32 +128,30 @@ async function stopViteServerIfRunning(state: ServerProcessState): Promise<boole
   return false;
 }
 
-export async function startViteDevServer(port?: number): Promise<{ content: { type: "text"; text: string }[] }> {
+export async function startDummyBackend(port?: number): Promise<{ content: { type: "text"; text: string }[] }> {
   const userRequestedPort = typeof port === "number" ? port : undefined;
   const messages: string[] = [];
-  const savedState = await readViteState();
+  const savedState = await readBackendState();
 
-  // Case 1: user explicitly requested a port
+  // Case 1: explicit port
   if (userRequestedPort !== undefined) {
-    // If we previously started Vite on a different port, try to stop it
     if (savedState && savedState.port !== userRequestedPort) {
       if (await isPortInUse(savedState.port)) {
-        const stopped = await stopViteServerIfRunning(savedState);
+        const stopped = await stopBackendIfRunning(savedState);
         if (stopped) {
           messages.push(
-            `ℹ️ Stopped existing Vite dev server on http://localhost:${savedState.port}`
+            `ℹ️ Stopped existing dummy backend on http://localhost:${savedState.port}`
           );
         } else {
           messages.push(
-            `⚠️ Detected a Vite dev server previously started on http://localhost:${savedState.port}, but could not confirm it was stopped.`
+            `⚠️ Detected a dummy backend previously started on http://localhost:${savedState.port}, but could not confirm it was stopped.`
           );
         }
       } else {
-        await clearViteState();
+        await clearBackendState();
       }
     }
 
-    // If the requested port is already in use, either reuse or fail
     if (await isPortInUse(userRequestedPort)) {
       if (savedState && savedState.port === userRequestedPort) {
         const prefix = messages.length ? messages.join("\n") + "\n" : "";
@@ -163,7 +161,7 @@ export async function startViteDevServer(port?: number): Promise<{ content: { ty
               type: "text",
               text:
                 prefix +
-                `✅ Vite dev server already running on http://localhost:${userRequestedPort}`,
+                `✅ Dummy backend already running on http://localhost:${userRequestedPort}`,
             },
           ],
         };
@@ -176,23 +174,23 @@ export async function startViteDevServer(port?: number): Promise<{ content: { ty
             type: "text",
             text:
               prefix +
-              `❌ Port ${userRequestedPort} is already in use by another process; cannot start Vite dev server there.`,
+              `❌ Port ${userRequestedPort} is already in use by another process; cannot start dummy backend there.`,
           },
         ],
       };
     }
 
-    // Start a new Vite server on the requested port
     try {
-      const child = spawn("npm", ["run", "dev", "--", "--port", String(userRequestedPort)], {
-        cwd: "environments/react/template",
+      const child = spawn("npm", ["run", "dummy-backend"], {
+        cwd: process.cwd(),
         detached: true,
         stdio: "ignore",
+        env: { ...process.env, DUMMY_BACKEND_PORT: String(userRequestedPort) },
       });
       const pid = child.pid;
       child.unref();
 
-      await writeViteState(userRequestedPort, pid);
+      await writeBackendState(userRequestedPort, pid);
 
       const prefix = messages.length ? messages.join("\n") + "\n" : "";
       return {
@@ -201,7 +199,7 @@ export async function startViteDevServer(port?: number): Promise<{ content: { ty
             type: "text",
             text:
               prefix +
-              `✅ Vite dev server starting on http://localhost:${userRequestedPort}`,
+              `✅ Dummy backend starting on http://localhost:${userRequestedPort}`,
           },
         ],
       };
@@ -213,62 +211,60 @@ export async function startViteDevServer(port?: number): Promise<{ content: { ty
             type: "text",
             text:
               prefix +
-              `❌ Failed to start Vite dev server: ${err?.message || String(err)}`,
+              `❌ Failed to start dummy backend: ${err?.message || String(err)}`,
           },
         ],
       };
     }
   }
 
-  // Case 2: no explicit port requested
+  // Case 2: no explicit port
   if (savedState && (await isPortInUse(savedState.port))) {
     return {
       content: [
         {
           type: "text",
-          text: `✅ Vite dev server already running on http://localhost:${savedState.port}`,
+          text: `✅ Dummy backend already running on http://localhost:${savedState.port}`,
         },
       ],
     };
   }
 
-  // Saved state exists but port is no longer in use; clear stale state
   if (savedState) {
-    await clearViteState();
+    await clearBackendState();
   }
 
-  const defaultPort = 5174;
+  const defaultPort = 4000;
 
-  // Try default port next
   if (await isPortInUse(defaultPort)) {
-    await writeViteState(defaultPort);
+    await writeBackendState(defaultPort);
     return {
       content: [
         {
           type: "text",
-          text: `✅ Vite dev server already running on http://localhost:${defaultPort}`,
+          text: `✅ Dummy backend already running on http://localhost:${defaultPort}`,
         },
       ],
     };
   }
 
-  // Finally, start a new server on the default port
   try {
-    const child = spawn("npm", ["run", "dev", "--", "--port", String(defaultPort)], {
-      cwd: "environments/react/template",
+    const child = spawn("npm", ["run", "dummy-backend"], {
+      cwd: process.cwd(),
       detached: true,
       stdio: "ignore",
+      env: { ...process.env, DUMMY_BACKEND_PORT: String(defaultPort) },
     });
     const pid = child.pid;
     child.unref();
 
-    await writeViteState(defaultPort, pid);
+    await writeBackendState(defaultPort, pid);
 
     return {
       content: [
         {
           type: "text",
-          text: `✅ Vite dev server starting on http://localhost:${defaultPort}`,
+          text: `✅ Dummy backend starting on http://localhost:${defaultPort}`,
         },
       ],
     };
@@ -277,7 +273,7 @@ export async function startViteDevServer(port?: number): Promise<{ content: { ty
       content: [
         {
           type: "text",
-          text: `❌ Failed to start Vite dev server: ${err?.message || String(err)}`,
+          text: `❌ Failed to start dummy backend: ${err?.message || String(err)}`,
         },
       ],
     };

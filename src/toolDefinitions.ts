@@ -32,6 +32,7 @@ import { seniorDev_check_step } from "./tools/seniorDev_check_step.js";
 import { seniorDev_finalize_tutorial } from "./tools/seniorDev_finalize_tutorial.js";
 import { seniorDev_abort_session } from "./tools/seniorDev_abort_session.js";
 import { startViteDevServer } from "./tools/startViteDevServer.js";
+import { startDummyBackend } from "./tools/startDummyBackend.js";
 
 export type ToolDefinition = {
   name: string;
@@ -537,6 +538,29 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
         ),
     }),
     handler: async (params) => startViteDevServer(params.port),
+  },
+  {
+    name: "start_dummy_backend",
+    role: "infra",
+    description: `
+  Starts (or confirms) the dummy Express backend server used by frontend exercises.
+
+  Behaves similarly to the Vite dev server tool:
+  - Uses the same JSON state file as the Vite server to track port and PID
+  - Reuses an already-running backend if it finds one on the saved port
+  - By default, uses port 4000 unless a different port is explicitly requested
+
+  You can think of this as the tool to call when the user says things like "start the dummy backend" or "start the dummy server".
+  `.trim(),
+    inputSchema: z.object({
+      port: z
+        .number()
+        .optional()
+        .describe(
+          "Optional port for the dummy backend server (defaults to 4000)."
+        ),
+    }),
+    handler: async (params) => startDummyBackend(params.port),
   },
   // --- Senior Dev Mode tools ---
   {
