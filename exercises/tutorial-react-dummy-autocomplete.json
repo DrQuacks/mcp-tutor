@@ -1,0 +1,74 @@
+{
+  "id": "tutorial-react-dummy-autocomplete",
+  "title": "Dummy Backend: Todo Autocomplete",
+  "description": "Build an autocomplete input backed by the dummy backend's /api/todos endpoint, handling filtering, empty states, and selection.",
+  "environment": "react",
+  "filePath": "src/exercises/DummyAutocomplete.tsx",
+  "starterCode": "export default function DummyAutocomplete() {\n  return (\n    <div>\n      <h2>Todo Autocomplete</h2>\n    </div>\n  );\n}\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Fetch todos for suggestion data",
+      "explanation": "The autocomplete will suggest todo titles from the dummy backend. First, fetch the todos once on mount using useEffect and useState. Store them in a todos array, and also track loading and error while the request is in flight.",
+      "codeExample": "const [todos, setTodos] = useState([]);\nconst [loading, setLoading] = useState(true);\nconst [error, setError] = useState(null);\n\nuseEffect(() => {\n  const loadTodos = async () => {\n    try {\n      const res = await fetch('http://localhost:4000/api/todos');\n      if (!res.ok) throw new Error('Failed to fetch todos');\n      const data = await res.json();\n      setTodos(data);\n      setError(null);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'Unknown error');\n    } finally {\n      setLoading(false);\n    }\n  };\n  loadTodos();\n}, []);",
+      "task": "Set up todos, loading, and error state. Use useEffect to fetch from 'http://localhost:4000/api/todos' on mount, updating these three pieces of state appropriately.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["todos", "useEffect", "fetch", "/api/todos", "setTodos", "setLoading(false)"]
+      },
+      "hints": [
+        "Mirror the data / loading / error pattern you used in earlier tutorials.",
+        "Use an async helper inside useEffect so you can await fetch.",
+        "Clear any previous error on successful load."
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Track the search query and compute suggestions",
+      "explanation": "Autocomplete is just filtering + UI. Track the current input value in a query state variable. Derive a suggestions array by filtering todos whose title includes the query (case‑insensitive). When the query is empty, you can choose to show no suggestions or all – here we'll hide suggestions for an empty query.",
+      "codeExample": "const [query, setQuery] = useState('');\n\nconst suggestions = query.trim()\n  ? todos.filter(todo =>\n      todo.title.toLowerCase().includes(query.toLowerCase())\n    )\n  : [];",
+      "task": "Add a query state string and derive a suggestions array that contains only todos whose title includes the current query (case‑insensitive). When query is empty or whitespace, suggestions should be an empty array.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["query", "setQuery", "suggestions", "filter", "includes"]
+      },
+      "hints": [
+        "Normalize both strings with toLowerCase() before calling includes.",
+        "Use query.trim() to avoid treating whitespace as a real search.",
+        "Compute suggestions from todos rather than storing them separately in state."
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Build the autocomplete UI",
+      "explanation": "Now wire up the UI. Render an input bound to query with a placeholder like 'Search todos...'. Below it, render a list of suggestion items. Handle three cases: still loading (show a loading message), error (show the error), and 'no matches' when suggestions is empty but query is non‑empty.",
+      "codeExample": "<input\n  type=\"text\"\n  placeholder=\"Search todos...\"\n  value={query}\n  onChange={(e) => setQuery(e.currentTarget.value)}\n/>\n\n{loading && <div>Loading suggestions...</div>}\n{error && <div>Error: {error}</div>}\n\n{!loading && !error && query.trim() && (\n  suggestions.length === 0 ? (\n    <div>No matches found.</div>\n  ) : (\n    <ul>\n      {suggestions.map(todo => (\n        <li key={todo.id}>{todo.title}</li>\n      ))}\n    </ul>\n  )\n)}",
+      "task": "Create an input bound to query with placeholder 'Search todos...'. While loading is true, show 'Loading suggestions...'. If error exists, show 'Error: {error}'. When not loading and not error and query is non‑empty, show either 'No matches found.' (if suggestions is empty) or a list of suggestion items using the todo titles.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["placeholder=\"Search todos...\"", "Loading suggestions", "No matches found", "suggestions.map", "todo.title"]
+      },
+      "hints": [
+        "Use a single input with value={query} and onChange to keep it controlled.",
+        "Gate the suggestions UI behind !loading && !error && query.trim().",
+        "Render suggestions in a ul/li structure for clarity."
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Support selecting a suggestion",
+      "explanation": "A useful autocomplete lets users click a suggestion to fill the input. Track a selectedTodo in state. When a suggestion is clicked, update both the input's query (to that title) and selectedTodo. Render the selected todo's title below the list as confirmation.",
+      "codeExample": "const [selectedTodo, setSelectedTodo] = useState(null);\n\n<ul>\n  {suggestions.map(todo => (\n    <li\n      key={todo.id}\n      onClick={() => {\n        setQuery(todo.title);\n        setSelectedTodo(todo);\n      }}\n    >\n      {todo.title}\n    </li>\n  ))}\n</ul>\n\n{selectedTodo && (\n  <div>Selected: {selectedTodo.title}</div>\n)}",
+      "task": "Add a selectedTodo piece of state. When a suggestion is clicked, set the query to that todo's title and store the full todo in selectedTodo. Below the suggestions, render 'Selected: {selectedTodo.title}' when a todo has been selected.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["selectedTodo", "onClick", "setSelectedTodo", "Selected:"]
+      },
+      "hints": [
+        "Store the entire todo object so you can extend the UI later (e.g., show id or other fields).",
+        "Remember to update both query and selectedTodo on click.",
+        "Hide the 'Selected:' message until selectedTodo is non‑null."
+      ]
+    }
+  ]
+}

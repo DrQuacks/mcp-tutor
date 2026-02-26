@@ -1,0 +1,74 @@
+{
+  "id": "tutorial-react-dummy-crud-autocomplete",
+  "title": "Dummy Backend: Todo CRUD + Autocomplete",
+  "description": "Build a small todo manager that performs real CRUD against the dummy backend and exposes an autocomplete search over server data.",
+  "environment": "react",
+  "filePath": "src/exercises/DummyTodoCrudAutocomplete.tsx",
+  "starterCode": "export default function DummyTodoCrudAutocomplete() {\n  return (\n    <div>\n      <h2>Todo CRUD with Autocomplete</h2>\n    </div>\n  );\n}\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Load todos from the dummy backend",
+      "explanation": "Start by reading todos from the dummy backend's REST API. Use useState to track a todos array, a loading flag, and an error message. In useEffect, call GET http://localhost:4000/api/todos, parse the JSON, and populate your state. This mirrors how many interview tasks begin: 'wire this list to our API and show loading/error states'.",
+      "codeExample": "const [todos, setTodos] = useState([]);\nconst [loading, setLoading] = useState(true);\nconst [error, setError] = useState(null);\n\nuseEffect(() => {\n  const loadTodos = async () => {\n    try {\n      const res = await fetch('http://localhost:4000/api/todos');\n      if (!res.ok) throw new Error('Failed to load todos');\n      const data = await res.json();\n      setTodos(data);\n      setError(null);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'Unknown error');\n    } finally {\n      setLoading(false);\n    }\n  };\n  loadTodos();\n}, []);",
+      "task": "Set up todos, loading, and error state. Use useEffect to fetch from 'http://localhost:4000/api/todos' on mount, storing the array in todos and managing loading/error correctly.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["todos", "useEffect", "fetch", "/api/todos", "setTodos", "setLoading(false)"]
+      },
+      "hints": [
+        "Use the standard data/loading/error triad with useState.",
+        "Define an async helper inside useEffect so you can await fetch.",
+        "Always turn loading off in a finally block so the UI can't get stuck."
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Create new todos (Create in CRUD)",
+      "explanation": "Now support adding todos through the backend. Track an input value for the new todo's title. On submit, call POST http://localhost:4000/api/todos with a JSON body { title }. If the request succeeds, append the returned todo to your todos array. This is the 'Create' part of CRUD: update both the server and your local UI state.",
+      "codeExample": "const [newTitle, setNewTitle] = useState('');\n\nconst handleAdd = async (e) => {\n  e.preventDefault();\n  const trimmed = newTitle.trim();\n  if (!trimmed) return;\n\n  try {\n    const res = await fetch('http://localhost:4000/api/todos', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ title: trimmed }),\n    });\n    if (!res.ok) throw new Error('Failed to create todo');\n    const created = await res.json();\n    setTodos(prev => [...prev, created]);\n    setNewTitle('');\n  } catch (err) {\n    setError(err instanceof Error ? err.message : 'Unknown error');\n  }\n};",
+      "task": "Add a controlled input for a new todo title and a form submit handler that POSTs to 'http://localhost:4000/api/todos'. On success, append the created todo to todos and clear the input; on failure, set an error message.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["newTitle", "onChange", "POST", "Content-Type", "JSON.stringify", "setTodos"]
+      },
+      "hints": [
+        "Prevent default form submission with e.preventDefault().",
+        "Trim the input so you don't create whitespace-only todos.",
+        "Use the server's response body as the source of truth for the new todo (id, completed)."
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Toggle and delete todos (Update & Delete in CRUD)",
+      "explanation": "Implement Update and Delete by calling PATCH and DELETE on the dummy backend. For toggling completion, call PATCH /api/todos/:id with a JSON body that flips the completed flag, then update that item in local state with the server's response. For deletion, call DELETE /api/todos/:id and remove the item from local state when the call succeeds. This pattern is exactly what interviewers look for when they say 'keep UI in sync with the backend'.",
+      "codeExample": "const toggleTodo = async (todo) => {\n  try {\n    const res = await fetch(`http://localhost:4000/api/todos/${todo.id}`, {\n      method: 'PATCH',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ completed: !todo.completed }),\n    });\n    if (!res.ok) throw new Error('Failed to update todo');\n    const updated = await res.json();\n    setTodos(prev => prev.map(t => t.id === updated.id ? updated : t));\n  } catch (err) {\n    setError(err instanceof Error ? err.message : 'Unknown error');\n  }\n};\n\nconst deleteTodo = async (id) => {\n  try {\n    const res = await fetch(`http://localhost:4000/api/todos/${id}`, { method: 'DELETE' });\n    if (!res.ok) throw new Error('Failed to delete todo');\n    setTodos(prev => prev.filter(t => t.id !== id));\n  } catch (err) {\n    setError(err instanceof Error ? err.message : 'Unknown error');\n  }\n};",
+      "task": "Add handlers that call PATCH 'http://localhost:4000/api/todos/:id' to toggle a todo's completed flag and DELETE 'http://localhost:4000/api/todos/:id' to remove a todo. Wire them to UI controls (e.g., a checkbox or button to toggle, and a Delete button), and keep the todos array in sync with the server responses.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["PATCH", "DELETE", "/api/todos/", "completed", "setTodos(prev => prev.map", "setTodos(prev => prev.filter"]
+      },
+      "hints": [
+        "Use template literals to build the URL with the id.",
+        "For update, replace the one matching item in the array; for delete, filter it out.",
+        "Make sure to handle errors so the user sees when an operation fails."
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Add autocomplete search over server todos",
+      "explanation": "Finally, layer in an autocomplete input that filters titles from the todos loaded from the backend. Track a searchQuery string. Derive a suggestions array by filtering todos whose title includes the query (case-insensitive). When the query is empty, show no suggestions. Render a suggestion list below the input that updates as the user types. This ties CRUD state to an interview-favorite UI pattern: autocomplete.",
+      "codeExample": "const [searchQuery, setSearchQuery] = useState('');\n\nconst suggestions = searchQuery.trim()\n  ? todos.filter(todo =>\n      todo.title.toLowerCase().includes(searchQuery.toLowerCase())\n    )\n  : [];\n\n<input\n  type=\"text\"\n  placeholder=\"Search todos...\"\n  value={searchQuery}\n  onChange={(e) => setSearchQuery(e.currentTarget.value)}\n/>\n\n{searchQuery.trim() && (\n  suggestions.length === 0 ? (\n    <div>No matches found.</div>\n  ) : (\n    <ul>\n      {suggestions.map(todo => (\n        <li key={todo.id}>{todo.title}</li>\n      ))}\n    </ul>\n  )\n)}",
+      "task": "Add a controlled search input and a derived suggestions array that filters todos by title (case-insensitive). When the trimmed query is empty, hide suggestions. When it's non-empty, show either 'No matches found.' or a list of matching todo titles. All suggestions should be based on the todos you fetched from the backend, so they stay in sync with create/update/delete operations.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["searchQuery", "setSearchQuery", "suggestions", "placeholder=\"Search todos...\"", "No matches found", "suggestions.map"]
+      },
+      "hints": [
+        "Remember to use toLowerCase() on both sides of the includes() check.",
+        "Derive suggestions from the current todos array so they automatically reflect CRUD changes.",
+        "Use searchQuery.trim() to avoid treating pure whitespace as a real search."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "react-dummy-todos-query",
+  "title": "Dummy Backend Todos with React Query",
+  "description": "Use @tanstack/react-query to load todos from the dummy backend, display them with filters, and expose a manual refetch control.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "intermediate",
+  "estimatedTime": "25 minutes",
+  "category": "interview-prep",
+  "concepts": ["react-query", "loading states", "error handling", "filtering"],
+  "starterCode": "import { useQuery } from '@tanstack/react-query';\n\ninterface Todo {\n  id: number;\n  title: string;\n  completed: boolean;\n}\n\nexport default function TodosQueryPanel() {\n  // Implement panel here\n  return (\n    <div className=\"todos-query-panel\">\n      <h1>Todos (React Query)</h1>\n    </div>\n  );\n}\n",
+  "solutionCode": "import { useQuery } from '@tanstack/react-query';\n\ninterface Todo {\n  id: number;\n  title: string;\n  completed: boolean;\n}\n\nconst fetchTodos = async (): Promise<Todo[]> => {\n  const res = await fetch('http://localhost:4000/api/todos');\n  if (!res.ok) {\n    throw new Error('Failed to fetch todos');\n  }\n  return res.json();\n};\n\nexport default function TodosQueryPanel() {\n  const [filter, setFilter] = React.useState<'all' | 'completed' | 'active'>('all');\n\n  const { data, isLoading, isError, error, refetch } = useQuery<Todo[]>({\n    queryKey: ['dummy-todos'],\n    queryFn: fetchTodos,\n  });\n\n  if (isLoading) {\n    return <div className=\"todos-query-panel loading\">Loading todos...</div>;\n  }\n\n  if (isError) {\n    return (\n      <div className=\"todos-query-panel error\">\n        <p>Error: {error instanceof Error ? error.message : 'Unknown error'}</p>\n        <button onClick={() => refetch()}>Retry</button>\n      </div>\n    );\n  }\n\n  const todos = data ?? [];\n  const filtered = todos.filter(todo => {\n    if (filter === 'completed') return todo.completed;\n    if (filter === 'active') return !todo.completed;\n    return true;\n  });\n\n  return (\n    <div className=\"todos-query-panel loaded\">\n      <div className=\"header\">\n        <h1>Todos (React Query)</h1>\n        <button onClick={() => refetch()}>Refresh todos</button>\n      </div>\n\n      <div className=\"filters\">\n        <button\n          onClick={() => setFilter('all')}\n          className={filter === 'all' ? 'active' : ''}\n        >\n          All\n        </button>\n        <button\n          onClick={() => setFilter('active')}\n          className={filter === 'active' ? 'active' : ''}\n        >\n          Active\n        </button>\n        <button\n          onClick={() => setFilter('completed')}\n          className={filter === 'completed' ? 'active' : ''}\n        >\n          Completed\n        </button>\n      </div>\n\n      {filtered.length === 0 ? (\n        <div className=\"empty\">No todos match this filter.</div>\n      ) : (\n        <ul className=\"todo-list\">\n          {filtered.map(todo => (\n            <li key={todo.id} className=\"todo-item\">\n              <span className={todo.completed ? 'completed' : ''}>{todo.title}</span>\n            </li>\n          ))}\n        </ul>\n      )}\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Use useQuery from @tanstack/react-query to fetch todos from http://localhost:4000/api/todos with a stable queryKey",
+    "While loading, render a div with class 'todos-query-panel loading' containing text 'Loading todos...'",
+    "On error, render a div with class 'todos-query-panel error' showing 'Error: <message>' and a 'Retry' button that calls refetch",
+    "In the success state, render a div with class 'todos-query-panel loaded' containing an h1 'Todos (React Query)' and a 'Refresh todos' button that calls refetch",
+    "Display todos in a ul with class 'todo-list' where each li has class 'todo-item' and shows the todo title",
+    "Add three filter buttons: All, Active, Completed; clicking them filters the visible todos by completed flag and visually marks the active filter with class 'active'",
+    "Show an element with class 'empty' and text 'No todos match this filter.' when the filtered list is empty"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading state initially",
+      "selector": ".todos-query-panel.loading",
+      "exists": true
+    },
+    {
+      "name": "Displays todos after loading",
+      "actions": [],
+      "then": {
+        "selector": ".todos-query-panel.loaded .todo-item",
+        "count": 3,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Refresh button exists",
+      "actions": [],
+      "then": {
+        "selector": ".todos-query-panel.loaded button:has-text('Refresh todos')",
+        "exists": true,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Filter buttons exist",
+      "actions": [],
+      "then": {
+        "selector": ".filters button:has-text('All')",
+        "exists": true,
+        "waitFor": 1000
+      }
+    }
+  ],
+  "hints": {
+    "query": "Use useQuery({ queryKey: ['dummy-todos'], queryFn: fetchTodos }) and destructure isLoading, isError, error, refetch.",
+    "filtering": "Filter based on the completed boolean; 'Active' means not completed.",
+    "empty": "When filtered.length === 0, show a short empty state message instead of an empty list."
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "tutorial-react-dummy-profile",
+  "title": "Dummy Backend: Profile Viewer",
+  "description": "Practice fetching data from the dummy backend using useEffect, managing loading and error states, and wiring a refresh button.",
+  "environment": "react",
+  "filePath": "src/exercises/DummyProfile.tsx",
+  "starterCode": "export default function DummyProfile() {\n  return (\n    <div>\n      <h2>Dummy Backend Profile</h2>\n    </div>\n  );\n}\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Set Up Profile State",
+      "explanation": "You will fetch the demo user from the dummy backend (GET /api/profile). To handle the full async lifecycle, set up three pieces of state: the profile object, a loading flag, and an error message. This mirrors a common interview pattern: data / loading / error.",
+      "codeExample": "const [profile, setProfile] = useState(null);\nconst [loading, setLoading] = useState(true);\nconst [error, setError] = useState(null);",
+      "task": "Import useState from React and create three state variables in DummyProfile: 1) profile (initially null) to hold the user from /api/profile, 2) loading (initially true), and 3) error (initially null).",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["useState", "profile", "loading", "error"]
+      },
+      "hints": [
+        "Use: import { useState } from 'react';",
+        "Start loading as true so the UI can show a spinner while the first request runs.",
+        "Keep profile as null initially; you will render conditionally when it exists."
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Fetch from /api/profile with useEffect",
+      "explanation": "Now wire the component to the dummy backend. Use useEffect with an empty dependency array so the fetch runs once on mount. Inside, call fetch('http://localhost:4000/api/profile'), check response.ok, parse JSON, and update profile state. Capture any failures in the error state and make sure loading is set to false when the request finishes.",
+      "codeExample": "useEffect(() => {\n  const loadProfile = async () => {\n    try {\n      const res = await fetch('http://localhost:4000/api/profile');\n      if (!res.ok) throw new Error('Failed to load profile');\n      const data = await res.json();\n      setProfile(data);\n      setError(null);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'Unknown error');\n    } finally {\n      setLoading(false);\n    }\n  };\n  loadProfile();\n}, []);",
+      "task": "Import useEffect and create an effect that, on mount, asynchronously fetches from 'http://localhost:4000/api/profile'. On success, store the parsed JSON in profile and clear any previous error. On failure, store a helpful error message. Always set loading to false in a finally block.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["useEffect", "fetch", "/api/profile", "async", "try", "catch", "finally", "setProfile", "setError", "setLoading(false)"]
+      },
+      "hints": [
+        "Define an async function inside useEffect (do not make the effect callback itself async).",
+        "Check res.ok before calling res.json().",
+        "Use a finally block to guarantee loading becomes false whether the request succeeds or fails."
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Render Loading, Error, and Profile States",
+      "explanation": "A polished UI clearly communicates each state of the request. Use early returns: if loading, show a loading message; if there is an error, show it; if there is no profile yet and no error, show a friendly empty state. When the profile is available, render a simple card with the user's name and role from the dummy backend.",
+      "codeExample": "if (loading) return <div>Loading profile...</div>;\nif (error) return <div>Error: {error}</div>;\nif (!profile) return <div>No profile loaded.</div>;\n\nreturn (\n  <div>\n    <h2>{profile.name}</h2>\n    <p>Role: {profile.role}</p>\n  </div>\n);",
+      "task": "Update the DummyProfile JSX so that: 1) when loading is true, you render a div with text 'Loading profile...'; 2) when error has a value, you render 'Error: {error}'; 3) when profile is present, you render the user's name in a heading and their role in a paragraph; 4) if neither loading nor error nor profile is present, show a small 'No profile loaded.' message.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["Loading profile", "Error:", "profile.name", "profile.role", "No profile loaded"]
+      },
+      "hints": [
+        "Use early returns to keep the main return clean.",
+        "Access fields from the dummy backend object as profile.name and profile.role.",
+        "Make sure loading is checked before error, and error before profile."
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Add a Refresh Button Using a Reusable Loader",
+      "explanation": "Interviewers often add a follow‑up: 'Great, now make it refresh on demand.' Extract your fetch logic into a reusable loadProfile function and call it from both useEffect and a Refresh button. Be careful to reset loading and error appropriately so the UI stays consistent while the new request is in flight.",
+      "codeExample": "const loadProfile = async () => { /* fetch logic here */ };\n\nuseEffect(() => {\n  loadProfile();\n}, []);\n\nreturn (\n  <div>\n    {/* state-based UI here */}\n    <button onClick={loadProfile}>Refresh</button>\n  </div>\n);",
+      "task": "Refactor your code so the fetch logic lives in a loadProfile function that you can call from both useEffect and a 'Refresh' button. When the button is clicked, start loading again, clear any previous error, and show the updated data when the request completes.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["loadProfile", "onClick", "Refresh"]
+      },
+      "hints": [
+        "Move the body of your async function inside useEffect into a separate loadProfile function.",
+        "Call loadProfile() inside useEffect on mount.",
+        "Use <button onClick={loadProfile}>Refresh</button> to trigger a new request."
+      ]
+    }
+  ]
+}

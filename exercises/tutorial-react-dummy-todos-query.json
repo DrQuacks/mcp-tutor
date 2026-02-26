@@ -1,0 +1,74 @@
+{
+  "id": "tutorial-react-dummy-todos-query",
+  "title": "Dummy Backend: Todos with React Query",
+  "description": "Use @tanstack/react-query to fetch todos from the dummy backend, manage loading/error/empty states, and support manual refetch.",
+  "environment": "react",
+  "filePath": "src/exercises/DummyTodosQuery.tsx",
+  "starterCode": "export default function DummyTodosQuery() {\n  return (\n    <div>\n      <h2>Dummy Backend Todos (React Query)</h2>\n    </div>\n  );\n}\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Create a fetchTodos helper for /api/todos",
+      "explanation": "Before using React Query, define a small data‑fetching helper that talks to the dummy backend. This keeps your query function separate and testable. It should call fetch('http://localhost:4000/api/todos'), check response.ok, and return the parsed JSON array.",
+      "codeExample": "const fetchTodos = async () => {\n  const res = await fetch('http://localhost:4000/api/todos');\n  if (!res.ok) throw new Error('Failed to fetch todos');\n  return res.json();\n};",
+      "task": "Define an async fetchTodos function that hits 'http://localhost:4000/api/todos', throws an error when the response is not ok, and returns the parsed JSON.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["fetchTodos", "async", "fetch", "/api/todos", "res.ok", "res.json"]
+      },
+      "hints": [
+        "Return res.json() so the hook receives the todos array.",
+        "Throw a descriptive Error when !res.ok to feed React Query's error state.",
+        "Keep this helper outside the component so it is not recreated on every render."
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Use useQuery to load todos",
+      "explanation": "Now connect React Query. Import useQuery from '@tanstack/react-query' and call it with a stable queryKey (like ['todos']) and your fetchTodos function. Destructure data, isLoading, isError, and error from the result. This is the core pattern interviewers expect you to know.",
+      "codeExample": "const { data, isLoading, isError, error, refetch } = useQuery({\n  queryKey: ['todos'],\n  queryFn: fetchTodos,\n});",
+      "task": "Import useQuery and use it inside DummyTodosQuery with queryKey ['todos'] and queryFn fetchTodos. Destructure at least data, isLoading, isError, error, and refetch from the result.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["useQuery", "queryKey", "['todos']", "queryFn", "fetchTodos", "isLoading", "isError", "error", "refetch"]
+      },
+      "hints": [
+        "Use the object form of useQuery: useQuery({ queryKey: [...], queryFn: ... }).",
+        "Give the queryKey a descriptive name like ['todos'] so React Query can cache it.",
+        "Remember that error is usually an Error object; you'll read error.message when rendering."
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Render loading, error, and empty states",
+      "explanation": "A robust UI must handle all states. Use the values from useQuery rather than your own booleans. When isLoading is true, show a loading message. When isError is true, show the error message. When data is an empty array, show an empty state message. Otherwise, render the list of todo titles from the dummy backend.",
+      "codeExample": "if (isLoading) return <div>Loading todos...</div>;\nif (isError) return <div>Error: {error.message}</div>;\nif (!data || data.length === 0) return <div>No todos found.</div>;\n\nreturn (\n  <ul>\n    {data.map(todo => (\n      <li key={todo.id}>{todo.title}</li>\n    ))}\n  </ul>\n);",
+      "task": "Update DummyTodosQuery so that: 1) while isLoading is true, you render 'Loading todos...'; 2) when isError is true, you render 'Error: {error.message}'; 3) when data is defined but has length 0, you render 'No todos found.'; and 4) otherwise you render a list of todo titles from the dummy backend.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["Loading todos", "Error:", "error.message", "data.map", "todo.title", "No todos found"]
+      },
+      "hints": [
+        "Use the isLoading and isError flags from useQuery instead of your own loading/error state.",
+        "Guard against data being undefined before you check data.length.",
+        "Map over data to render one li per todo using todo.id as the key."
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Add a Manual Refetch Button",
+      "explanation": "Finally, add a small piece of interactivity: a manual refetch button. This mirrors common interview tasks where you're asked to let users refresh server data. Wire a 'Refresh todos' button to the refetch function returned by useQuery.",
+      "codeExample": "return (\n  <div>\n    {/* state-based UI here */}\n    <button onClick={() => refetch()}>Refresh todos</button>\n  </div>\n);",
+      "task": "Add a button labeled 'Refresh todos' that calls refetch when clicked so the list reloads from the dummy backend.",
+      "validation": {
+        "type": "code-contains",
+        "checks": ["button", "Refresh todos", "onClick", "refetch"]
+      },
+      "hints": [
+        "Place the button near the heading so it's easy to find.",
+        "You can either pass refetch directly to onClick or wrap it in an arrow function.",
+        "React Query will handle caching and re‑running the query for you."
+      ]
+    }
+  ]
+}

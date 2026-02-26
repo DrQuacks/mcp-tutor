@@ -1,0 +1,54 @@
+{
+  "id": "react-dummy-autocomplete",
+  "title": "Dummy Backend Todo Autocomplete",
+  "description": "Implement an autocomplete input that suggests todo titles from the dummy backend's /api/todos endpoint.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "intermediate",
+  "estimatedTime": "25 minutes",
+  "category": "interview-prep",
+  "concepts": ["autocomplete", "lists", "filtering", "loading states"],
+  "starterCode": "import { useState, useEffect } from 'react';\n\ninterface Todo {\n  id: number;\n  title: string;\n  completed: boolean;\n}\n\nexport default function TodoAutocomplete() {\n  // Implement autocomplete here\n  return (\n    <div className=\"todo-autocomplete\">\n      <h1>Todo Autocomplete</h1>\n    </div>\n  );\n}\n",
+  "solutionCode": "import { useState, useEffect } from 'react';\n\ninterface Todo {\n  id: number;\n  title: string;\n  completed: boolean;\n}\n\nexport default function TodoAutocomplete() {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState<string | null>(null);\n  const [query, setQuery] = useState('');\n  const [selected, setSelected] = useState<Todo | null>(null);\n\n  useEffect(() => {\n    const loadTodos = async () => {\n      try {\n        const res = await fetch('http://localhost:4000/api/todos');\n        if (!res.ok) {\n          throw new Error('Failed to fetch todos');\n        }\n        const data = (await res.json()) as Todo[];\n        setTodos(data);\n        setError(null);\n      } catch (err) {\n        setError(err instanceof Error ? err.message : 'Unknown error');\n      } finally {\n        setLoading(false);\n      }\n    };\n    loadTodos();\n  }, []);\n\n  const trimmed = query.trim();\n  const suggestions = trimmed\n    ? todos.filter(todo =>\n        todo.title.toLowerCase().includes(trimmed.toLowerCase())\n      )\n    : [];\n\n  return (\n    <div className=\"todo-autocomplete\">\n      <h1>Todo Autocomplete</h1>\n      <input\n        type=\"text\"\n        placeholder=\"Search todos...\"\n        value={query}\n        onChange={e => setQuery(e.currentTarget.value)}\n      />\n\n      {loading && <div className=\"status\">Loading suggestions...</div>}\n      {error && (\n        <div className=\"status error\">Error: {error}</div>\n      )}\n\n      {!loading && !error && trimmed && (\n        suggestions.length === 0 ? (\n          <div className=\"status empty\">No matches found.</div>\n        ) : (\n          <ul className=\"suggestions\">\n            {suggestions.map(todo => (\n              <li\n                key={todo.id}\n                className=\"suggestion-item\"\n                onClick={() => {\n                  setQuery(todo.title);\n                  setSelected(todo);\n                }}\n              >\n                {todo.title}\n              </li>\n            ))}\n          </ul>\n        )\n      )}\n\n      {selected && (\n        <div className=\"selected\">Selected: {selected.title}</div>\n      )}\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Fetch todos from http://localhost:4000/api/todos on mount and store them in state",
+    "Track an input value in query state and bind it to a text input with placeholder 'Search todos...'",
+    "While loading, show an element with class 'status' containing text 'Loading suggestions...'",
+    "On error, show an element with class 'status error' displaying 'Error: <message>'",
+    "When not loading and not error and the trimmed query is non-empty, show an element with class 'status empty' and text 'No matches found.' if there are no matching suggestions",
+    "Otherwise, render a ul with class 'suggestions' containing li elements with class 'suggestion-item' for each matching todo title",
+    "Clicking a suggestion should set the input value to that title and render a div with class 'selected' showing 'Selected: <title>'"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading status initially",
+      "selector": ".todo-autocomplete .status",
+      "exists": true
+    },
+    {
+      "name": "Input has correct placeholder",
+      "actions": [],
+      "then": {
+        "selector": "input[placeholder='Search todos...']",
+        "exists": true,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Shows suggestions when typing",
+      "actions": [
+        { "selector": "input[placeholder='Search todos...']", "action": "type", "value": "Learn" }
+      ],
+      "then": {
+        "selector": ".suggestions .suggestion-item",
+        "exists": true,
+        "waitFor": 1000
+      }
+    }
+  ],
+  "hints": {
+    "filter": "Use toLowerCase() and includes() so the search is case-insensitive.",
+    "empty": "Only show the 'No matches found.' message when the user has typed something but suggestions is empty.",
+    "selection": "Store the full selected todo so you can easily show more details later."
+  }
+}

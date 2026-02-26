@@ -1,6 +1,12 @@
 import express from "express";
 import cors from "cors";
 
+type Todos = {
+    id: number;
+    title: string;
+    completed: boolean;
+}
+
 const app = express();
 
 app.use(cors());
@@ -13,7 +19,9 @@ const user = {
   role: "tester",
 };
 
-const todos = [
+let nextTodoId = 4;
+
+const todos: Todos[] = [
   { id: 1, title: "Learn custom hooks", completed: false },
   { id: 2, title: "Wire up dummy backend", completed: true },
   { id: 3, title: "Practice fetch patterns", completed: false },
@@ -29,6 +37,49 @@ app.get("/api/profile", (_req, res) => {
 
 app.get("/api/todos", (_req, res) => {
   res.json(todos);
+});
+
+app.post("/api/todos", (req, res) => {
+  const title = (req.body?.title ?? "").toString().trim();
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  const newTodo: Todos = {
+    id: nextTodoId++,
+    title,
+    completed: false,
+  };
+  todos.push(newTodo);
+  res.status(201).json(newTodo);
+});
+
+app.patch("/api/todos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const todo = todos.find((t) => t.id === id);
+  if (!todo) {
+    return res.status(404).json({ error: "Todo not found" });
+  }
+
+  if (typeof req.body?.title === "string") {
+    todo.title = req.body.title;
+  }
+  if (typeof req.body?.completed === "boolean") {
+    todo.completed = req.body.completed;
+  }
+
+  res.json(todo);
+});
+
+app.delete("/api/todos/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const index = todos.findIndex((t) => t.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Todo not found" });
+  }
+
+  const [removed] = todos.splice(index, 1);
+  res.json(removed);
 });
 
 app.post("/api/echo", (req, res) => {

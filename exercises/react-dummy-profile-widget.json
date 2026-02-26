@@ -1,0 +1,52 @@
+{
+  "id": "react-dummy-profile-widget",
+  "title": "Dummy Backend Profile Widget",
+  "description": "Build a small profile widget that reads from the dummy backend's /api/profile endpoint, handling loading, error, and refresh states.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "intermediate",
+  "estimatedTime": "20 minutes",
+  "category": "interview-prep",
+  "concepts": ["useEffect", "async/await", "loading states", "error handling"],
+  "starterCode": "import { useState, useEffect } from 'react';\n\ninterface Profile {\n  id: number;\n  name: string;\n  role: string;\n}\n\nexport default function ProfileWidget() {\n  // Implement widget here\n  return (\n    <div className=\"profile-widget\">\n      <h1>Profile Widget</h1>\n    </div>\n  );\n}\n",
+  "solutionCode": "import { useState, useEffect } from 'react';\n\ninterface Profile {\n  id: number;\n  name: string;\n  role: string;\n}\n\nexport default function ProfileWidget() {\n  const [profile, setProfile] = useState<Profile | null>(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState<string | null>(null);\n\n  const loadProfile = async () => {\n    setLoading(true);\n    setError(null);\n    try {\n      const res = await fetch('http://localhost:4000/api/profile');\n      if (!res.ok) {\n        throw new Error('Failed to load profile');\n      }\n      const data = (await res.json()) as Profile;\n      setProfile(data);\n    } catch (err) {\n      setError(err instanceof Error ? err.message : 'Unknown error');\n      setProfile(null);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    loadProfile();\n  }, []);\n\n  if (loading) {\n    return <div className=\"profile-widget loading\">Loading profile...</div>;\n  }\n\n  if (error) {\n    return (\n      <div className=\"profile-widget error\">\n        <p>Error: {error}</p>\n        <button onClick={loadProfile}>Retry</button>\n      </div>\n    );\n  }\n\n  if (!profile) {\n    return (\n      <div className=\"profile-widget empty\">\n        <p>No profile loaded.</p>\n        <button onClick={loadProfile}>Load profile</button>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"profile-widget loaded\">\n      <h1>Profile Widget</h1>\n      <h2>{profile.name}</h2>\n      <p>Role: {profile.role}</p>\n      <button onClick={loadProfile}>Refresh</button>\n    </div>\n  );\n}\n",
+  "requirements": [
+    "Fetch profile data from http://localhost:4000/api/profile on mount using useEffect",
+    "While loading, render a div with class 'profile-widget loading' containing text 'Loading profile...'",
+    "On error, render a div with class 'profile-widget error' that shows 'Error: <message>' and a 'Retry' button that re-fetches the profile",
+    "When no profile is loaded but there is no error, render a div with class 'profile-widget empty' and a 'Load profile' button that triggers a fetch",
+    "When profile is loaded, render a div with class 'profile-widget loaded' containing an h1 'Profile Widget', an h2 with the user's name, and a paragraph showing the role",
+    "Include a 'Refresh' button in the loaded state that re-fetches from the backend",
+    "Use the Profile interface for typed profile data"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading state initially",
+      "selector": ".profile-widget.loading",
+      "exists": true
+    },
+    {
+      "name": "Displays loaded profile information",
+      "actions": [],
+      "then": {
+        "selector": ".profile-widget.loaded h2",
+        "contains": "Demo User",
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Refresh button exists in loaded state",
+      "actions": [],
+      "then": {
+        "selector": ".profile-widget.loaded button:has-text('Refresh')",
+        "exists": true,
+        "waitFor": 1000
+      }
+    }
+  ],
+  "hints": {
+    "state": "You need profile, loading, and error state variables.",
+    "fetch": "Call fetch('http://localhost:4000/api/profile') inside an async helper and use try/catch/finally.",
+    "retry": "Reuse the same loadProfile function for initial load, Retry, and Refresh."
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": "react-dummy-crud-autocomplete",
+  "title": "Todo CRUD Manager with Autocomplete (Dummy Backend)",
+  "description": "Implement a todo manager that performs create, update, and delete against the dummy backend, and provides an autocomplete search over titles.",
+  "environment": "react",
+  "language": "tsx",
+  "difficulty": "advanced",
+  "estimatedTime": "35 minutes",
+  "category": "interview-prep",
+  "concepts": ["CRUD", "fetch", "async/await", "autocomplete", "lists"],
+  "starterCode": "import { useState, useEffect } from 'react';\\n\\ninterface Todo {\\n  id: number;\\n  title: string;\\n  completed: boolean;\\n}\\n\\nexport default function TodoCrudAutocomplete() {\\n  // Build your CRUD + autocomplete UI here\\n  return (\\n    <div className=\\\"todo-crud-autocomplete\\\">\\n      <h1>Todo CRUD with Autocomplete</h1>\\n    </div>\\n  );\\n}\\n",
+  "solutionCode": "import { useState, useEffect } from 'react';\\n\\ninterface Todo {\\n  id: number;\\n  title: string;\\n  completed: boolean;\\n}\\n\\nexport default function TodoCrudAutocomplete() {\\n  const [todos, setTodos] = useState<Todo[]>([]);\\n  const [loading, setLoading] = useState(true);\\n  const [error, setError] = useState<string | null>(null);\\n  const [newTitle, setNewTitle] = useState('');\\n  const [searchQuery, setSearchQuery] = useState('');\\n\\n  const loadTodos = async () => {\\n    setLoading(true);\\n    setError(null);\\n    try {\\n      const res = await fetch('http://localhost:4000/api/todos');\\n      if (!res.ok) {\\n        throw new Error('Failed to load todos');\\n      }\\n      const data = (await res.json()) as Todo[];\\n      setTodos(data);\\n    } catch (err) {\\n      setError(err instanceof Error ? err.message : 'Unknown error');\\n    } finally {\\n      setLoading(false);\\n    }\\n  };\\n\\n  useEffect(() => {\\n    loadTodos();\\n  }, []);\\n\\n  const handleAdd = async (e: React.FormEvent) => {\\n    e.preventDefault();\\n    const trimmed = newTitle.trim();\\n    if (!trimmed) return;\\n\\n    try {\\n      const res = await fetch('http://localhost:4000/api/todos', {\\n        method: 'POST',\\n        headers: { 'Content-Type': 'application/json' },\\n        body: JSON.stringify({ title: trimmed }),\\n      });\\n      if (!res.ok) {\\n        throw new Error('Failed to create todo');\\n      }\\n      const created = (await res.json()) as Todo;\\n      setTodos(prev => [...prev, created]);\\n      setNewTitle('');\\n    } catch (err) {\\n      setError(err instanceof Error ? err.message : 'Unknown error');\\n    }\\n  };\\n\\n  const toggleTodo = async (todo: Todo) => {\\n    try {\\n      const res = await fetch(`http://localhost:4000/api/todos/${todo.id}`, {\\n        method: 'PATCH',\\n        headers: { 'Content-Type': 'application/json' },\\n        body: JSON.stringify({ completed: !todo.completed }),\\n      });\\n      if (!res.ok) {\\n        throw new Error('Failed to update todo');\\n      }\\n      const updated = (await res.json()) as Todo;\\n      setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));\\n    } catch (err) {\\n      setError(err instanceof Error ? err.message : 'Unknown error');\\n    }\\n  };\\n\\n  const deleteTodo = async (id: number) => {\\n    try {\\n      const res = await fetch(`http://localhost:4000/api/todos/${id}`, { method: 'DELETE' });\\n      if (!res.ok) {\\n        throw new Error('Failed to delete todo');\\n      }\\n      setTodos(prev => prev.filter(t => t.id !== id));\\n    } catch (err) {\\n      setError(err instanceof Error ? err.message : 'Unknown error');\\n    }\\n  };\\n\\n  const trimmedQuery = searchQuery.trim();\\n  const suggestions = trimmedQuery\\n    ? todos.filter(todo =>\\n        todo.title.toLowerCase().includes(trimmedQuery.toLowerCase())\\n      )\\n    : [];\\n\\n  if (loading) {\\n    return (\\n      <div className=\\\"todo-crud-autocomplete loading\\\">\\n        Loading todos...\\n      </div>\\n    );\\n  }\\n\\n  return (\\n    <div className=\\\"todo-crud-autocomplete\\\">\\n      <h1>Todo CRUD with Autocomplete</h1>\\n\\n      {error && (\\n        <div className=\\\"error-banner\\\">Error: {error}</div>\\n      )}\\n\\n      <form onSubmit={handleAdd} className=\\\"add-form\\\">\\n        <input\\n          type=\\\"text\\\"\\n          placeholder=\\\"New todo title...\\\"\\n          value={newTitle}\\n          onChange={e => setNewTitle(e.currentTarget.value)}\\n        />\\n        <button type=\\\"submit\\\">Add</button>\\n      </form>\\n\\n      <div className=\\\"search\\\">\\n        <input\\n          type=\\\"text\\\"\\n          placeholder=\\\"Search todos...\\\"\\n          value={searchQuery}\\n          onChange={e => setSearchQuery(e.currentTarget.value)}\\n        />\\n        {trimmedQuery && (\\n          suggestions.length === 0 ? (\\n            <div className=\\\"status empty\\\">No matches found.</div>\\n          ) : (\\n            <ul className=\\\"suggestions\\\">\\n              {suggestions.map(todo => (\\n                <li key={todo.id} className=\\\"suggestion-item\\\">\\n                  {todo.title}\\n                </li>\\n              ))}\\n            </ul>\\n          )\\n        )}\\n      </div>\\n\\n      <ul className=\\\"todo-list\\\">\\n        {todos.map(todo => (\\n          <li key={todo.id} className=\\\"todo-item\\\">\\n            <label>\\n              <input\\n                type=\\\"checkbox\\\"\\n                checked={todo.completed}\\n                onChange={() => toggleTodo(todo)}\\n              />\\n              <span className={todo.completed ? 'completed' : ''}>\\n                {todo.title}\\n              </span>\\n            </label>\\n            <button onClick={() => deleteTodo(todo.id)}>Delete</button>\\n          </li>\\n        ))}\\n      </ul>\\n    </div>\\n  );\\n}\\n",
+  "requirements": [
+    "Fetch todos from http://localhost:4000/api/todos on mount and render a loading state with class 'todo-crud-autocomplete loading' and text 'Loading todos...'",
+    "After loading, render a root container with class 'todo-crud-autocomplete' and an h1 with text 'Todo CRUD with Autocomplete'",
+    "Provide a form with an input (placeholder 'New todo title...') and an Add button that creates a new todo via POST http://localhost:4000/api/todos and appends it to the list",
+    "Render todos in a ul with class 'todo-list'; each li should have class 'todo-item' and contain a checkbox bound to completed and a Delete button",
+    "Toggling the checkbox should call PATCH http://localhost:4000/api/todos/:id and update the completed state in the UI to match the server",
+    "Clicking Delete should call DELETE http://localhost:4000/api/todos/:id and remove the todo from the list",
+    "Provide a search input (placeholder 'Search todos...') bound to searchQuery; when the trimmed query is non-empty, show either a 'No matches found.' message with class 'status empty' or a suggestion list ul.suggestions with li.suggestion-item titles filtered from the current todos",
+    "The suggestions must stay in sync with CRUD operations (newly created or deleted todos should immediately affect search results)"
+  ],
+  "browserTests": [
+    {
+      "name": "Shows loading state initially",
+      "selector": ".todo-crud-autocomplete.loading",
+      "exists": true
+    },
+    {
+      "name": "Displays todo list after loading",
+      "actions": [],
+      "then": {
+        "selector": ".todo-crud-autocomplete .todo-item",
+        "count": 3,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Can add a new todo",
+      "actions": [
+        { "selector": "input[placeholder='New todo title...']", "action": "type", "value": "Interview prep" },
+        { "selector": "button:has-text('Add')", "action": "click" }
+      ],
+      "then": {
+        "selector": ".todo-crud-autocomplete .todo-item",
+        "count": 4,
+        "waitFor": 1000
+      }
+    },
+    {
+      "name": "Search input exists",
+      "actions": [],
+      "then": {
+        "selector": "input[placeholder='Search todos...']",
+        "exists": true,
+        "waitFor": 1000
+      }
+    }
+  ],
+  "hints": {
+    "load": "Create a reusable loadTodos helper and call it from useEffect.",
+    "create": "Use POST with JSON body { title } and append the response todo to state.",
+    "updateDelete": "PATCH and DELETE should update the local todos array after the server confirms success.",
+    "search": "Derive suggestions from todos so they automatically reflect any CRUD changes."
+  }
+}
