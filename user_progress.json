@@ -168,6 +168,14 @@
       ],
       "startedAt": "2026-02-16T00:41:01.660Z",
       "lastActivity": "2026-02-25T08:11:16.335Z"
+    },
+    {
+      "tutorialId": "react-dummy-crud-autocomplete",
+      "title": "Dummy Backend: Todo CRUD + Autocomplete",
+      "currentStep": 1,
+      "completedSteps": [],
+      "startedAt": "2026-02-26T18:00:58.739Z",
+      "lastActivity": "2026-02-26T18:00:58.739Z"
     }
   ],
   "exercises": [

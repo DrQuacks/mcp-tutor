@@ -282,7 +282,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_start_tutorial",
     role: "student",
     description: `
-  Starts or resumes a step-by-step tutorial. Returns JSON with the CURRENT step content that you MUST present clearly to the user.
+  Starts or resumes a step-by-step tutorial. Returns JSON with the CURRENT step content that you MUST present clearly to the user in a **pedagogical**, teacher-like way (explain what and why, not just what to type).
 
   Use this to begin a tutorial or to re-load the student's current step at the start of a session.
 
@@ -374,9 +374,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_explain_concept",
     role: "student",
     description: `
-  Re-explains the concept of the current tutorial step. Shows the explanation, generic code example, and task from the tutorial.
+  Re-explains the concept of the current tutorial step in a **teacherly, pedagogical tone**. Shows the explanation, generic code example, and task from the tutorial, focusing on mental models and reasoning.
 
-  Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool presents the tutorial content clearly without giving away the specific answer.
+  Use this when the student asks 'what is this step about?' or seems confused about the concept. This tool should help them understand the *why* behind the step, not just repeat instructions, and must present the tutorial content clearly without giving away the specific answer.
 
   🚫 NEVER edit student files or provide copy-paste solutions. Only explain concepts and show generic examples.
   `.trim(),
@@ -389,9 +389,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_connect_pattern",
     role: "student",
     description: `
-  Helps the student connect the generic pattern to their specific task WITHOUT giving the answer.
+  Helps the student connect the generic pattern to their specific task WITHOUT giving the answer, using a **guided, coaching style**.
 
-  Shows what the tutorial is looking for and guides thinking about how to adapt the pattern. Use this when the student understands the concept but needs help applying it to their specific code.
+  Shows what the tutorial is looking for and guides thinking about how to adapt the pattern (ask questions, highlight tradeoffs, explain reasoning). Use this when the student understands the concept but needs help applying it to their specific code.
 
   Does NOT provide copy-paste solutions.
   `.trim(),
@@ -408,9 +408,9 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     name: "tutor_tutorial_hint",
     role: "student",
     description: `
-  Provides progressive hints for the current tutorial step.
+  Provides progressive hints for the current tutorial step in a **pedagogical, hint-first style** (nudge → explanation → more concrete guidance).
 
-  Use this when the student is stuck after trying. Gives increasingly specific guidance without revealing the full solution.
+  Use this when the student is stuck after trying. Gives increasingly specific guidance without revealing the full solution, and should explain the underlying ideas rather than just describing the next line of code.
   `.trim(),
     inputSchema: z.object({
       tutorialId: z.string().describe("The ID of the tutorial"),
@@ -486,7 +486,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
 
   This is the ONLY way to send responses when discussing tutorial code. Pass your draft response and it will automatically validate it before allowing you to send it.
 
-  If you read tutorial JSON, student code, or receive task details from another tool, you MUST use this tool to respond. DO NOT respond directly - always use this gateway.
+  If you read tutorial JSON, student code, or receive task details from another tool, you MUST use this tool to respond. DO NOT respond directly - always use this gateway. Responses routed through this tool should sound like a **supportive teacher**: explain concepts, reasoning, and tradeoffs, not just what to type.
   `.trim(),
     inputSchema: z.object({
       draftResponse: z
