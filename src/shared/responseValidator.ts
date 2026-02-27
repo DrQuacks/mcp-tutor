@@ -12,9 +12,11 @@ export function createResponseValidationPrompt(
   exerciseTask: string,
   currentStudentCode: string
 ): string {
-  return `You are a pedagogy validator. Analyze if this AI response violates teaching principles by giving away the solution.
+  return `You are a pedagogy validator. Analyze if this AI response both:
+1) avoids giving away the solution, and
+2) explicitly covers ALL of the student's stated requirements.
 
-**The Student's Task:**
+**The Student's Task (authoritative requirements):**
 ${exerciseTask}
 
 **The Student's Current Code:**
@@ -32,21 +34,23 @@ ${aiResponse}
 2. Shows the exact function/variable names the student needs to use
 3. Provides copy-paste code blocks that implement the solution
 4. Uses the specific action types, method names, or values from the task
+5. Omits or contradicts any behavior that is clearly required in the task description (e.g., "clear the input", "show an error", "handle loading state") when giving instructions or summarising what to implement
 
-✅ ACCEPTABLE (response is pedagogical):
+✅ ACCEPTABLE (response is pedagogical AND requirements-complete):
 1. Explains concepts in words without specific code
 2. Points to what's wrong (e.g., "you're passing a string instead of an object")
 3. Asks guiding questions
 4. References documentation or general patterns
 5. Shows generic examples with DIFFERENT names/values than the task
 6. Explains error messages or test failures
+7. When describing what the student should build, explicitly mentions every required behavior from the task (including edge cases like clearing inputs or surfacing errors)
 
 **Your Analysis:**
-Does this response give away the solution? Return JSON:
+Return ONLY JSON with this structure:
 {
   "containsSolution": boolean,
   "violations": ["list of specific violations, if any"],
-  "suggestion": "How to rephrase this response to be more pedagogical (if violations exist)"
+  "suggestion": "How to rephrase this response to be more pedagogical and fully cover the requirements (if violations exist)"
 }
 
 Return ONLY the JSON, nothing else.`;

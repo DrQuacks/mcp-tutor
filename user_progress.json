@@ -172,10 +172,12 @@
     {
       "tutorialId": "react-dummy-crud-autocomplete",
       "title": "Dummy Backend: Todo CRUD + Autocomplete",
-      "currentStep": 1,
-      "completedSteps": [],
+      "currentStep": 2,
+      "completedSteps": [
+        1
+      ],
       "startedAt": "2026-02-26T18:00:58.739Z",
-      "lastActivity": "2026-02-26T18:00:58.739Z"
+      "lastActivity": "2026-02-26T18:24:16.647Z"
     }
   ],
   "exercises": [

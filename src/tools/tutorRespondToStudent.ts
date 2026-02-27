@@ -38,6 +38,11 @@ export async function tutorRespondToStudent({
 
   if (parsedResult.approved) {
     // Response approved - return it for the AI to send to student
+    const taskDescription = parsedResult.taskDescription as string | undefined;
+    const requirementsNote = taskDescription
+      ? `\n\n**Reminder for the AI tutor:**\nThese are the authoritative requirements for the current step:\n\n${taskDescription}\n\nBefore you send this to the student, double-check that your instructions explicitly cover every required behavior (including things like clearing inputs, handling errors, and loading states).`
+      : "";
+
     return {
       content: [
         {
@@ -52,7 +57,7 @@ ${draftResponse}
 
 ---
 
-This response has been checked and does not contain copy-paste solutions.`,
+This response has been checked and does not contain copy-paste solutions.${requirementsNote}`,
         },
       ],
     };

@@ -435,7 +435,7 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   - User explicitly says 'give me the solution' or 'show me the answer'
   - Using the show solution tool
 
-  This validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers). Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations.
+  This validates that your response follows pedagogical rules (no copy-paste solutions, no exact answers) **and** reminds you of the full, authoritative task description so you don't accidentally omit required behaviors. Pass in your planned response text, the tutorial/exercise ID, and current step number if applicable. The tool returns 'approved' or 'rejected' with specific feedback on violations, plus the step's task text so you can ensure your directions fully cover the requirements.
   `.trim(),
     inputSchema: z.object({
       responseText: z

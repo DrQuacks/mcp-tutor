@@ -30,6 +30,7 @@ export async function tutorValidateResponse({
   }
   
   let exerciseTask = "";
+  let rawStep: any | undefined;
   try {
     const content = await fs.readFile(exercisePath, "utf-8");
     const data = JSON.parse(content);
@@ -38,6 +39,7 @@ export async function tutorValidateResponse({
       // Tutorial: get specific step
       const step = data.steps[stepNumber - 1];
       if (step) {
+        rawStep = step;
         exerciseTask = step.task || step.explanation || "";
       }
     } else if (data.requirements) {
@@ -103,8 +105,13 @@ Your response appears pedagogical - it guides without giving away the solution.`
         text: JSON.stringify({
           approved,
           feedback,
-          taskKeywords,
-          matchedKeywords: quickCheck.matches,
+          taskDescription: exerciseTask,
+          validationMeta: {
+            taskKeywords,
+            matchedKeywords: quickCheck.matches,
+            hasStepValidationChecks: Boolean(rawStep?.validation && Array.isArray(rawStep.validation.checks)),
+            stepValidationChecks: rawStep?.validation?.checks ?? [],
+          },
         }, null, 2),
       },
     ],
