@@ -1,11 +1,11 @@
 import './App.css'
-import DummyTodoCrudAutocomplete from './exercises/DummyTodoCrudAutocomplete'
+import TodoList from './exercises/TodoList'
 
 function App() {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Tutorial: Dummy Backend: Todo CRUD + Autocomplete</h1>
-      <DummyTodoCrudAutocomplete />
+      <h1>React Exercise: Simple Todo List</h1>
+      <TodoList />
     </div>
   )
 }
