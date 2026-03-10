@@ -610,6 +610,17 @@
       "testsTotal": 7,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-todo-list",
+      "title": "Simple Todo List",
+      "environment": "react",
+      "passed": true,
+      "date": "2026-03-10T18:44:30.668Z",
+      "testsPassed": 6,
+      "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }

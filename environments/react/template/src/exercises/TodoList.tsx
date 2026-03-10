@@ -17,11 +17,39 @@
 
 import { useState } from 'react';
 
+type Todo = {id:string,text:string,completed:boolean}
+
 function TodoList() {
+  const [todos,setTodos] = useState<Todo[]>([])
+  const [userText,setUserText] = useState("")
+
+  const clickHandler = () => {
+    const newTodo:Todo = {id:crypto.randomUUID(),text:userText,completed:false}
+    setUserText("")
+    setTodos(prev => [...prev,newTodo])
+  }
+
+  const completedHandler = (id:string) => {
+    setTodos(prev => {
+      const newTodos = prev.map(todo => {
+        if (todo.id === id) return {...todo,completed:!todo.completed}
+        else return todo
+      })
+      return newTodos
+    })
+  }
   
   return (
     <div>
       <h2>My Todos</h2>
+      <input type='text' value={userText} onChange={(e) => setUserText(e.currentTarget.value)} />
+      <button onClick={clickHandler}>Add</button>
+      <ul>
+        {todos.map(todo => {
+          const textType = todo.completed ? 'line-through' : 'none'
+          return (<li style={{textDecoration:textType}} onClick={() => completedHandler(todo.id)}>{todo.text}</li>)
+        })}
+      </ul>
     </div>
   );
 }
