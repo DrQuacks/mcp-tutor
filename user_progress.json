@@ -631,7 +631,8 @@
       "testsPassed": 1,
       "testsTotal": 6,
       "hintsUsed": 0,
-      "solutionViewed": false
+      "solutionViewed": false,
+      "overrideCompleted": true
     }
   ]
 }

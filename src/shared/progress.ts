@@ -28,7 +28,8 @@ export async function recordAttempt(
   testsPassed: number,
   testsTotal: number,
   hintsUsed: number = 0,
-  solutionViewed: boolean = false
+  solutionViewed: boolean = false,
+  overrideCompleted: boolean = false
 ): Promise<void> {
   const progress = await loadProgress();
   progress.exercises.push({
@@ -41,7 +42,34 @@ export async function recordAttempt(
     testsTotal,
     hintsUsed,
     solutionViewed,
+    overrideCompleted,
   });
+  await saveProgress(progress);
+}
+
+/**
+ * Marks the most recent attempt for an exercise as user-override completed.
+ * This does not change whether tests passed, but records that the user
+ * explicitly considers the exercise complete.
+ */
+export async function markExerciseOverrideCompleted(exerciseId: string): Promise<void> {
+  const progress = await loadProgress();
+
+  // Find the latest attempt for this exercise (search from the end)
+  let latestIndex = -1;
+  for (let i = progress.exercises.length - 1; i >= 0; i--) {
+    if (progress.exercises[i].exerciseId === exerciseId) {
+      latestIndex = i;
+      break;
+    }
+  }
+
+  if (latestIndex === -1) {
+    // No attempts yet; nothing to mark. Caller can surface a friendly message.
+    return;
+  }
+
+  progress.exercises[latestIndex].overrideCompleted = true;
   await saveProgress(progress);
 }
 

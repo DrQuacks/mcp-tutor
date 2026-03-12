@@ -12,6 +12,9 @@ export interface ExerciseAttempt {
   testsTotal: number;
   hintsUsed: number;
   solutionViewed: boolean;
+  // Optional flag when the user explicitly marks an attempt as completed
+  // even if tests did not all pass.
+  overrideCompleted?: boolean;
 }
 
 export interface TutorialStep {

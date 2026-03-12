@@ -33,11 +33,15 @@ export async function tutorViewProgress(): Promise<ToolResponse> {
   // Summary stats
   const totalAttempts = progress.exercises.length;
   const passed = progress.exercises.filter(a => a.passed).length;
+  const overrideCompleted = progress.exercises.filter(a => a.overrideCompleted).length;
   const uniqueExercises = byExercise.size;
   
   lines.push(`📊 **Summary:**`);
   lines.push(`- Total attempts: ${totalAttempts}`);
   lines.push(`- Passed: ${passed} (${Math.round(passed/totalAttempts*100)}%)`);
+  if (overrideCompleted > 0) {
+    lines.push(`- Completed (user override): ${overrideCompleted}`);
+  }
   lines.push(`- Unique exercises: ${uniqueExercises}`);
   lines.push("");
   
@@ -57,6 +61,9 @@ export async function tutorViewProgress(): Promise<ToolResponse> {
     }
     if (attempt.solutionViewed) {
       helpInfo.push('solution viewed');
+    }
+    if (attempt.overrideCompleted) {
+      helpInfo.push('completed (user override)');
     }
     if (helpInfo.length > 0) {
       lines.push(`   (${helpInfo.join(', ')})`);

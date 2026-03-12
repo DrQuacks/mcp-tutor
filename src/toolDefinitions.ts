@@ -11,6 +11,7 @@ import { tutorReactCheckSolution } from "./tools/tutorReactCheckSolution.js";
 import { tutorReactShowSolution } from "./tools/tutorReactShowSolution.js";
 import { tutorGetHint } from "./tools/tutorGetHint.js";
 import { tutorViewProgress } from "./tools/tutorViewProgress.js";
+import { tutorOverrideExerciseCompletion } from "./tools/tutorOverrideExerciseCompletion.js";
 import { tutorStartTutorial } from "./tools/tutorStartTutorial.js";
 import { tutorCheckTutorialStep } from "./tools/tutorCheckTutorialStep.js";
 import { tutorAdvanceStep } from "./tools/tutorAdvanceStep.js";
@@ -265,6 +266,23 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
   `.trim(),
     inputSchema: z.object({}),
     handler: async () => tutorViewProgress(),
+  },
+  {
+    name: "tutor_override_exercise_completion",
+    role: "student",
+    description: `
+  Marks the most recent attempt for a given exerciseId as completed (user override).
+
+  Use this when you're satisfied with your solution even if not all automated
+  tests have passed. This does NOT change historical test results, but adds an
+  override flag to the latest attempt so progress views can reflect that status.
+  `.trim(),
+    inputSchema: z.object({
+      exerciseId: z
+        .string()
+        .describe("The ID of the exercise to mark as completed (user override)."),
+    }),
+    handler: async (params) => tutorOverrideExerciseCompletion(params),
   },
   {
     name: "tutor_generate_session_state",
