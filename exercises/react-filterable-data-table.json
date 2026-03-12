@@ -1,0 +1,82 @@
+{
+  "id": "react-filterable-data-table",
+  "title": "Filterable & Sortable User Table",
+  "description": "Build a small data table that supports text filtering and column sorting. Practice the core UI pattern of showing a dataset, letting the user filter by a search box, and sorting by clicking column headers.",
+  "environment": "react",
+  "difficulty": "intermediate",
+  "filePath": "src/exercises/FilterableDataTable.tsx",
+  "requirements": [
+    "Render a table of users with columns: Name, Email, Role",
+    "Use React.useState to store the full list of users in component state",
+    "Use React.useState to store a text filter value",
+    "Render a text input above the table for filtering",
+    "Filter the visible rows by the search text matching Name or Email (case-insensitive)",
+    "Render clickable column headers for Name and Role that control sorting",
+    "Clicking a sortable header should toggle between ascending and descending order for that column",
+    "Show a simple visual indicator (e.g., '↑' or '↓') on the currently sorted column header",
+    "Apply filtering before sorting (i.e., sort only the filtered subset)",
+    "Do not mutate the original users array when sorting; always work on a derived copy",
+    "Export the FilterableDataTable component as the default export"
+  ],
+  "starterCode": "import { useState } from 'react';\\n\\n// You can keep the data local to this component for this exercise.\\nconst INITIAL_USERS = [\\n  { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'Admin' },\\n  { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'Editor' },\\n  { id: 3, name: 'Carol Lee', email: 'carol@example.com', role: 'Viewer' },\\n  { id: 4, name: 'David Kim', email: 'david@example.com', role: 'Editor' },\\n  { id: 5, name: 'Eva Brown', email: 'eva@example.com', role: 'Viewer' }\\n];\\n\\nexport default function FilterableDataTable() {\\n  // TODO: state for users and filter text\\n  // TODO: derive filtered + sorted rows based on filter text and sort settings\\n\\n  return (\\n    <div>\\n      <h2>User Directory</h2>\\n      {/* TODO: filter input */}\\n      {/* TODO: table with sortable headers and filtered rows */}\\n    </div>\\n  );\\n}\\n",
+  "solutionCode": "import { useState } from 'react';\\n\\nconst INITIAL_USERS = [\\n  { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role: 'Admin' },\\n  { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'Editor' },\\n  { id: 3, name: 'Carol Lee', email: 'carol@example.com', role: 'Viewer' },\\n  { id: 4, name: 'David Kim', email: 'david@example.com', role: 'Editor' },\\n  { id: 5, name: 'Eva Brown', email: 'eva@example.com', role: 'Viewer' }\\n];\\n\\nexport default function FilterableDataTable() {\\n  const [users] = useState(INITIAL_USERS);\\n  const [filterText, setFilterText] = useState('');\\n  const [sortField, setSortField] = useState<'name' | 'role'>('name');\\n  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');\\n\\n  const handleSort = (field: 'name' | 'role') => {\\n    if (sortField === field) {\\n      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));\\n    } else {\\n      setSortField(field);\\n      setSortDirection('asc');\\n    }\\n  };\\n\\n  const normalizedFilter = filterText.toLowerCase();\\n  const filtered = users.filter((user) => {\\n    if (!normalizedFilter) return true;\\n    return (\\n      user.name.toLowerCase().includes(normalizedFilter) ||\\n      user.email.toLowerCase().includes(normalizedFilter)\\n    );\\n  });\\n\\n  const sorted = [...filtered].sort((a, b) => {\\n    let comparison = 0;\\n    if (sortField === 'name') {\\n      comparison = a.name.localeCompare(b.name);\\n    } else {\\n      comparison = a.role.localeCompare(b.role);\\n    }\\n    return sortDirection === 'asc' ? comparison : -comparison;\\n  });\\n\\n  const sortArrow = (field: 'name' | 'role') => {\\n    if (sortField !== field) return '';\\n    return sortDirection === 'asc' ? '↑' : '↓';\\n  };\\n\\n  return (\\n    <div>\\n      <h2>User Directory</h2>\\n      <div>\\n        <label>\\n          Filter by name or email:{' '}\\n          <input\\n            type=\"text\"\\n            value={filterText}\\n            onChange={(e) => setFilterText(e.target.value)}\\n            placeholder=\"Search users...\"\\n          />\\n        </label>\\n      </div>\\n      <table>\\n        <thead>\\n          <tr>\\n            <th onClick={() => handleSort('name')}>\\n              Name {sortArrow('name')}\\n            </th>\\n            <th>Email</th>\\n            <th onClick={() => handleSort('role')}>\\n              Role {sortArrow('role')}\\n            </th>\\n          </tr>\\n        </thead>\\n        <tbody>\\n          {sorted.map((user) => (\\n            <tr key={user.id}>\\n              <td>{user.name}</td>\\n              <td>{user.email}</td>\\n              <td>{user.role}</td>\\n            </tr>\\n          ))}\\n        </tbody>\\n      </table>\\n    </div>\\n  );\\n}\\n",
+  "browserTests": [
+    {
+      "name": "Renders filter input",
+      "selector": "input[placeholder='Search users...']",
+      "exists": true
+    },
+    {
+      "name": "Renders table headers",
+      "selector": "table thead th",
+      "count": 3
+    },
+    {
+      "name": "Filters by name",
+      "actions": [
+        { "selector": "input[placeholder='Search users...']", "action": "type", "value": "alice" }
+      ],
+      "then": {
+        "selector": "tbody tr",
+        "count": 1
+      }
+    },
+    {
+      "name": "Filters by email",
+      "actions": [
+        { "selector": "input[placeholder='Search users...']", "action": "type", "value": "bob@" }
+      ],
+      "then": {
+        "selector": "tbody tr",
+        "count": 1
+      }
+    },
+    {
+      "name": "Sorts by name when header clicked",
+      "actions": [
+        { "selector": "th:has-text('Name')", "action": "click" }
+      ],
+      "then": {
+        "selector": "th:has-text('Name')",
+        "contains": "↑"
+      }
+    },
+    {
+      "name": "Toggles sort direction on Name",
+      "actions": [
+        { "selector": "th:has-text('Name')", "action": "click" },
+        { "selector": "th:has-text('Name')", "action": "click" }
+      ],
+      "then": {
+        "selector": "th:has-text('Name')",
+        "contains": "↓"
+      }
+    }
+  ],
+  "hints": [
+    "Start by keeping the raw user data in a constant and copy it into state if you need to.",
+    "Use two pieces of state: one for the current filter text, one for the current sort settings (field + direction).",
+    "Derive a filtered array based on the filter text, then derive a sorted array from that filtered list.",
+    "Remember that Array.prototype.sort mutates; clone the array before sorting to avoid mutating state."
+  ]
+}

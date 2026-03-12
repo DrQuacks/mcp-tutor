@@ -621,6 +621,17 @@
       "testsTotal": 6,
       "hintsUsed": 0,
       "solutionViewed": false
+    },
+    {
+      "exerciseId": "react-filterable-data-table",
+      "title": "Filterable & Sortable User Table",
+      "environment": "react",
+      "passed": false,
+      "date": "2026-03-12T17:51:31.938Z",
+      "testsPassed": 1,
+      "testsTotal": 6,
+      "hintsUsed": 0,
+      "solutionViewed": false
     }
   ]
 }
