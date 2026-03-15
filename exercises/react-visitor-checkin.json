@@ -1,0 +1,87 @@
+{
+  "id": "react-visitor-checkin",
+  "title": "Visitor Check-In Dashboard",
+  "environment": "react",
+  "filePath": "src/exercises/VisitorCheckIn.tsx",
+  "description": "Build a small receptionist-facing dashboard for tracking visitors arriving at an office. You will render a list of expected visitors, allow the receptionist to mark them as checked in or checked out, and filter the view by status (All, Checked In, Not Arrived). This exercise practices list rendering, immutable state updates, and simple UI state filters.",
+  "requirements": [
+    "Define a local constant array of visitors with fields: id (number), name (string), company (string), and status (string). Include at least one visitor with status 'Checked In' and at least one with status 'Not Arrived'.",
+    "Use React.useState to store the array of visitors in component state so it can be updated.",
+    "Render the visitors in a table or list with columns for Name, Company, Status, and Actions.",
+    "For each visitor, render a control (e.g., a button) that marks them as checked in. When clicked, that visitor's status should change to 'Checked In' without mutating the original array.",
+    "For visitors who are currently checked in, render a control that marks them as checked out. When clicked, that visitor's status should change to 'Checked Out'.",
+    "Add a simple filter control (e.g., three buttons labeled 'All', 'Checked In', and 'Not Arrived') that controls which visitors are shown.",
+    "When 'All' is selected, show all visitors regardless of status.",
+    "When 'Checked In' is selected, only show visitors whose status is 'Checked In'.",
+    "When 'Not Arrived' is selected, only show visitors whose status is 'Not Arrived'.",
+    "Do not remove visitors from the list when they are checked in or out; only update their status.",
+    "Export the VisitorCheckIn component as the default export."
+  ],
+  "starterCode": "import { useState } from 'react';\\n\\n// Local, static data for this exercise\\nconst INITIAL_VISITORS = [\\n  { id: 1, name: 'Alice Johnson', company: 'Acme Corp', status: 'Not Arrived' },\\n  { id: 2, name: 'Bob Smith', company: 'Globex Inc', status: 'Checked In' },\\n  { id: 3, name: 'Carol Lee', company: 'Initech', status: 'Not Arrived' }\\n];\\n\\ntype VisitorStatus = 'Not Arrived' | 'Checked In' | 'Checked Out';\\ntype Visitor = { id: number; name: string; company: string; status: VisitorStatus };\\n\\nexport default function VisitorCheckIn() {\\n  // TODO: move INITIAL_VISITORS into state and track a filter value\\n  // TODO: derive a filtered list based on the selected filter (All / Checked In / Not Arrived)\\n  // TODO: implement handlers to mark visitors as checked in and checked out using immutable updates\\n\\n  return (\\n    <div style={{ padding: '1.5rem' }}>\\n      <h2>Visitor Check-In</h2>\\n      {/* TODO: filter controls (All, Checked In, Not Arrived) */}\\n      {/* TODO: table or list of visitors with actions */}\\n    </div>\\n  );\\n}\\n",
+  "solutionCode": "import { useState } from 'react';\\n\\nconst INITIAL_VISITORS = [\\n  { id: 1, name: 'Alice Johnson', company: 'Acme Corp', status: 'Not Arrived' as const },\\n  { id: 2, name: 'Bob Smith', company: 'Globex Inc', status: 'Checked In' as const },\\n  { id: 3, name: 'Carol Lee', company: 'Initech', status: 'Not Arrived' as const }\\n];\\n\\ntype VisitorStatus = 'Not Arrived' | 'Checked In' | 'Checked Out';\\ntype Visitor = { id: number; name: string; company: string; status: VisitorStatus };\\n\\ntype FilterOption = 'All' | 'Checked In' | 'Not Arrived';\\n\\nexport default function VisitorCheckIn() {\\n  const [visitors, setVisitors] = useState<Visitor[]>(INITIAL_VISITORS);\\n  const [filter, setFilter] = useState<FilterOption>('All');\\n\\n  const updateStatus = (id: number, status: VisitorStatus) => {\\n    setVisitors((prev) =>\\n      prev.map((visitor) =>\\n        visitor.id === id ? { ...visitor, status } : visitor\\n      )\\n    );\\n  };\\n\\n  const filteredVisitors = visitors.filter((visitor) => {\\n    if (filter === 'All') return true;\\n    if (filter === 'Checked In') return visitor.status === 'Checked In';\\n    if (filter === 'Not Arrived') return visitor.status === 'Not Arrived';\\n    return true;\\n  });\\n\\n  return (\\n    <div style={{ padding: '1.5rem' }}>\\n      <h2>Visitor Check-In</h2>\\n      <div style={{ marginBottom: '1rem' }}>\\n        <button onClick={() => setFilter('All')}>All</button>{' '}\\n        <button onClick={() => setFilter('Checked In')}>Checked In</button>{' '}\\n        <button onClick={() => setFilter('Not Arrived')}>Not Arrived</button>\\n      </div>\\n      <table style={{ width: '100%', borderCollapse: 'collapse' }}>\\n        <thead>\\n          <tr>\\n            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc' }}>Name</th>\\n            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc' }}>Company</th>\\n            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc' }}>Status</th>\\n            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc' }}>Actions</th>\\n          </tr>\\n        </thead>\\n        <tbody>\\n          {filteredVisitors.map((visitor) => (\\n            <tr key={visitor.id}>\\n              <td>{visitor.name}</td>\\n              <td>{visitor.company}</td>\\n              <td>{visitor.status}</td>\\n              <td>\\n                {visitor.status !== 'Checked In' && (\\n                  <button onClick={() => updateStatus(visitor.id, 'Checked In')}>\\n                    Check In\\n                  </button>\\n                )}\\n                {visitor.status === 'Checked In' && (\\n                  <button onClick={() => updateStatus(visitor.id, 'Checked Out')}>\\n                    Check Out\\n                  </button>\\n                )}\\n              </td>\\n            </tr>\\n          ))}\\n        </tbody>\\n      </table>\\n    </div>\\n  );\\n}\\n",
+  "browserTests": [
+    {
+      "name": "Renders initial visitors",
+      "selector": "tbody tr",
+      "count": 3
+    },
+    {
+      "name": "Can check in a not arrived visitor",
+      "actions": [
+        { "selector": "button:has-text('Check In')", "action": "click" }
+      ],
+      "then": {
+        "selector": "tbody tr:nth-of-type(1) td:nth-of-type(3)",
+        "contains": "Checked In"
+      }
+    },
+    {
+      "name": "Can check out a checked in visitor",
+      "actions": [
+        { "selector": "button:has-text('Check Out')", "action": "click" }
+      ],
+      "then": {
+        "selector": "tbody tr:nth-of-type(2) td:nth-of-type(3)",
+        "contains": "Checked Out"
+      }
+    },
+    {
+      "name": "Filter Checked In shows only checked in visitors",
+      "actions": [
+        { "selector": "button:has-text('Checked In')", "action": "click" }
+      ],
+      "then": {
+        "selector": "tbody tr",
+        "count": 1
+      }
+    },
+    {
+      "name": "Filter Not Arrived shows only not arrived visitors",
+      "actions": [
+        { "selector": "button:has-text('Not Arrived')", "action": "click" }
+      ],
+      "then": {
+        "selector": "tbody tr",
+        "count": 2
+      }
+    },
+    {
+      "name": "Filter All shows all visitors",
+      "actions": [
+        { "selector": "button:has-text('Not Arrived')", "action": "click" },
+        { "selector": "button:has-text('All')", "action": "click" }
+      ],
+      "then": {
+        "selector": "tbody tr",
+        "count": 3
+      }
+    }
+  ],
+  "hints": [
+    "Start by copying INITIAL_VISITORS into a piece of state so you can update statuses without changing the constant.",
+    "Keep the current filter in its own piece of state, such as a union type 'All' | 'Checked In' | 'Not Arrived'.",
+    "Use Array.prototype.map to return a new visitors array when updating a single visitor's status.",
+    "Derive a filteredVisitors array based on the current filter before rendering rows.",
+    "Buttons for 'All', 'Checked In', and 'Not Arrived' can simply call setFilter with the appropriate value."
+  ]
+}

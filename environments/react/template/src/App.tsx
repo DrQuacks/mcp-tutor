@@ -1,11 +1,11 @@
 import './App.css'
-import FilterableDataTable from './exercises/FilterableDataTable'
+import SportsTeamSelector from './exercises/SportsTeamSelector'
 
 function App() {
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: Filterable Data Table</h1>
-      <FilterableDataTable />
+    <div style={{ padding: '2rem' }}>
+      <h1>React Exercise: Nested Sports &amp; Teams</h1>
+      <SportsTeamSelector />
     </div>
   )
 }

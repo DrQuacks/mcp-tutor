@@ -1,0 +1,71 @@
+{
+  "id": "react-nested-sports-checkboxes",
+  "title": "Nested Sports & Teams Checkboxes",
+  "environment": "react",
+  "filePath": "src/exercises/SportsTeamSelector.tsx",
+  "description": "Build a nested checkbox UI for selecting sports and their teams. Each sport type has child teams. Checking a sport should check all its teams; unchecking any team should uncheck the sport; and when all teams under a sport are checked, the sport should become checked as well. This exercise practices working with hierarchical data, derived state, and checkbox handling.",
+  "requirements": [
+    "Define two local arrays: one for sports types and one for teams.",
+    "Each sport type should have: id (number), name (string), and a list of teamIds: number[].",
+    "Each team should have: id (number) and name (string).",
+    "Render a nested list where each sport type is a parent row with its own checkbox and label.",
+    "Under each sport type, render its teams as child rows, each with its own checkbox and label.",
+    "Use React.useState to track which sports and teams are currently checked.",
+    "When a sport type's checkbox is checked, all of its teams should become checked.",
+    "When a sport type's checkbox is unchecked, all of its teams should become unchecked.",
+    "When any team under a sport is unchecked, that sport type should become unchecked.",
+    "When all teams under a sport are checked, that sport type should become checked.",
+    "Do not duplicate data between sports and teams; use the teamIds list on each sport to relate them.",
+    "Export the SportsTeamSelector component as the default export."
+  ],
+  "starterCode": "import { useState } from 'react';\\n\\n// Teams live in a flat list\\nconst TEAMS = [\\n  { id: 1, name: 'Lakers' },\\n  { id: 2, name: 'Warriors' },\\n  { id: 3, name: 'Celtics' },\\n  { id: 4, name: 'Bulls' },\\n  { id: 5, name: 'FC Barcelona' },\\n  { id: 6, name: 'Real Madrid' },\\n  { id: 7, name: 'Liverpool' },\\n  { id: 8, name: 'Manchester City' },\\n  { id: 9, name: 'Yankees' },\\n  { id: 10, name: 'Red Sox' },\\n  { id: 11, name: 'Dodgers' },\\n  { id: 12, name: 'Patriots' },\\n  { id: 13, name: 'Chiefs' },\\n  { id: 14, name: '49ers' },\\n  { id: 15, name: 'Eagles' }\\n];\\n\\n// Sports reference teams by id\\nconst SPORTS = [\\n  { id: 1, name: 'Basketball', teamIds: [1, 2, 3, 4] },\\n  { id: 2, name: 'Soccer', teamIds: [5, 6, 7, 8] },\\n  { id: 3, name: 'Baseball', teamIds: [9, 10, 11] },\\n  { id: 4, name: 'American Football', teamIds: [12, 13, 14, 15] }\\n];\\n\\ntype Team = { id: number; name: string };\\ntype Sport = { id: number; name: string; teamIds: number[] };\\n\\nexport default function SportsTeamSelector() {\\n  // TODO: track which sports are checked and which teams are checked\\n  // Hint: you can use a Set of ids in state, or a Record<number, boolean> for each level\\n  // TODO: derive parent checked state from its teams when rendering\\n  // TODO: implement handlers so parent and child checkboxes stay in sync as described in the exercise\\n\\n  return (\\n    <div style={{ padding: '1.5rem' }}>\\n      <h2>Sports & Teams</h2>\\n      {/* TODO: render nested checkboxes for sports and teams */}\\n    </div>\\n  );\\n}\\n",
+  "solutionCode": "import { useState } from 'react';\\n\\nconst TEAMS = [\\n  { id: 1, name: 'Lakers' },\\n  { id: 2, name: 'Warriors' },\\n  { id: 3, name: 'Celtics' },\\n  { id: 4, name: 'Bulls' },\\n  { id: 5, name: 'FC Barcelona' },\\n  { id: 6, name: 'Real Madrid' },\\n  { id: 7, name: 'Liverpool' },\\n  { id: 8, name: 'Manchester City' },\\n  { id: 9, name: 'Yankees' },\\n  { id: 10, name: 'Red Sox' },\\n  { id: 11, name: 'Dodgers' },\\n  { id: 12, name: 'Patriots' },\\n  { id: 13, name: 'Chiefs' },\\n  { id: 14, name: '49ers' },\\n  { id: 15, name: 'Eagles' }\\n];\\n\\nconst SPORTS = [\\n  { id: 1, name: 'Basketball', teamIds: [1, 2, 3, 4] },\\n  { id: 2, name: 'Soccer', teamIds: [5, 6, 7, 8] },\\n  { id: 3, name: 'Baseball', teamIds: [9, 10, 11] },\\n  { id: 4, name: 'American Football', teamIds: [12, 13, 14, 15] }\\n];\\n\\ntype Team = { id: number; name: string };\\ntype Sport = { id: number; name: string; teamIds: number[] };\\n\\nexport default function SportsTeamSelector() {\\n  const [checkedTeams, setCheckedTeams] = useState<Set<number>>(new Set());\\n\\n  const isTeamChecked = (teamId: number) => checkedTeams.has(teamId);\\n\\n  const areAllTeamsForSportChecked = (sport: Sport) =>\\n    sport.teamIds.every((id) => checkedTeams.has(id));\\n\\n  const handleSportChange = (sport: Sport, checked: boolean) => {\\n    setCheckedTeams((prev) => {\\n      const next = new Set(prev);\\n      for (const id of sport.teamIds) {\\n        if (checked) {\\n          next.add(id);\\n        } else {\\n          next.delete(id);\\n        }\\n      }\\n      return next;\\n    });\\n  };\\n\\n  const handleTeamChange = (teamId: number, checked: boolean) => {\\n    setCheckedTeams((prev) => {\\n      const next = new Set(prev);\\n      if (checked) {\\n        next.add(teamId);\\n      } else {\\n        next.delete(teamId);\\n      }\\n      return next;\\n    });\\n  };\\n\\n  const getTeamsForSport = (sport: Sport): Team[] =>\\n    TEAMS.filter((team) => sport.teamIds.includes(team.id));\\n\\n  return (\\n    <div style={{ padding: '1.5rem' }}>\\n      <h2>Sports & Teams</h2>\\n      <ul style={{ listStyle: 'none', paddingLeft: 0 }}>\\n        {SPORTS.map((sport) => {\\n          const sportChecked = areAllTeamsForSportChecked(sport);\\n          const teams = getTeamsForSport(sport);\\n          return (\\n            <li key={sport.id} style={{ marginBottom: '0.75rem' }}>\\n              <label style={{ fontWeight: 'bold' }}>\\n                <input\\n                  type=\"checkbox\"\\n                  checked={sportChecked}\\n                  onChange={(e) =>\\n                    handleSportChange(sport, e.currentTarget.checked)\\n                  }\\n                />\\n                {sport.name}\\n              </label>\\n              <ul style={{ listStyle: 'none', paddingLeft: '1.5rem', marginTop: '0.25rem' }}>\\n                {teams.map((team) => (\\n                  <li key={team.id}>\\n                    <label>\\n                      <input\\n                        type=\"checkbox\"\\n                        checked={isTeamChecked(team.id)}\\n                        onChange={(e) =>\\n                          handleTeamChange(team.id, e.currentTarget.checked)\\n                        }\\n                      />\\n                      {team.name}\\n                    </label>\\n                  </li>\\n                ))}\\n              </ul>\\n            </li>\\n          );\\n        })}\\n      </ul>\\n    </div>\\n  );\\n}\\n",
+  "browserTests": [
+    {
+      "name": "Renders both sports",
+      "selector": "label:has-text('Basketball')",
+      "exists": true
+    },
+    {
+      "name": "Checking a sport checks all its teams",
+      "actions": [
+        { "selector": "label:has-text('Basketball') input[type='checkbox']", "action": "click" }
+      ],
+      "then": {
+        "selector": "label:has-text('Lakers') input[type='checkbox']",
+        "expected": "checked"
+      }
+    },
+    {
+      "name": "Unchecking a team unchecks the parent sport",
+      "actions": [
+        { "selector": "label:has-text('Basketball') input[type='checkbox']", "action": "click" },
+        { "selector": "label:has-text('Lakers') input[type='checkbox']", "action": "click" }
+      ],
+      "then": {
+        "selector": "label:has-text('Basketball') input[type='checkbox']",
+        "expected": "unchecked"
+      }
+    },
+    {
+      "name": "Checking all teams checks the parent sport",
+      "actions": [
+        { "selector": "label:has-text('Lakers') input[type='checkbox']", "action": "click" },
+        { "selector": "label:has-text('Warriors') input[type='checkbox']", "action": "click" },
+        { "selector": "label:has-text('Celtics') input[type='checkbox']", "action": "click" },
+        { "selector": "label:has-text('Bulls') input[type='checkbox']", "action": "click" }
+      ],
+      "then": {
+        "selector": "label:has-text('Basketball') input[type='checkbox']",
+        "expected": "checked"
+      }
+    }
+  ],
+  "hints": [
+    "Keep sports and teams in separate arrays, and use teamIds on each sport to relate them.",
+    "Consider using a Set<number> in state to track checked team ids; Sets make adding/removing ids straightforward.",
+    "A sport is checked when all of its teamIds are present in the checkedTeams Set.",
+    "When a sport checkbox is toggled, add or remove all of its teamIds from the checkedTeams Set.",
+    "When a team checkbox is toggled, add or remove just that team id, and derive the sport's checked state from the updated Set instead of storing it separately."
+  ]
+}
