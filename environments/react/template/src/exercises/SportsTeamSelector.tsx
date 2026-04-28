@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // Teams live in a flat list
-const TEAMS = [
+const TEAMS:Team[] = [
   { id: 1, name: 'Lakers' },
   { id: 2, name: 'Warriors' },
   { id: 3, name: 'Celtics' },
@@ -20,7 +20,7 @@ const TEAMS = [
 ];
 
 // Sports reference teams by id
-const SPORTS = [
+const SPORTS:Sport[] = [
   { id: 1, name: 'Basketball', teamIds: [1, 2, 3, 4] },
   { id: 2, name: 'Soccer', teamIds: [5, 6, 7, 8] },
   { id: 3, name: 'Baseball', teamIds: [9, 10, 11] },
@@ -29,6 +29,10 @@ const SPORTS = [
 
 type Team = { id: number; name: string };
 type Sport = { id: number; name: string; teamIds: number[] };
+
+function ListRow() {
+  
+}
 
 export default function SportsTeamSelector() {
   // TODO: track which sports are checked and which teams are checked
@@ -40,6 +44,21 @@ export default function SportsTeamSelector() {
     <div style={{ padding: '1.5rem' }}>
       <h2>Sports &amp; Teams</h2>
       {/* TODO: render nested checkboxes for sports and teams */}
+      <ul>
+      {SPORTS.map(sport => {
+        const includedTeams = TEAMS.filter(team => {
+          return sport.teamIds.includes(team.id)
+        })
+        return(
+          <li>
+            {sport.name}
+            <ul>
+              {includedTeams.map(team => <li>{team.name}</li>)}
+            </ul>
+          </li>
+        )
+      })}
+      </ul>
     </div>
   );
 }

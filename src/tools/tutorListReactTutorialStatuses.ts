@@ -1,8 +1,8 @@
-import { getAllTutorialStatuses } from "../shared/tutorialStatus";
+import { getAllTutorialStatuses } from "../shared/tutorialStatus.js";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { EXERCISES_ROOT } from "../shared/constants";
-import type { ToolResponse } from "../shared/types";
+import { EXERCISES_ROOT } from "../shared/constants.js";
+import type { ToolResponse } from "../shared/types.js";
 
 /**
  * Tool endpoint: Lists all React tutorial statuses for the user (not-started, in-progress, completed)
