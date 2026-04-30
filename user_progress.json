@@ -633,6 +633,66 @@
       "hintsUsed": 0,
       "solutionViewed": false,
       "overrideCompleted": true
+    },
+    {
+      "exerciseId": "react-nested-sports-checkboxes",
+      "title": "Nested Sports & Teams Checkboxes",
+      "environment": "react",
+      "passed": false,
+      "date": "2026-04-30T18:46:16.876Z",
+      "testsPassed": 0,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "react-nested-sports-checkboxes",
+      "title": "Nested Sports & Teams Checkboxes",
+      "environment": "react",
+      "passed": false,
+      "date": "2026-04-30T18:49:24.076Z",
+      "testsPassed": 0,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "react-nested-sports-checkboxes",
+      "title": "Nested Sports & Teams Checkboxes",
+      "environment": "react",
+      "passed": false,
+      "date": "2026-04-30T18:55:15.806Z",
+      "testsPassed": 1,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "react-nested-sports-checkboxes",
+      "title": "Nested Sports & Teams Checkboxes",
+      "environment": "react",
+      "passed": false,
+      "date": "2026-04-30T18:56:03.546Z",
+      "testsPassed": 1,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "react-nested-sports-checkboxes",
+      "title": "Nested Sports & Teams Checkboxes",
+      "environment": "react",
+      "passed": true,
+      "date": "2026-04-30T18:56:54.666Z",
+      "testsPassed": 4,
+      "testsTotal": 4,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
     }
   ]
 }

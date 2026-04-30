@@ -258,15 +258,29 @@ export async function tutorReactCheckSolution({
               throw new Error(`Expected element to ${test.then.exists ? 'exist' : 'not exist'}, but it ${exists ? 'exists' : 'does not exist'}`);
             }
           } else {
-            const text = await element.textContent();
-            
-            if (test.then.contains) {
+            if (test.then.expected === "checked" || test.then.expected === "unchecked") {
+              const isChecked = await element.evaluate((el) => {
+                if (el instanceof HTMLInputElement) {
+                  return el.checked;
+                }
+                throw new Error("Expected selector to target an input element for checked/unchecked assertion");
+              });
+
+              const shouldBeChecked = test.then.expected === "checked";
+              if (isChecked !== shouldBeChecked) {
+                throw new Error(`Expected "${test.then.expected}", but got "${isChecked ? "checked" : "unchecked"}"`);
+              }
+            } else {
+              const text = await element.textContent();
+
+              if (test.then.contains) {
               if (!text?.includes(test.then.contains)) {
                 throw new Error(`Expected text to contain "${test.then.contains}", but got "${text}"`);
               }
-            } else if (test.then.expected) {
-              if (text?.trim() !== test.then.expected) {
-                throw new Error(`Expected "${test.then.expected}", but got "${text}"`);
+              } else if (test.then.expected) {
+                if (text?.trim() !== test.then.expected) {
+                  throw new Error(`Expected "${test.then.expected}", but got "${text}"`);
+                }
               }
             }
           }
