@@ -142,6 +142,12 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
         .describe(
           "Difficulty mode. 'normal' (default): minimal starter code without TODO comments. 'easy': includes helpful TODO comments as hints in the code."
         ),
+      archiveExisting: z
+        .boolean()
+        .optional()
+        .describe(
+          "Whether to archive existing exercise files before writing the fresh starter file. Defaults to true."
+        ),
     }),
     handler: async (params) => tutorReactExercisePrompt(params),
   },

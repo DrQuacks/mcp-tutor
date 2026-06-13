@@ -14,9 +14,15 @@
 import { useState } from 'react';
 
 function Counter() {
+  // TODO: Add state management here
+  const [count,setCount] = useState<number>(0)
   
   return (
     <div>
+      {/* TODO: Display count and add buttons */}
+      <button onClick={()=>{setCount(prev=>prev+1)}}>Increment</button>
+      <button onClick={()=>{setCount(0)}}>Reset</button>
+      <span>{count}</span>
     </div>
   );
 }

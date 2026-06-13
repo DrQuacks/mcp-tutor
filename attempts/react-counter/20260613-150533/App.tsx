@@ -3,8 +3,8 @@ import Counter from './exercises/Counter'
 
 function App() {
   return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>React Exercise: React Counter Component</h1>
+    <div style={{ padding: '2rem' }}>
+      <h1>React Exercise: Counter</h1>
       <Counter />
     </div>
   )

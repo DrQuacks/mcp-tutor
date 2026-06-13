@@ -10,9 +10,11 @@ import type { ToolResponse } from "../shared/types.js";
 export async function tutorReactExercisePrompt({
   exerciseId,
   mode = "normal",
+  archiveExisting = true,
 }: {
   exerciseId: string;
   mode?: "normal" | "easy";
+  archiveExisting?: boolean;
 }): Promise<ToolResponse> {
   const exercisePath = path.join(EXERCISES_ROOT, `${exerciseId}.json`);
 
@@ -108,6 +110,41 @@ export async function tutorReactExercisePrompt({
   
   starterCodeWithHeader += starterCode;
 
+  const archiveEntries: Array<{ sourcePath: string; label: string }> = [];
+  if (archiveExisting) {
+    const currentFiles = [
+      { sourcePath: filePath, label: path.basename(filePath) },
+    ];
+
+    if (exerciseData.environment === "react") {
+      const appPath = path.join(REACT_ENV_ROOT, "src", "App.tsx");
+      currentFiles.push({ sourcePath: appPath, label: "App.tsx" });
+    }
+
+    const archiveStamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const archiveDir = path.join(process.cwd(), "attempts", exerciseId, archiveStamp);
+
+    for (const entry of currentFiles) {
+      try {
+        const existingContent = await fs.readFile(entry.sourcePath, "utf8");
+        const nextContent = entry.sourcePath === filePath
+          ? starterCodeWithHeader
+          : exerciseData.environment === "react"
+            ? `import './App.css'\nimport ${path.basename(exerciseData.filePath, path.extname(exerciseData.filePath))} from './exercises/${path.basename(exerciseData.filePath, path.extname(exerciseData.filePath))}'\n\nfunction App() {\n  return (\n    <div style={{ padding: '2rem', textAlign: 'center' }}>\n      <h1>React Exercise: ${exerciseData.title}</h1>\n      <${path.basename(exerciseData.filePath, path.extname(exerciseData.filePath))} />\n    </div>\n  )\n}\n\nexport default App\n`
+            : "";
+
+        if (existingContent !== nextContent) {
+          const archiveFilePath = path.join(archiveDir, entry.label);
+          await fs.mkdir(path.dirname(archiveFilePath), { recursive: true });
+          await fs.copyFile(entry.sourcePath, archiveFilePath);
+          archiveEntries.push({ sourcePath: entry.sourcePath, label: archiveFilePath });
+        }
+      } catch {
+        // No existing file to archive; skip.
+      }
+    }
+  }
+
   try {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, starterCodeWithHeader, "utf8");
@@ -173,6 +210,17 @@ export default App
   if (mode === "easy") {
     lines.push("");
     lines.push("✨ **Easy mode**: Starter code includes helpful TODO comments to guide you.");
+  }
+  if (archiveEntries.length > 0) {
+    lines.push("");
+    lines.push("## 🗄️ Archived Previous Work");
+    lines.push("");
+    lines.push("I preserved your previous attempt in:");
+    lines.push("");
+    for (const entry of archiveEntries) {
+      lines.push("- `" + entry.label + "`");
+    }
+    lines.push("");
   }
   lines.push("");
   
