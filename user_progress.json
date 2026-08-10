@@ -801,6 +801,42 @@
       "hintsUsed": 0,
       "solutionViewed": false,
       "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-count-vowels",
+      "title": "Count Vowels",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T04:11:54.748Z",
+      "testsPassed": 2,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-count-vowels",
+      "title": "Count Vowels",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T04:14:27.180Z",
+      "testsPassed": 4,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-count-vowels",
+      "title": "Count Vowels",
+      "environment": "node",
+      "passed": true,
+      "date": "2026-08-10T04:17:16.515Z",
+      "testsPassed": 5,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
     }
   ]
 }

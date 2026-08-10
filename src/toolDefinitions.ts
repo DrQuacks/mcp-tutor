@@ -23,6 +23,7 @@ import { tutorValidateTutorialJSON } from "./tools/tutorValidateTutorialJSON.js"
 import { tutorRespondToStudent } from "./tools/tutorRespondToStudent.js";
 import { tutorGenerateSessionState } from "./tools/tutorGenerateSessionState.js";
 import { tutorValidateExerciseRequirements } from "./tools/tutorValidateExerciseRequirements.js";
+import { tutorValidateNodeExerciseTests } from "./tools/tutorValidateNodeExerciseTests.js";
 import { tutorListReactTutorialStatuses } from "./tools/tutorListReactTutorialStatuses.js";
 import { seniorDev_start_mode } from "./tools/seniorDev_start_mode.js";
 import { seniorDev_analyze_skills } from "./tools/seniorDev_analyze_skills.js";
@@ -534,6 +535,29 @@ export const TOOL_DEFINITIONS: ToolDefinition[] = [
     description: tutorValidateExerciseRequirements.description,
     inputSchema: tutorValidateExerciseRequirements.inputSchema,
     handler: async (params) => tutorValidateExerciseRequirements.execute(params),
+  },
+  {
+    name: "tutor_validate_node_exercise_tests",
+    role: "author",
+    description: `
+  Validates Node exercise test expectations by executing the exercise's solutionCode and comparing actual outputs against each test's expected value.
+
+  Use this immediately after creating a Node exercise JSON to catch incorrect expected values before students run into them.
+
+  If autoFix=true, mismatched expected values (for non-throwing tests) are updated in the exercise JSON file.
+  `.trim(),
+    inputSchema: z.object({
+      exerciseId: z
+        .string()
+        .describe("The Node exercise ID to validate, e.g. 'node-sum-array'."),
+      autoFix: z
+        .boolean()
+        .optional()
+        .describe(
+          "If true, updates mismatched expected values to match solutionCode output when possible. Default: false"
+        ),
+    }),
+    handler: async (params) => tutorValidateNodeExerciseTests(params),
   },
   // --- Progress and environment tools ---
   {

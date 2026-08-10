@@ -1,0 +1,46 @@
+{
+  "title": "Count Vowels",
+  "description": "Write a function that takes a string and returns how many vowels it contains. Count both uppercase and lowercase vowels. The vowels are: a, e, i, o, u.\n\nExamples:\n- Input: \"hello\" → Output: 2\n- Input: \"JAVASCRIPT\" → Output: 3\n- Input: \"rhythm\" → Output: 0\n- Input: \"\" → Output: 0",
+  "environment": "node",
+  "filePath": "src/exercises/countVowels.js",
+  "requirements": [
+    "Create a function named `countVowels` that takes a string as a parameter",
+    "Return the number of vowels in the string",
+    "Count vowels regardless of case (uppercase and lowercase)",
+    "Return 0 for an empty string"
+  ],
+  "hints": [
+    "Convert the string to lowercase before checking characters",
+    "Loop through each character and test if it is one of a, e, i, o, u",
+    "Keep a counter variable and increment when you find a vowel"
+  ],
+  "starterCode": "// Write your countVowels function here\n\nmodule.exports = countVowels;\n",
+  "solutionCode": "function countVowels(str) {\n  let count = 0;\n  const vowels = 'aeiou';\n  const lower = str.toLowerCase();\n\n  for (let i = 0; i < lower.length; i++) {\n    if (vowels.includes(lower[i])) {\n      count++;\n    }\n  }\n\n  return count;\n}\n\nmodule.exports = countVowels;\n",
+  "tests": [
+    {
+      "name": "Counts vowels in lowercase word",
+      "input": "hello",
+      "expected": 2
+    },
+    {
+      "name": "Counts vowels in uppercase word",
+      "input": "JAVASCRIPT",
+      "expected": 3
+    },
+    {
+      "name": "Returns 0 when no vowels are present",
+      "input": "rhythm",
+      "expected": 0
+    },
+    {
+      "name": "Returns 0 for empty string",
+      "input": "",
+      "expected": 0
+    },
+    {
+      "name": "Handles mixed-case sentence",
+      "input": "OpenAI is Awesome",
+      "expected": 9
+    }
+  ]
+}
