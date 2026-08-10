@@ -86,24 +86,35 @@ export async function tutorNodeCheckSolution({
       vm.createContext(sandbox);
       vm.runInContext(codeToRun, sandbox, { timeout: 1000 });
 
-      // Get the exported function (handle both CommonJS and ES6 exports)
-      // First try sandbox.exports (for ES6 transpiled to CommonJS)
-      // Then try module.exports (for direct CommonJS)
-      let func = sandbox.exports || sandbox.module.exports;
-      
-      // Handle ES6 export syntax
-      if (typeof func === 'object' && func !== null) {
-        // Look for the function in exports
+      // Resolve exported function (CommonJS + transpiled ES module interop)
+      // Prefer module.exports first to avoid false negatives when exports is a
+      // separate empty object in the sandbox.
+      const moduleExports = sandbox.module?.exports;
+      const namedExports = sandbox.exports;
+      let func: any;
+
+      if (typeof moduleExports === "function") {
+        func = moduleExports;
+      } else if (typeof namedExports === "function") {
+        func = namedExports;
+      } else {
         const functionName = exerciseData.filePath.split('/').pop()?.replace(/\.(ts|js)$/, '');
-        if (functionName && typeof func[functionName] === 'function') {
-          func = func[functionName];
-        } else {
-          // Try to find any exported function
-          const exportedFunc = Object.values(func).find(v => typeof v === 'function');
-          if (exportedFunc) {
-            func = exportedFunc;
+
+        const findExportedFunction = (candidate: any): any => {
+          if (!candidate || typeof candidate !== "object") return undefined;
+
+          if (functionName && typeof candidate[functionName] === "function") {
+            return candidate[functionName];
           }
-        }
+
+          if (typeof candidate.default === "function") {
+            return candidate.default;
+          }
+
+          return Object.values(candidate).find((value) => typeof value === "function");
+        };
+
+        func = findExportedFunction(moduleExports) ?? findExportedFunction(namedExports);
       }
       
       if (typeof func !== "function") {

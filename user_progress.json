@@ -693,6 +693,114 @@
       "hintsUsed": 0,
       "solutionViewed": false,
       "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:09:51.331Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:11:07.906Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:13:38.672Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:16:03.319Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:19:04.942Z",
+      "testsPassed": 0,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:25:29.318Z",
+      "testsPassed": 1,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:25:37.808Z",
+      "testsPassed": 1,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": false,
+      "date": "2026-08-10T02:28:24.995Z",
+      "testsPassed": 1,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
+    },
+    {
+      "exerciseId": "node-capitalize-words",
+      "title": "Capitalize Words",
+      "environment": "node",
+      "passed": true,
+      "date": "2026-08-10T02:31:57.597Z",
+      "testsPassed": 5,
+      "testsTotal": 5,
+      "hintsUsed": 0,
+      "solutionViewed": false,
+      "overrideCompleted": false
     }
   ]
 }

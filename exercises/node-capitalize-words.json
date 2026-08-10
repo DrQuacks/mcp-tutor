@@ -1,0 +1,47 @@
+{
+  "title": "Capitalize Words",
+  "description": "Write a function that takes a string and returns a new string where the first letter of every word is capitalized, and the rest of the letters in each word are lowercase.\n\nFor example:\n- Input: \"hello world\" → Output: \"Hello World\"\n- Input: \"the quick brown FOX\" → Output: \"The Quick Brown Fox\"\n- Input: \"already Capitalized\" → Output: \"Already Capitalized\"\n- Input: \"\" → Output: \"\"",
+  "environment": "node",
+  "filePath": "src/exercises/capitalizeWords.js",
+  "requirements": [
+    "Create a function named `capitalizeWords` that takes a string as a parameter",
+    "Return a new string where the first letter of each word is uppercase",
+    "All other letters in each word should be lowercase",
+    "Return an empty string if given an empty string"
+  ],
+  "hints": [
+    "You can split a string into words using .split(' ')",
+    "You can capitalize the first letter with .charAt(0).toUpperCase()",
+    "You can get the rest of the word with .slice(1).toLowerCase()",
+    "Join the words back together with .join(' ')"
+  ],
+  "starterCode": "// Write your capitalizeWords function here\n\nmodule.exports = capitalizeWords;\n",
+  "solutionCode": "function capitalizeWords(str) {\n  if (!str) return '';\n  return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');\n}\n\nmodule.exports = capitalizeWords;\n",
+  "tests": [
+    {
+      "name": "Capitalizes a simple two-word string",
+      "input": "hello world",
+      "expected": "Hello World"
+    },
+    {
+      "name": "Lowercases letters that aren't first",
+      "input": "the quick brown FOX",
+      "expected": "The Quick Brown Fox"
+    },
+    {
+      "name": "Handles already-capitalized words",
+      "input": "already Capitalized",
+      "expected": "Already Capitalized"
+    },
+    {
+      "name": "Returns empty string for empty input",
+      "input": "",
+      "expected": ""
+    },
+    {
+      "name": "Handles a single word",
+      "input": "javascript",
+      "expected": "Javascript"
+    }
+  ]
+}
