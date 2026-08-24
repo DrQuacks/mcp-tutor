@@ -8,7 +8,11 @@ export function buildTutorialStep({
   title,
   explanation,
   codeExample,
+  howToStart,
   task,
+  checkYourWork,
+  commonMistakes,
+  interviewThink,
   validation,
   diff,
   hints
@@ -17,7 +21,11 @@ export function buildTutorialStep({
   title: string;
   explanation: string;
   codeExample?: string;
+  howToStart?: string;
   task: string;
+  checkYourWork?: string[];
+  commonMistakes?: string[];
+  interviewThink?: string[];
   validation: { type: string; checks: any[] };
   diff?: any;
   hints?: string[];
@@ -27,7 +35,11 @@ export function buildTutorialStep({
     title,
     explanation,
     codeExample,
+    howToStart,
     task,
+    checkYourWork,
+    commonMistakes,
+    interviewThink,
     validation,
     hints,
     diff,
@@ -52,9 +64,35 @@ export function formatTutorialStepForUser(step: TutorialStep): string {
     lines.push("```");
     lines.push("");
   }
+  if (step.howToStart) {
+    lines.push(`### 🧭 How to Start`);
+    lines.push(step.howToStart);
+    lines.push("");
+  }
   if (step.task) {
     lines.push(`### ✏️ Your Task`);
     lines.push(step.task);
+    lines.push("");
+  }
+  if (step.checkYourWork && step.checkYourWork.length > 0) {
+    lines.push("### ✅ Check Your Work");
+    for (const item of step.checkYourWork) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+  if (step.commonMistakes && step.commonMistakes.length > 0) {
+    lines.push("### ⚠️ Common Mistakes");
+    for (const item of step.commonMistakes) {
+      lines.push(`- ${item}`);
+    }
+    lines.push("");
+  }
+  if (step.interviewThink && step.interviewThink.length > 0) {
+    lines.push("### 🎯 Interview Think");
+    for (const item of step.interviewThink) {
+      lines.push(`- ${item}`);
+    }
     lines.push("");
   }
   return lines.join("\n");

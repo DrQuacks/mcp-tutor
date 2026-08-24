@@ -1,0 +1,156 @@
+{
+  "title": "Bobyard Intro: React to Canvas Mental Model",
+  "description": "A true beginner-friendly tutorial that teaches Canvas fundamentals through the React/D3 lens before performance topics. You’ll learn what the rendering context is, why Canvas is immediate-mode, and how to build your first minimal draw pipeline.",
+  "environment": "react",
+  "filePath": "src/exercises/BobyardCanvasIntro.tsx",
+  "starterCode": "import { useEffect, useRef } from 'react'\n\nexport default function BobyardCanvasIntro() {\n  const canvasRef = useRef<HTMLCanvasElement | null>(null)\n\n  useEffect(() => {\n    // We will build this step-by-step in the tutorial\n  }, [])\n\n  return (\n    <div style={{ width: '100%', height: '55vh', border: '1px solid #d4d4d8', borderRadius: 8 }}>\n      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />\n    </div>\n  )\n}\n",
+  "steps": [
+    {
+      "stepNumber": 1,
+      "title": "Understand the Drawing Context",
+      "explanation": "Let’s start with the biggest concept you were asking for.\n\nIn Canvas, the `<canvas>` element is just a rectangular pixel surface. By itself, it does not know how to draw shapes. To draw, you ask the browser for a **2D rendering context**.\n\nThink of it like this:\n- The canvas element = the whiteboard\n- The 2D context object = the marker and drawing toolkit\n\nIf you came from React or D3, this is different from declarative rendering. In React, you describe UI and React decides how to paint. In Canvas, *you* issue drawing commands directly through the context object.\n\nYour first goal is simply to obtain that context safely inside your effect. No fancy drawing yet.",
+      "codeExample": "// Generic idea (not your exact code):\n// 1) Get the element\n// 2) Ask browser for 2D drawing tools\n// 3) If tools aren't available, stop safely",
+      "howToStart": "Start literally one line at a time in your effect:\n1) Create a local variable for the element coming from the ref.\n2) Immediately guard: if that variable is missing, stop.\n3) From that element, request 2D tools from the browser.\n4) Guard again if those tools are unavailable.\n\nPause here and run—this step is only about getting access safely, not drawing yet.",
+      "task": "Inside your effect, read the canvas element from the ref and safely obtain the 2D drawing context. Add guard clauses so your code exits cleanly if either one is unavailable.",
+      "checkYourWork": [
+        "You have one variable for the element and one variable for 2D tools",
+        "You exit early if the element is missing",
+        "You exit early if the 2D tools object is missing",
+        "No drawing commands are required yet"
+      ],
+      "commonMistakes": [
+        "Trying to use drawing commands before checking for null",
+        "Skipping one of the guards and risking runtime errors",
+        "Mixing this setup with too many extra changes in step 1"
+      ],
+      "interviewThink": [
+        "How would you explain the difference between the canvas element and the drawing context object?",
+        "Why is defensive null-checking important in browser rendering code?"
+      ],
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "canvasRef.current",
+          "getContext('2d')",
+          "if (!canvas)",
+          "if (!ctx)"
+        ]
+      },
+      "hints": [
+        "Get the element first, then context second",
+        "Use early returns for null safety",
+        "Keep this step focused: no shape drawing yet"
+      ]
+    },
+    {
+      "stepNumber": 2,
+      "title": "Immediate-Mode Rendering: Clear Then Draw",
+      "explanation": "Now we cover the key mental model: **Canvas is immediate-mode**.\n\nImmediate-mode means pixels don’t remember your objects. If the scene changes, you don’t update a rectangle node like in SVG—you redraw the scene.\n\nThis usually follows a predictable pipeline:\n1) Clear the surface\n2) Draw current scene from data\n\nIn interview language: your scene data is the source of truth, while the canvas pixels are just a temporary projection of that state.",
+      "codeExample": "// Generic draw loop shape:\n// drawScene() {\n//   clearSurface()\n//   paintCurrentState()\n// }",
+      "howToStart": "Use your context from step 1 to define one named render routine.\nInside that routine, do exactly one operation first: clear the visible surface.\nThen call that routine once at the bottom of the effect.\n\nThink pipeline, not one-off commands.",
+      "task": "Create one drawing function that first clears the visible canvas region, then call that drawing function once for initial paint.",
+      "checkYourWork": [
+        "There is a named drawing function",
+        "The first statement in that function clears the surface",
+        "The function is invoked once for initial paint"
+      ],
+      "commonMistakes": [
+        "Calling clear logic outside the draw function",
+        "Forgetting to invoke draw after defining it",
+        "Using hard-coded sizes that do not match actual canvas dimensions"
+      ],
+      "interviewThink": [
+        "Why does immediate-mode naturally lead to clear-then-draw structure?",
+        "What is your source of truth: scene data or canvas pixels?"
+      ],
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "function draw",
+          "clearRect",
+          "draw()"
+        ]
+      },
+      "hints": [
+        "Put all drawing work behind one named function",
+        "Call clear before future drawing commands",
+        "Invoke it once after defining it"
+      ]
+    },
+    {
+      "stepNumber": 3,
+      "title": "Draw a Tiny Data-Driven Scene",
+      "explanation": "Before scaling to blueprints, prove the pattern with a tiny scene.\n\nThis step connects directly to your D3 background: iterate data and render visuals. The difference is that here you issue imperative commands (`fillRect`, paths, etc.) instead of relying on persistent DOM/SVG nodes.\n\nWe keep it intentionally small so the rendering pipeline stays understandable.",
+      "codeExample": "// Generic data-driven idea:\n// for each item in sceneData:\n//   choose style\n//   issue draw command",
+      "howToStart": "Create a tiny array near the top of the file with 2-3 items.\nEach item should include enough info to draw one shape (position, size, color).\nThen, inside draw, loop over items and render each one with the same pattern: set style, then draw.",
+      "task": "Add a small in-file array of 2-3 shape records (for example, simple rectangles). In your draw function, iterate that array and render each shape.",
+      "checkYourWork": [
+        "A small scene data array exists in the file",
+        "Your draw function loops through scene items",
+        "Each item is visibly rendered with style applied"
+      ],
+      "commonMistakes": [
+        "Putting data creation inside draw so it rebuilds every call",
+        "Forgetting to set style before drawing each item",
+        "Using a loop but never issuing draw commands inside it"
+      ],
+      "interviewThink": [
+        "How is this similar to D3 data-driven rendering?",
+        "What is the key difference compared to SVG element persistence?"
+      ],
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "const",
+          "map",
+          "for (",
+          "fillRect",
+          "fillStyle"
+        ]
+      },
+      "hints": [
+        "An explicit for-loop is fine; map is not required",
+        "Set style before each shape draw",
+        "Focus on correctness over abstractions"
+      ]
+    },
+    {
+      "stepNumber": 4,
+      "title": "Interview Reflection: Explain the Tradeoff",
+      "explanation": "This step turns implementation into interview communication.\n\nA strong frontend answer here is not just code—it’s being able to explain *why* Canvas is chosen for dense, high-frequency interaction scenarios and what architectural cost comes with it.\n\nYou should articulate:\n- What immediate-mode buys you\n- What responsibility it adds (manual redraw pipeline)",
+      "codeExample": "// Reflection prompt:\n// 'Canvas gives me X at scale, but I must own Y manually.'",
+      "howToStart": "Write this as if you’re answering an interviewer in 30 seconds.\nUse a short structure: definition, benefit, tradeoff.\nKeep it concrete to Bobyard-like workloads (many objects, frequent interaction).",
+      "task": "Add a short comment block named `Interview notes` with 3-5 lines explaining: (1) what the rendering context is, (2) what immediate-mode means, and (3) one benefit + one tradeoff for Bobyard-style workloads.",
+      "checkYourWork": [
+        "Your comment block is named `Interview notes`",
+        "You define rendering context in plain language",
+        "You explain immediate-mode clearly",
+        "You include one practical benefit and one practical tradeoff"
+      ],
+      "commonMistakes": [
+        "Giving abstract statements with no connection to real workload",
+        "Only listing benefits without tradeoffs",
+        "Writing implementation details instead of conceptual explanation"
+      ],
+      "interviewThink": [
+        "If object count grew 10x, which part of your pipeline becomes risky first?",
+        "How would you justify Canvas choice to a team that prefers DOM/SVG?"
+      ],
+      "validation": {
+        "type": "code-contains",
+        "checks": [
+          "Interview notes",
+          "context",
+          "immediate",
+          "benefit",
+          "tradeoff"
+        ]
+      },
+      "hints": [
+        "Use your own words, not textbook phrasing",
+        "Keep it concise and interview-ready",
+        "Mention many objects and frequent interactions"
+      ]
+    }
+  ]
+}

@@ -22,7 +22,11 @@ export interface TutorialStep {
   title: string;
   explanation: string; // Thorough explanation of the concept - WHY it exists, WHEN to use it
   codeExample?: string; // Optional generic code example showing the syntax/pattern
+  howToStart?: string; // Guided first-keystrokes style walkthrough (teaching-first)
   task: string; // Specific instructions for what the student should implement
+  checkYourWork?: string[]; // Concrete self-check checklist before validation
+  commonMistakes?: string[]; // Frequent mistakes to watch for during implementation
+  interviewThink?: string[]; // Optional interview-style reflection prompts
   validation: {
     type: "code-contains" | "code-runs" | "output-contains" | "browser-test";
     checks: string[] | any[]; // For code-contains: array of required strings. For browser-test: test objects

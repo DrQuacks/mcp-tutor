@@ -179,6 +179,14 @@
       ],
       "startedAt": "2026-02-26T18:00:58.739Z",
       "lastActivity": "2026-02-27T01:36:21.469Z"
+    },
+    {
+      "tutorialId": "bobyard-canvas-intro",
+      "title": "Bobyard Intro: React to Canvas Mental Model",
+      "currentStep": 1,
+      "completedSteps": [],
+      "startedAt": "2026-08-22T23:56:07.433Z",
+      "lastActivity": "2026-08-23T00:33:46.872Z"
     }
   ],
   "exercises": [
